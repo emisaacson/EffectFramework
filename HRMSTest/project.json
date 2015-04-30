@@ -1,0 +1,32 @@
+{
+    "version": "1.0.0-*",
+    "description": "",
+    "authors": [ "" ],
+    "tags": [ "" ],
+    "projectUrl": "",
+    "licenseUrl": "",
+
+    "dependencies": {
+        "xunit": "2.1.0-beta1-build2945",
+        "xunit.runner.aspnet": "2.1.0.0-beta1-build60",
+        "xunit.runner.visualstudio": "2.1.0.0-beta1-build1051",
+        "HRMSCore": "1.0.0-*",
+        "xunit.runner.console": "2.1.0-beta1-build2945"
+    },
+
+    "commands": {
+        "test": "xunit.runner.visualstudio"
+    },
+
+    "frameworks": {
+        "dnx451": { },
+        "dnxcore50": {
+            "dependencies": {
+                "System.Collections": "4.0.10-beta-22816",
+                "System.Linq": "4.0.0-beta-22816",
+                "System.Threading": "4.0.10-beta-22816",
+                "Microsoft.CSharp": "4.0.0-beta-22816"
+            }
+        }
+    }
+}
