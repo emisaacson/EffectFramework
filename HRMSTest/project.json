@@ -14,10 +14,6 @@
         "xunit.runner.console": "2.1.0-beta1-build2945"
     },
 
-    "commands": {
-        "test": "xunit.runner.visualstudio"
-    },
-
     "frameworks": {
         "dnx451": { },
         "dnxcore50": {

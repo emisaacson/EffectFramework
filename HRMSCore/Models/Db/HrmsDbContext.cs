@@ -37,6 +37,7 @@ namespace HRMS.Core.Models.Db
                 e.Key(er => er.EmployeeRecordID);
             });
 
+            builder.ForSqlServer().UseIdentity();
 
             builder.Entity<Employee>(e =>
             {
@@ -46,6 +47,8 @@ namespace HRMS.Core.Models.Db
                 });
 
                 e.Key(em => em.EmployeeID);
+
+                e.Property(em => em.EmployeeID).ForSqlServer().UseIdentity();
 
                 e.Collection(er => er.EmployeeRecords)
                     .InverseReference(em => em.Employee)
