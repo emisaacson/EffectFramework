@@ -14,7 +14,14 @@
         "libphonenumber-csharp": "7.0.5.3",
         "System.Reflection": "4.0.10-beta-22816",
         "System.Reflection.Extensions": "4.0.0-beta-22816",
-        "Humanizer": "1.35.0"
+        "Humanizer": "1.35.0",
+        "System.Runtime.InteropServices": "4.0.20-beta-22816",
+        "System.Reflection.Primitives": "4.0.0-beta-22816",
+        "System.Runtime.Serialization.Primitives": "4.0.10-beta-22816",
+        "System.Net.Http": "4.0.0-beta-22816",
+        "Microsoft.Net.Http": "2.2.22",
+        "Microsoft.AspNet.Authorization": "1.0.0-beta4",
+        "Microsoft.AspNet.Mvc.Core": "6.0.0-beta4"
     },
 
     "frameworks": {

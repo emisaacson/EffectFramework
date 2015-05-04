@@ -9,6 +9,6 @@ namespace HRMSCore.Models.Fields
     {
         protected int Value;
 
-        EntityField
+        //EntityField
     }
 }
