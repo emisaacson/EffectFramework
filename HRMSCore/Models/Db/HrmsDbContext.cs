@@ -10,6 +10,8 @@ namespace HRMS.Core.Models.Db
     {
         public DbSet<Employee> Employees { get; set; }
         public DbSet<EmployeeRecord> EmployeeRecords { get; set; }
+        public DbSet<Entity> Entities { get; set; }
+        public DbSet<EntityField> Fields { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
