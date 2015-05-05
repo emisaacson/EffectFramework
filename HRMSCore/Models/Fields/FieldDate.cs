@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace HRMS.Core.Models.Fields
 {
-    public class FieldString : FieldBase, IField
+    public class FieldDate : FieldBase, IField
     {
         public int? FieldID { get; private set; }
         public string Name { get; private set; }
@@ -30,19 +31,19 @@ namespace HRMS.Core.Models.Fields
             }
         }
 
-        public FieldString() { }
+        public FieldDate() { }
 
-        public FieldString(FieldType Type)
+        public FieldDate(FieldType Type)
             : this(Type, null)
         {
 
         }
 
-        public FieldString(FieldType Type, FieldBase Base)
+        public FieldDate(FieldType Type, FieldBase Base)
         {
-            if (Type.DataType != DataType.Text)
+            if (Type.DataType != DataType.Date)
             {
-                throw new ArgumentOutOfRangeException("Cannot create a string field from a non-string type.");
+                throw new ArgumentOutOfRangeException("Cannot create a date field from a non-date type.");
             }
             this.Type = Type;
             this.Name = Type.Name;
