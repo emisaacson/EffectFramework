@@ -9,8 +9,12 @@ namespace HRMS.Core.Services
 {
     public interface IPersistenceService
     {
-        void SaveSingleField(IEntity Entity, IField Field);
+        void SaveSingleField(EntityBase Entity, IField Field);
 
-        FieldT RetreiveSingleFieldOrDefault<FieldT>(IEntity Entity) where FieldT : IField, new();
+        FieldBase RetreiveSingleFieldOrDefault<FieldT>(EntityBase Entity) where FieldT : IField, new();
+
+        EntityT RetreiveSingleEntityOrDefault<EntityT>(Models.EmployeeRecord EmployeeRecord) where EntityT : EntityBase, new();
+        EntityT RetreiveSingleEntityOrDefault<EntityT>(int EmployeeRecordID) where EntityT : EntityBase, new();
+
     }
 }

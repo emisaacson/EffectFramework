@@ -9,8 +9,9 @@ namespace HRMS.Core.Models
 {
     public class Employee
     {
-        public IEnumerable<IEntity> AllEntities { get; private set; }
-        private Dictionary<EntityType, IEnumerable<IEntity>> AllEntitiesByType;
+        public IEnumerable<EntityBase> AllEntities { get; private set; }
+        private Dictionary<EntityType, IEnumerable<EntityBase>> AllEntitiesByType;
+        public int? EmployeeID { get; private set; }
 
         public SortedDictionary<DateTime, EmployeeRecord> EmployeeRecords { get; private set; }
 
@@ -34,9 +35,10 @@ namespace HRMS.Core.Models
         public Employee(int EmployeeID)
         {
             this.LoadByID(EmployeeID);
+            this.EmployeeID = EmployeeID;
         }
 
-        private void LoadByID(int employeeID)
+        private void LoadByID(int EmployeeID)
         {
             
         }

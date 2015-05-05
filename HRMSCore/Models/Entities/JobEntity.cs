@@ -6,11 +6,10 @@ using HRMS.Core.Models.Fields;
 
 namespace HRMS.Core.Models.Entities
 {
-    public class JobEntity : IEntity
+    public class JobEntity : EntityBase
     {
-        public int? EntityID { get; private set; }
-        public int? EmployeeID { get; private set; }
-        public EntityType Type
+
+        public override EntityType Type
         {
             get
             {

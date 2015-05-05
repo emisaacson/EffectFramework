@@ -9,10 +9,10 @@ namespace HRMS.Core.Models
 {
     public class EmployeeRecord
     {
-        public IEnumerable<IEntity> AllEntities {
+        public IEnumerable<EntityBase> AllEntities {
             get
             {
-                List<IEntity> Output = new List<IEntity>();
+                List<EntityBase> Output = new List<EntityBase>();
                 foreach (EntityType Entity in AllEntitiesByType.Keys)
                 {
                     Output.AddRange(AllEntitiesByType[Entity]);
@@ -20,12 +20,14 @@ namespace HRMS.Core.Models
                 return Output;
             }
         }
+
+        public int? EmployeeRecordID { get; private set; }
         public DateTime EffectiveDate { get; set; }
         public DateTime EndEffectiveDate { get; set; }
 
-        private Dictionary<EntityType, IEnumerable<IEntity>> AllEntitiesByType;
+        private Dictionary<EntityType, IEnumerable<EntityBase>> AllEntitiesByType;
 
-        public EntityT GetFirstEntityOrDefault<EntityT>() where EntityT : IEntity, new()
+        public EntityT GetFirstEntityOrDefault<EntityT>() where EntityT : EntityBase, new()
         {
             EntityT Instance = new EntityT();
             if (!AllEntitiesByType.ContainsKey(Instance.Type))
@@ -36,7 +38,7 @@ namespace HRMS.Core.Models
             return (EntityT)AllEntitiesByType[Instance.Type].First();
         }
 
-        public IEnumerable<EntityT> GetAllEntitiesOrDefault<EntityT>() where EntityT : IEntity, new()
+        public IEnumerable<EntityT> GetAllEntitiesOrDefault<EntityT>() where EntityT : EntityBase, new()
         {
             EntityT Instance = new EntityT();
             if (!AllEntitiesByType.ContainsKey(Instance.Type))
@@ -45,6 +47,22 @@ namespace HRMS.Core.Models
             }
 
             return (IEnumerable<EntityT>)AllEntitiesByType[Instance.Type];
+        }
+
+        public EmployeeRecord()
+        {
+
+        }
+
+        public EmployeeRecord(int EmployeeRecordID)
+        {
+            this.EmployeeRecordID = EmployeeRecordID;
+            this.LoadByID(EmployeeRecordID);
+        }
+
+        private void LoadByID(int EmployeeRecordID)
+        {
+
         }
     }
 }

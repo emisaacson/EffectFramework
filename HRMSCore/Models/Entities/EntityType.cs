@@ -9,15 +9,17 @@ namespace HRMS.Core.Models.Entities
     {
         public int Value { get; private set; }
         public string Name { get; private set; }
-        private EntityType(string Name, int Value)
+        public Type Type { get; private set; }
+        private EntityType(string Name, int Value, Type Type)
         {
             this.Value = Value;
             this.Name = Name;
+            this.Type = Type;
         }
 
-        public static readonly EntityType Job = new EntityType(Strings.Job, 1);
-        public static readonly EntityType Address = new EntityType(Strings.Job, 2);
-        public static readonly EntityType Employee_General = new EntityType(Strings.Employee_General, 3);
+        public static readonly EntityType Job = new EntityType(Strings.Job, 1, typeof(JobEntity));
+        public static readonly EntityType Address = new EntityType(Strings.Job, 2, typeof(AddressEntity));
+        public static readonly EntityType Employee_General = new EntityType(Strings.Employee_General, 3, typeof(EmployeeGeneralEntity));
 
         public static implicit operator int (EntityType dt)
         {

@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using HRMS.Core.Models.Db;
 using HRMS.Core.Models.Entities;
 using HRMS.Core.Models.Fields;
+using Microsoft.Data.Entity;
 
 namespace HRMS.Core.Services
 {
     public class EntityFrameworkPersistenceService : IPersistenceService
     {
-        public void SaveSingleField(IEntity Entity, IField Field)
+        public void SaveSingleField(EntityBase Entity, IField Field)
         {
             using (var db = new HrmsDbContext())
             {
@@ -78,7 +79,7 @@ namespace HRMS.Core.Services
             }
         }
 
-        public FieldT RetreiveSingleFieldOrDefault<FieldT>(IEntity Entity) where FieldT : IField, new()
+        public FieldBase RetreiveSingleFieldOrDefault<FieldT>(EntityBase Entity) where FieldT : IField, new()
         {
             if (Entity == null)
             {
@@ -96,18 +97,66 @@ namespace HRMS.Core.Services
                 var DbField = db.Fields.Where(f => f.EntityID == Entity.EntityID.Value &&
                                               f.FieldTypeID == FieldTypeID &&
                                               !f.IsDeleted).FirstOrDefault();
-                
+
                 if (DbField == null)
                 {
-                    return default(FieldT);
+                    return null;
                 }
 
                 FieldBase Base = new FieldBase(DbField.ValueText, DbField.ValueDate, DbField.ValueDecimal, DbField.ValueBoolean, DbField.ValueUser);
 
-                FieldT Output = new FieldT();
-                Output.LoadUpValues(Instance.Type, Base);
+                return Base;
+            }
+        }
 
-                return Output;
+        public EntityT RetreiveSingleEntityOrDefault<EntityT>(Models.EmployeeRecord EmployeeRecord) where EntityT : EntityBase, new()
+        {
+            if (EmployeeRecord == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (!EmployeeRecord.EmployeeRecordID.HasValue)
+            {
+                throw new ArgumentException("Cannot fetch an entity from an employee record with a null ID.");
+            }
+
+            return RetreiveSingleEntityOrDefault<EntityT>(EmployeeRecord.EmployeeRecordID.Value);
+        }
+
+        public EntityT RetreiveSingleEntityOrDefault<EntityT>(int EmployeeRecordID) where EntityT : EntityBase, new()
+        {
+            if (EmployeeRecordID < 1)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            EntityT Instance = new EntityT();
+
+            using (var db = new HrmsDbContext())
+            {
+                using (db.Database.AsRelational().Connection.BeginTransaction())
+                {
+                    var EntityIDs = db.EmployeeEntities
+                        .Where(er =>
+                            er.EmployeeRecordID == EmployeeRecordID &&
+                            !er.IsDeleted)
+                        .Select(er =>
+                            er.EntityID
+                        );
+
+                    var DbEntity = db.Entities
+                        .Where(e =>
+                            EntityIDs.Contains(e.EntityID) &&
+                            e.EntityTypeID == Instance.Type.Value)
+                        .FirstOrDefault();
+
+                    if (DbEntity != null)
+                    {
+                        EntityT Output = EntityFactory.GenerateEntityFromDbObject<EntityT>(DbEntity);
+                    }
+
+                    return default(EntityT);
+                }
             }
         }
     }
