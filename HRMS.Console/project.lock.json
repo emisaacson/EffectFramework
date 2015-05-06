@@ -3,7 +3,7 @@
   "version": -9998,
   "projectFileDependencyGroups": {
     "": [
-      "HRMSCore >= 1.0.0-*"
+      "HRMS.Core >= 1.0.0-*"
     ],
     "DNX,Version=v4.5.1": []
   },

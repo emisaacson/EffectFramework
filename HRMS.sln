@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "HRMS.Core", "HRMSCore\HRMS.Core.xproj", "{465AB1AE-6255-40E1-98F5-EFA0C07AF91E}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "HRMS.Core", "HRMS.Core\HRMS.Core.xproj", "{465AB1AE-6255-40E1-98F5-EFA0C07AF91E}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "HRMS.Console", "HRMSConsole\HRMS.Console.xproj", "{349AF312-30EF-440E-8D8D-CED333445EA1}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "HRMS.Console", "HRMS.Console\HRMS.Console.xproj", "{349AF312-30EF-440E-8D8D-CED333445EA1}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "HRMS.Test", "HRMS.Test\HRMS.Test.xproj", "{B4FE9CC5-655F-4F2E-AF19-D9F65852A423}"
 EndProject
