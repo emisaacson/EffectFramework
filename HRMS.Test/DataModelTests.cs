@@ -15,7 +15,7 @@ namespace HRMS.Test
 {
     // This project can output the Class library as a NuGet Package.
     // To enable this option, right-click on the project and select the Properties menu item. In the Build tab select "Produce outputs on build".
-    public class DBContextTests : IDisposable
+    public class DataModelTests : IDisposable
     {
         private List<Core.Models.Db.Employee> TempEmployees = new List<Core.Models.Db.Employee>();
         private List<Entity> TempEntity = new List<Entity>();
@@ -263,7 +263,7 @@ namespace HRMS.Test
             }
         }
 
-        public DBContextTests()
+        public DataModelTests()
         {
             PrepareEF7DatabaseIfRequired();
         }
