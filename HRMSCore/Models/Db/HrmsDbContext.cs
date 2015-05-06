@@ -14,10 +14,20 @@ namespace HRMS.Core.Models.Db
         public DbSet<EntityField> Fields { get; set; }
         public DbSet<EmployeeEntity> EmployeeEntities { get; set; }
 
+        public void usp_DeleteEntireDatabase(bool ForReal = false)
+        {
+            if (ForReal)
+            {
+                var Command = this.Database.AsRelational().Connection.DbConnection.CreateCommand();
+                Command.CommandText = "EXEC dbo.usp_DeleteEntireDatabase;";
+                Command.ExecuteNonQuery();
+            }
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Visual Studio 2015 | Use the LocalDb 12 instance created by Visual Studio
-            optionsBuilder.UseSqlServer(@"Server=EMIKEKDC02;Database=HRMS;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer(@"Server=EMIKEKDC02;Database=HRMS;Trusted_Connection=True;MultipleActiveResultSets=True;");
 
             // Visual Studio 2013 | Use the LocalDb 11 instance created by Visual Studio
             //optionsBuilder.UseSqlServer(@"Server=(localdb)\v11.0;Database=Blogging;Trusted_Connection=True;");
@@ -30,6 +40,8 @@ namespace HRMS.Core.Models.Db
         {
             base.OnModelCreating(builder);
 
+            builder.ForSqlServer().UseIdentity();
+
             builder.Entity<EmployeeRecord>(e =>
             {
                 e.ForRelational(rb =>
@@ -38,9 +50,10 @@ namespace HRMS.Core.Models.Db
                 });
 
                 e.Key(er => er.EmployeeRecordID);
-            });
 
-            builder.ForSqlServer().UseIdentity();
+                e.Property(er => er.EmployeeRecordID).ForSqlServer().UseIdentity();
+
+            });
 
             builder.Entity<Employee>(e =>
             {
@@ -68,13 +81,15 @@ namespace HRMS.Core.Models.Db
 
                 e.Key(en => en.EntityID);
 
+                e.Property(en => en.EntityID).ForSqlServer().UseIdentity();
+
                 e.Reference(em => em.Employee)
                     .InverseReference()
                     .ForeignKey<Entity>(en => en.EmployeeID);
 
                 e.Collection(en => en.EntityFields)
                     .InverseReference(ef => ef.Entity)
-                    .ForeignKey(ef => ef.EntityFieldID);
+                    .ForeignKey(ef => ef.EntityID);
             });
 
 
@@ -87,6 +102,7 @@ namespace HRMS.Core.Models.Db
 
                 e.Key(ef => ef.EntityFieldID);
 
+                e.Property(ef => ef.EntityFieldID).ForSqlServer().UseIdentity();
             });
                 
 
@@ -97,6 +113,9 @@ namespace HRMS.Core.Models.Db
                 });
 
                 e.Key(ee => ee.EmployeeEntityID);
+
+                e.Property(ee => ee.EmployeeEntityID).ForSqlServer().UseIdentity();
+
                 e.Index(ee => new { ee.EmployeeRecordID, ee.EmployeeEntityID });
             });
                 

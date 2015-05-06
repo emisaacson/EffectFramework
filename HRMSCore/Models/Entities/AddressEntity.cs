@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HRMS.Core.Services;
 
 namespace HRMS.Core.Models.Entities
 {
@@ -13,6 +14,19 @@ namespace HRMS.Core.Models.Entities
             {
                 return EntityType.Address;
             }
+        }
+
+        public AddressEntity() : base() { }
+
+        public AddressEntity(IPersistenceService PersistenceService)
+            : base(PersistenceService)
+        {
+
+        }
+
+        protected override void WireUpFields()
+        {
+            
         }
     }
 }

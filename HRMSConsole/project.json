@@ -15,7 +15,7 @@
     },
 
     "frameworks": {
-        "dnx451": { },
+        "dnx451": { } /*,
         "dnxcore50": {
             "dependencies": {
                 "System.Console": "4.0.0-beta-22816",
@@ -24,6 +24,6 @@
                 "System.Threading": "4.0.10-beta-22816",
                 "Microsoft.CSharp": "4.0.0-beta-22816"
             }
-        }
+        }*/
     }
 }

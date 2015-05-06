@@ -10,7 +10,5 @@ namespace HRMS.Core.Models.Fields
         object Value { get; set; }
         int? FieldID { get; }
         FieldType Type { get; }
-
-        void LoadUpValues(FieldType Type, FieldBase Base);
     }
 }

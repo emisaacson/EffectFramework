@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HRMS.Core.Models.Entities;
+using HRMS.Core.Services;
+using Ninject;
 
 namespace HRMS.Core.Models.Fields
 {
@@ -14,6 +17,7 @@ namespace HRMS.Core.Models.Fields
         protected decimal? ValueDecimal { get; set; }
         protected bool? ValueBool { get; set; }
         protected int? ValuePerson { get; set; }
+        protected readonly IPersistenceService PersistenceService;
 
         protected void LoadUpValues(FieldBase Base)
         {
@@ -24,7 +28,10 @@ namespace HRMS.Core.Models.Fields
             this.ValuePerson  = Base.ValuePerson;
         }
 
-        public FieldBase() { }
+        public FieldBase(IPersistenceService PersistenceService)
+        {
+            this.PersistenceService = PersistenceService;
+        }
 
         public FieldBase(string ValueString, DateTime? ValueDate, decimal? ValueDecimal, bool? ValueBool, int? ValuePerson)
         {
@@ -35,9 +42,16 @@ namespace HRMS.Core.Models.Fields
             this.ValuePerson  = ValuePerson;
         }
 
-        public void LoadUpValues(FieldType Type, FieldBase Base)
+        public FieldBase(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
         {
+            this.PersistenceService = PersistenceService;
             this.Type = Type;
+            LoadUpValues(Base);
+        }
+
+        public void FillFromDatabase(EntityBase Entity, FieldBase Field)
+        {
+            FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(Entity, Field.Type);
             LoadUpValues(Base);
         }
     }

@@ -312,3 +312,50 @@ INSERT [dbo].[EntityTypes] ([EntityTypeID], [Name]) VALUES (2, N'Address')
 GO
 INSERT [dbo].[EntityTypes] ([EntityTypeID], [Name]) VALUES (3, N'Employee General')
 GO
+
+/****** Object:  StoredProcedure [dbo].[usp_DeleteEntireDatabase]    Script Date: 5/5/2015 7:54:02 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[usp_DeleteEntireDatabase]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	BEGIN TRANSACTION deleteDatabase;
+
+	DELETE FROM EntityFields;
+
+	ALTER TABLE EmployeeRecords NOCHECK CONSTRAINT all;
+	ALTER TABLE EmployeeEntities NOCHECK CONSTRAINT all;
+	ALTER TABLE Employees NOCHECK CONSTRAINT all;
+	ALTER TABLE Entities NOCHECK CONSTRAINT all;
+
+	DELETE FROM Employees;
+	DELETE FROM EmployeeRecords;
+	DELETE FROM Entities;
+	DELETE FROM EmployeeEntities;
+
+	ALTER TABLE EmployeeRecords WITH CHECK CHECK CONSTRAINT all;
+	ALTER TABLE EmployeeEntities WITH CHECK CHECK CONSTRAINT all;
+	ALTER TABLE Employees WITH CHECK CHECK CONSTRAINT all;
+	ALTER TABLE Entities WITH CHECK CHECK CONSTRAINT all;
+
+	DBCC CHECKIDENT ('dbo.EntityFields',RESEED, 0);
+	DBCC CHECKIDENT ('dbo.Employees',RESEED, 0);
+	DBCC CHECKIDENT ('dbo.EmployeeRecords',RESEED, 0);
+	DBCC CHECKIDENT ('dbo.Entities',RESEED, 0);
+	DBCC CHECKIDENT ('dbo.EmployeeEntities',RESEED, 0);
+
+	COMMIT TRANSACTION deleteDatabase;
+
+END
+
+GO
+
+

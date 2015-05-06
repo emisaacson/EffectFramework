@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using HRMS.Core.Services;
 
 namespace HRMS.Core.Models.Fields
 {
@@ -10,11 +10,11 @@ namespace HRMS.Core.Models.Fields
     {
         public int? FieldID { get; private set; }
         public string Name { get; private set; }
-        public string Value
+        public DateTime Value
         {
             get
             {
-                return this.ValueString;
+                return this.ValueDate.Value;
             }
         }
 
@@ -22,7 +22,7 @@ namespace HRMS.Core.Models.Fields
         {
             get
             {
-                return this.ValueString;
+                return this.ValueDate.Value;
             }
 
             set
@@ -31,15 +31,18 @@ namespace HRMS.Core.Models.Fields
             }
         }
 
-        public FieldDate() { }
+        public FieldDate(IPersistenceService PersistenceService)
+            : base(PersistenceService)
+        { }
 
-        public FieldDate(FieldType Type)
-            : this(Type, null)
+        public FieldDate(FieldType Type, IPersistenceService PersistenceService)
+            : this(Type, null, PersistenceService)
         {
 
         }
 
-        public FieldDate(FieldType Type, FieldBase Base)
+        public FieldDate(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
+            : base(PersistenceService)
         {
             if (Type.DataType != DataType.Date)
             {

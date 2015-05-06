@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HRMS.Core.Services;
 
 namespace HRMS.Core.Models.Fields
 {
@@ -30,15 +31,18 @@ namespace HRMS.Core.Models.Fields
             }
         }
 
-        public FieldString() { }
+        public FieldString(IPersistenceService PersistenceService)
+            : base(PersistenceService)
+        { }
 
-        public FieldString(FieldType Type)
-            : this(Type, null)
+        public FieldString(FieldType Type, IPersistenceService PersistenceService)
+            : this(Type, null, PersistenceService)
         {
 
         }
 
-        public FieldString(FieldType Type, FieldBase Base)
+        public FieldString(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
+            : base(PersistenceService)
         {
             if (Type.DataType != DataType.Text)
             {

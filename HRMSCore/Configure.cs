@@ -4,19 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using HRMS.Core.Services;
 using Ninject;
+using Ninject.Modules;
 
 namespace HRMS.Core
 {
-    public static class Configure
+    public class Configure : NinjectModule
     {
-        public static void WireEntityFramework7()
+        public override void Load()
         {
-            using (IKernel kernel = new StandardKernel())
-            {
-                kernel.Bind<IPersistenceService>()
-                      .To<EntityFrameworkPersistenceService>()
-                      .InSingletonScope();
-            }
+            Kernel.Bind<IPersistenceService>()
+                    .To<EntityFrameworkPersistenceService>();
         }
     }
 }
