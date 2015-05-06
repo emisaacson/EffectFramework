@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace HRMS.Core.Models.Fields
+﻿namespace HRMS.Core.Models.Fields
 {
     public interface IField
     {

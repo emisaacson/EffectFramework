@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using HRMS.Core.Models.Entities;
 using HRMS.Core.Services;
-using Ninject;
 
 namespace HRMS.Core.Models.Fields
 {

@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HRMS.Core.Models;
 using HRMS.Core.Models.Db;
-using HRMS.Core.Services;
 using Xunit;
 using Ninject;
 using HRMS.Core.Models.Entities;
 using Microsoft.Data.Entity;
 using HRMS.Core.Models.Fields;
-using Microsoft.Data.Entity.Update;
 using Ninject.Parameters;
 
 namespace HRMS.Test

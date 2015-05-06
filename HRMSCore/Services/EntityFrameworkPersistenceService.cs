@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HRMS.Core.Models;
 using HRMS.Core.Models.Db;
 using HRMS.Core.Models.Entities;
@@ -31,7 +30,7 @@ namespace HRMS.Core.Services
                 EntityField DbField = null;
                 if (Field.FieldID.HasValue)
                 {
-                    DbField = null;// DbEntity.EntityFields.Where(f => f.EntityFieldID == Field.FieldID.Value).FirstOrDefault();
+                    DbEntity.EntityFields.Where(f => f.EntityFieldID == Field.FieldID.Value).FirstOrDefault();
                     if (DbField == null)
                     {
                         throw new ArgumentException("The passed field ID is not valid.");

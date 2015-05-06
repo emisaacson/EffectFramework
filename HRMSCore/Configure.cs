@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HRMS.Core.Services;
-using Ninject;
+﻿using HRMS.Core.Services;
 using Ninject.Modules;
 
 namespace HRMS.Core
