@@ -27,6 +27,7 @@ CREATE TABLE [dbo].[EmployeeEntities](
 	[EmployeeRecordID] [int] NOT NULL,
 	[EntityID] [int] NOT NULL,
 	[IsDeleted] [bit] NOT NULL,
+	[Guid] [uniqueidentifier] NOT NULL,
  CONSTRAINT [PK_EmployeeEntities] PRIMARY KEY CLUSTERED 
 (
 	[EmployeeEntityID] ASC
@@ -52,6 +53,7 @@ CREATE TABLE [dbo].[EmployeeRecords](
 	[EffectiveDate] [datetime] NOT NULL,
 	[EndEffectiveDate] [datetime] NULL,
 	[IsDeleted] [bit] NOT NULL,
+	[Guid] [uniqueidentifier] NOT NULL,
  CONSTRAINT [PK_EmployeeRecords] PRIMARY KEY CLUSTERED 
 (
 	[EmployeeRecordID] ASC
@@ -71,6 +73,7 @@ CREATE TABLE [dbo].[Employees](
 	[EmployeeRecordID] [int] NULL,
 	[IsDeleted] [bit] NOT NULL,
 	[DisplayName] [varchar](1024) NOT NULL,
+	[Guid] [uniqueidentifier] NOT NULL,
  CONSTRAINT [PK_Employees] PRIMARY KEY CLUSTERED 
 (
 	[EmployeeID] ASC
@@ -92,6 +95,7 @@ CREATE TABLE [dbo].[Entities](
 	[EffectiveDate] [datetime] NOT NULL,
 	[EndEffectiveDate] [datetime] NULL,
 	[IsDeleted] [bit] NOT NULL,
+	[Guid] [uniqueidentifier] NOT NULL,
  CONSTRAINT [PK_Entities] PRIMARY KEY CLUSTERED 
 (
 	[EntityID] ASC
@@ -116,6 +120,7 @@ CREATE TABLE [dbo].[EntityFields](
 	[ValueBoolean] [bit] NULL,
 	[ValueUser] [int] NULL,
 	[IsDeleted] [bit] NOT NULL,
+	[Guid] [uniqueidentifier] NOT NULL,
  CONSTRAINT [PK_EntityFields] PRIMARY KEY CLUSTERED 
 (
 	[EntityFieldID] ASC
@@ -174,23 +179,32 @@ GO
 
 CREATE VIEW [dbo].[CompleteEmployeeRecord] AS
 select
+e.EmployeeID,
+e.[Guid] as EmployeeGuid,
 er.EmployeeRecordID,
 er.EventID,
 er.EffectiveDate as EmployeeRecordEffectiveDate,
 er.EndEffectiveDate as EmployeeRecordEndEffectiveDate,
+er.[Guid] as EmployeeRecordGuid,
 et.EntityTypeID,
 et.Name as EntityTypeName,
+ee.EmployeeEntityID,
+ee.[Guid] as EmployeeEntityGuid,
+en.EntityID,
 en.EffectiveDate as EntityEffectiveDate,
 en.EndEffectiveDate as EntityEndEffectiveDate,
+en.[Guid] as EntityGuid,
 ft.FieldTypeID,
 ft.Name as FieldTypeName,
 dt.DataTypeID,
 dt.Name as DataTypeName,
+ef.EntityFieldID,
 ef.ValueText,
 ef.ValueDate,
 ef.ValueDecimal,
 ef.ValueBoolean,
-ef.ValueUser
+ef.ValueUser,
+ef.[Guid] as EntityFieldGuid
 FROM Employees e
 JOIN EmployeeRecords er on er.EmployeeID = e.EmployeeID and er.IsDeleted = 0
 JOIN EmployeeEntities ee on ee.EmployeeRecordID = er.EmployeeRecordID and ee.IsDeleted = 0

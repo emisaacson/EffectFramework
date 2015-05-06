@@ -7,6 +7,8 @@ namespace HRMS.Core.Models.Fields
     public class FieldBase
     {
         public FieldType Type { get; protected set; }
+        public Guid Guid { get; protected set; }
+        public int? FieldID { get; protected set; }
 
         protected string ValueString { get; set; }
         protected DateTime? ValueDate { get; set; }
@@ -17,11 +19,24 @@ namespace HRMS.Core.Models.Fields
 
         protected void LoadUpValues(FieldBase Base)
         {
-            this.ValueString  = Base.ValueString;
-            this.ValueDate    = Base.ValueDate;
-            this.ValueDecimal = Base.ValueDecimal;
-            this.ValueBool    = Base.ValueBool;
-            this.ValuePerson  = Base.ValuePerson;
+            if (Base == null)
+            {
+                this.FieldID = null;
+                this.ValueString = null;
+                this.ValueDate = null;
+                this.ValueDecimal = null;
+                this.ValueBool = null;
+                this.ValuePerson = null;
+            }
+            else
+            {
+                this.FieldID = Base.FieldID;
+                this.ValueString = Base.ValueString;
+                this.ValueDate = Base.ValueDate;
+                this.ValueDecimal = Base.ValueDecimal;
+                this.ValueBool = Base.ValueBool;
+                this.ValuePerson = Base.ValuePerson;
+            }
         }
 
         public FieldBase(IPersistenceService PersistenceService)
@@ -29,8 +44,9 @@ namespace HRMS.Core.Models.Fields
             this.PersistenceService = PersistenceService;
         }
 
-        public FieldBase(string ValueString, DateTime? ValueDate, decimal? ValueDecimal, bool? ValueBool, int? ValuePerson)
+        public FieldBase(int? FieldID, string ValueString, DateTime? ValueDate, decimal? ValueDecimal, bool? ValueBool, int? ValuePerson)
         {
+            this.FieldID = FieldID;
             this.ValueString  = ValueString;
             this.ValueDate    = ValueDate;
             this.ValueDecimal = ValueDecimal;

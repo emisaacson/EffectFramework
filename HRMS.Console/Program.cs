@@ -8,7 +8,7 @@ namespace HRMSConsole
     {
         public void Main(string[] args)
         {
-            using (var db = new HrmsDbContext())
+            using (var db = new HrmsDb7Context())
             {
                 Employee NewEmployee = new Employee()
                 {

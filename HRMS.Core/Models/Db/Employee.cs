@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace HRMS.Core.Models.Db
 {
@@ -8,6 +9,7 @@ namespace HRMS.Core.Models.Db
         public int? EmployeeRecordID { get; set; }
         public bool IsDeleted { get; set; }
         public string DisplayName { get; set; }
+        public Guid Guid { get; set; }
 
         public List<EmployeeRecord> EmployeeRecords { get; set; }
     }

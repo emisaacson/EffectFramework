@@ -9,6 +9,7 @@ using HRMS.Core.Models.Entities;
 using Microsoft.Data.Entity;
 using HRMS.Core.Models.Fields;
 using Ninject.Parameters;
+using HRMS.Core;
 
 namespace HRMS.Test
 {
@@ -27,63 +28,148 @@ namespace HRMS.Test
         {
             if (!DatabaseIsPrepared)
             {
-                using (var db = new HrmsDbContext())
+                using (var db = new HrmsDb7Context())
                 using (db.Database.AsRelational().Connection.BeginTransaction())
                 {
                     Core.Models.Db.Employee NewEmployee = new Core.Models.Db.Employee()
                     {
                         DisplayName = "xUnit Test Employee",
                         IsDeleted = false,
+                        Guid = Guid.NewGuid(),
                     };
 
                     db.Employees.Add(NewEmployee);
                     db.SaveChanges();
 
-                    Entity NewEntity = new Entity()
+                    Entity NewEntity1 = new Entity()
                     {
                         EffectiveDate = new DateTime(2015, 1, 1),
                         EndEffectiveDate = null,
                         EmployeeID = NewEmployee.EmployeeID.Value,
                         EntityTypeID = EntityType.Employee_General,
                         IsDeleted = false,
+                        Guid = Guid.NewGuid(),
                     };
 
-                    db.Entities.Add(NewEntity);
-                    db.SaveChanges();
 
-                    Core.Models.Db.EmployeeRecord NewEmployeeRecord = new Core.Models.Db.EmployeeRecord()
+                    Entity NewEntity2 = new Entity()
                     {
                         EffectiveDate = new DateTime(2015, 1, 1),
+                        EndEffectiveDate = new DateTime(2015, 2, 1),
+                        EmployeeID = NewEmployee.EmployeeID.Value,
+                        EntityTypeID = EntityType.Job,
+                        IsDeleted = false,
+                        Guid = Guid.NewGuid(),
+                    };
+
+                    Entity NewEntity3 = new Entity()
+                    {
+                        EffectiveDate = new DateTime(2015, 2, 1),
+                        EndEffectiveDate = null,
+                        EmployeeID = NewEmployee.EmployeeID.Value,
+                        EntityTypeID = EntityType.Job,
+                        IsDeleted = false,
+                        Guid = Guid.NewGuid(),
+                    };
+
+                    db.Entities.Add(NewEntity1);
+                    db.Entities.Add(NewEntity2);
+                    db.Entities.Add(NewEntity3);
+                    db.SaveChanges();
+
+                    Core.Models.Db.EmployeeRecord NewEmployeeRecord1 = new Core.Models.Db.EmployeeRecord()
+                    {
+                        EffectiveDate = new DateTime(2015, 1, 1),
+                        EndEffectiveDate = new DateTime(2015, 2, 1),
+                        EmployeeID = NewEmployee.EmployeeID.Value,
+                        IsDeleted = false,
+                        Guid = Guid.NewGuid(),
+                    };
+
+                    Core.Models.Db.EmployeeRecord NewEmployeeRecord2 = new Core.Models.Db.EmployeeRecord()
+                    {
+                        EffectiveDate = new DateTime(2015, 2, 1),
                         EndEffectiveDate = null,
                         EmployeeID = NewEmployee.EmployeeID.Value,
                         IsDeleted = false,
+                        Guid = Guid.NewGuid(),
                     };
 
-                    db.EmployeeRecords.Add(NewEmployeeRecord);
+                    db.EmployeeRecords.Add(NewEmployeeRecord1);
+                    db.EmployeeRecords.Add(NewEmployeeRecord2);
                     db.SaveChanges();
 
-                    NewEmployee.EmployeeRecordID = NewEmployeeRecord.EmployeeRecordID;
+                    NewEmployee.EmployeeRecordID = NewEmployeeRecord2.EmployeeRecordID;
                     db.SaveChanges();
 
-                    EmployeeEntity NewEmployeeEntity = new EmployeeEntity()
+                    EmployeeEntity NewEmployeeEntity1 = new EmployeeEntity()
                     {
-                        EmployeeRecordID = NewEmployeeRecord.EmployeeRecordID.Value,
-                        EntityID = NewEntity.EntityID,
+                        EmployeeRecordID = NewEmployeeRecord1.EmployeeRecordID.Value,
+                        EntityID = NewEntity1.EntityID,
                         IsDeleted = false,
+                        Guid = Guid.NewGuid(),
                     };
 
-                    db.EmployeeEntities.Add(NewEmployeeEntity);
+                    EmployeeEntity NewEmployeeEntity2 = new EmployeeEntity()
+                    {
+                        EmployeeRecordID = NewEmployeeRecord1.EmployeeRecordID.Value,
+                        EntityID = NewEntity2.EntityID,
+                        IsDeleted = false,
+                        Guid = Guid.NewGuid(),
+                    };
+
+                    EmployeeEntity NewEmployeeEntity3 = new EmployeeEntity()
+                    {
+                        EmployeeRecordID = NewEmployeeRecord2.EmployeeRecordID.Value,
+                        EntityID = NewEntity1.EntityID,
+                        IsDeleted = false,
+                        Guid = Guid.NewGuid(),
+                    };
+
+                    EmployeeEntity NewEmployeeEntity4 = new EmployeeEntity()
+                    {
+                        EmployeeRecordID = NewEmployeeRecord2.EmployeeRecordID.Value,
+                        EntityID = NewEntity3.EntityID,
+                        IsDeleted = false,
+                        Guid = Guid.NewGuid(),
+                    };
+
+                    db.EmployeeEntities.Add(NewEmployeeEntity1);
+                    db.EmployeeEntities.Add(NewEmployeeEntity2);
+                    db.EmployeeEntities.Add(NewEmployeeEntity3);
+                    db.EmployeeEntities.Add(NewEmployeeEntity4);
                     db.SaveChanges();
 
-                    EntityField NewField = new EntityField()
+                    EntityField NewField1 = new EntityField()
                     {
-                        EntityID = NewEntity.EntityID,
+                        EntityID = NewEntity1.EntityID,
                         FieldTypeID = FieldType.Hire_Date.DataType.Value,
                         IsDeleted = false,
                         ValueDate = new DateTime(2015, 1, 1),
+                        Guid = Guid.NewGuid(),
                     };
 
-                    db.Fields.Add(NewField);
+                    EntityField NewField2 = new EntityField()
+                    {
+                        EntityID = NewEntity2.EntityID,
+                        FieldTypeID = FieldType.Job_Title.DataType.Value,
+                        IsDeleted = false,
+                        ValueText = "Manager",
+                        Guid = Guid.NewGuid(),
+                    };
+
+                    EntityField NewField3 = new EntityField()
+                    {
+                        EntityID = NewEntity3.EntityID,
+                        FieldTypeID = FieldType.Job_Title.DataType.Value,
+                        IsDeleted = false,
+                        ValueText = "Director",
+                        Guid = Guid.NewGuid(),
+                    };
+
+                    db.Fields.Add(NewField1);
+                    db.Fields.Add(NewField2);
+                    db.Fields.Add(NewField3);
                     db.SaveChanges();
 
                     db.Database.AsRelational().Connection.Transaction.Commit();
@@ -91,10 +177,18 @@ namespace HRMS.Test
                     DatabaseIsPrepared = true;
 
                     TempEmployees.Add(NewEmployee);
-                    TempEntity.Add(NewEntity);
-                    TempEmployeeRecord.Add(NewEmployeeRecord);
-                    TempEmployeeEntity.Add(NewEmployeeEntity);
-                    TempEntityField.Add(NewField);
+                    TempEntity.Add(NewEntity1);
+                    TempEntity.Add(NewEntity2);
+                    TempEntity.Add(NewEntity3);
+                    TempEmployeeRecord.Add(NewEmployeeRecord1);
+                    TempEmployeeRecord.Add(NewEmployeeRecord2);
+                    TempEmployeeEntity.Add(NewEmployeeEntity1);
+                    TempEmployeeEntity.Add(NewEmployeeEntity2);
+                    TempEmployeeEntity.Add(NewEmployeeEntity3);
+                    TempEmployeeEntity.Add(NewEmployeeEntity4);
+                    TempEntityField.Add(NewField1);
+                    TempEntityField.Add(NewField2);
+                    TempEntityField.Add(NewField3);
                 }
             }
         }
@@ -103,7 +197,7 @@ namespace HRMS.Test
         {
             if (DatabaseIsPrepared)
             {
-                using (var db = new HrmsDbContext())
+                using (var db = new HrmsDb7Context())
                 using (db.Database.AsRelational().Connection.BeginTransaction())
                 {
                     foreach (var Field in TempEntityField)
@@ -177,7 +271,7 @@ namespace HRMS.Test
         [Fact]
         public void CreateEF7DBContext()
         {
-            using (var db = new HrmsDbContext())
+            using (var db = new HrmsDb7Context())
             {
 
             }
@@ -194,18 +288,125 @@ namespace HRMS.Test
 
                 Core.Models.Employee NewEmployee = Kernel.Get<Core.Models.Employee>(new ConstructorArgument("EmployeeID", Employee.EmployeeID.Value));
                 NewEmployee.Load();
+                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 Assert.Equal(Employee.EmployeeID, NewEmployee.EmployeeID);
-                Assert.Equal(1, NewEmployee.EmployeeRecords.Count());
-                Assert.Equal(1, NewEmployee.EmployeeRecords.First().Value.AllEntities.Count());
+                Assert.Equal(2, NewEmployee.EmployeeRecords.Count());
+                Assert.Equal(2, NewEmployee.EmployeeRecords.First().Value.AllEntities.Count());
+                Assert.Equal(2, NewEmployee.EmployeeRecords.Last().Value.AllEntities.Count());
+
+            }
+        }
+
+        [Fact]
+        public void RetreiveEntitiesByEffectiveDate()
+        {
+            using (IKernel Kernel = new StandardKernel())
+            {
+                Kernel.Load(new HRMS.Core.Configure());
+                Core.Models.Db.Employee Employee = TempEmployees.First();
+
+                Core.Models.Employee NewEmployee = Kernel.Get<Core.Models.Employee>(new ConstructorArgument("EmployeeID", Employee.EmployeeID.Value));
+                NewEmployee.Load();
+                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 EmployeeGeneralEntity GeneralEntity = NewEmployee.EmployeeRecords.First().Value.GetFirstEntityOrDefault<EmployeeGeneralEntity>();
 
                 Assert.NotNull(GeneralEntity);
-
                 Assert.Equal(TempEntityField.First().ValueDate.Value, GeneralEntity.HireDate.Value);
 
+                JobEntity FirstJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+
+                Assert.NotNull(FirstJob);
+                Assert.Equal("Manager", FirstJob.JobTitle.Value);
+
+                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 2, 2));
+
+                JobEntity SecondJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+
+                Assert.NotNull(SecondJob);
+                Assert.Equal("Director", SecondJob.JobTitle.Value);
             }
+        }
+
+        [Fact]
+        public void MakeSureEntityFieldsArePopulated()
+        {
+            using (IKernel Kernel = new StandardKernel())
+            {
+                Kernel.Load(new HRMS.Core.Configure());
+                Core.Models.Db.Employee Employee = TempEmployees.First();
+
+                Core.Models.Employee NewEmployee = Kernel.Get<Core.Models.Employee>(new ConstructorArgument("EmployeeID", Employee.EmployeeID.Value));
+                NewEmployee.Load();
+                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+
+                EmployeeGeneralEntity GeneralEntity = NewEmployee.EmployeeRecords.First().Value.GetFirstEntityOrDefault<EmployeeGeneralEntity>();
+
+                Assert.NotNull(GeneralEntity);
+                Assert.NotNull(GeneralEntity.EntityID);
+                Assert.Equal(Strings.Employee_General, GeneralEntity.Type.Name);
+
+                JobEntity FirstJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+
+                Assert.NotNull(FirstJob);
+                Assert.NotNull(FirstJob.EntityID);
+                Assert.Equal(Strings.Job, FirstJob.Type.Name);
+
+                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 2, 2));
+
+                JobEntity SecondJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+
+                Assert.NotNull(SecondJob);
+                Assert.NotNull(SecondJob.EntityID);
+                Assert.Equal(Strings.Job, SecondJob.Type.Name);
+            }
+        }
+
+        [Fact]
+        public void MakeSureFieldFieldsArePopulated()
+        {
+            using (IKernel Kernel = new StandardKernel())
+            {
+                Kernel.Load(new HRMS.Core.Configure());
+                Core.Models.Db.Employee Employee = TempEmployees.First();
+
+                Core.Models.Employee NewEmployee = Kernel.Get<Core.Models.Employee>(new ConstructorArgument("EmployeeID", Employee.EmployeeID.Value));
+                NewEmployee.Load();
+                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+
+                EmployeeGeneralEntity GeneralEntity = NewEmployee.EmployeeRecords.First().Value.GetFirstEntityOrDefault<EmployeeGeneralEntity>();
+
+                Assert.NotNull(GeneralEntity);
+                Assert.NotNull(GeneralEntity.HireDate);
+                Assert.NotNull(GeneralEntity.HireDate.FieldID);
+                Assert.Equal(Strings.Hire_Date, GeneralEntity.HireDate.Type.Name);
+                Assert.Equal(Strings.Hire_Date, GeneralEntity.HireDate.Name);
+
+                JobEntity FirstJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+
+                Assert.NotNull(FirstJob);
+                Assert.NotNull(FirstJob.JobTitle);
+                Assert.NotNull(FirstJob.JobTitle.FieldID);
+                Assert.Equal(Strings.Job_Title, FirstJob.JobTitle.Type.Name);
+                Assert.Equal(Strings.Job_Title, FirstJob.JobTitle.Name);
+
+                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 2, 2));
+
+                JobEntity SecondJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+
+                Assert.NotNull(SecondJob);
+                Assert.NotNull(SecondJob.JobTitle);
+                Assert.NotNull(SecondJob.JobTitle.FieldID);
+                Assert.Equal(Strings.Job_Title, SecondJob.JobTitle.Type.Name);
+                Assert.Equal(Strings.Job_Title, SecondJob.JobTitle.Name);
+            }
+        }
+
+        [Fact]
+        public void ChangeEmployeeEffectiveRecord()
+        {
+
         }
 
         public void Dispose()

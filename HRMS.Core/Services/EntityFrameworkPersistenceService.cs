@@ -13,7 +13,7 @@ namespace HRMS.Core.Services
     {
         public void SaveSingleField(EntityBase Entity, IField Field)
         {
-            using (var db = new HrmsDbContext())
+            using (var db = new HrmsDb7Context())
             {
                 if (!Entity.EntityID.HasValue)
                 {
@@ -98,7 +98,7 @@ namespace HRMS.Core.Services
                 throw new ArgumentException("Cannot retrieve a field without an EntityID");
             }
 
-            using (var db = new HrmsDbContext())
+            using (var db = new HrmsDb7Context())
             {
                 var DbField = db.Fields.Where(f => f.EntityID == Entity.EntityID.Value &&
                                               f.FieldTypeID == FieldTypeID &&
@@ -109,7 +109,7 @@ namespace HRMS.Core.Services
                     return null;
                 }
 
-                FieldBase Base = new FieldBase(DbField.ValueText, DbField.ValueDate, DbField.ValueDecimal, DbField.ValueBoolean, DbField.ValueUser);
+                FieldBase Base = new FieldBase(DbField.EntityFieldID, DbField.ValueText, DbField.ValueDate, DbField.ValueDecimal, DbField.ValueBoolean, DbField.ValueUser);
 
                 return Base;
             }
@@ -148,7 +148,7 @@ namespace HRMS.Core.Services
             EntityT Instance = new EntityT();
             Instance.PersistenceService = this;
 
-            using (var db = new HrmsDbContext())
+            using (var db = new HrmsDb7Context())
             using (db.Database.AsRelational().Connection.BeginTransaction())
             {
                 var EntityIDs = db.EmployeeEntities
@@ -191,7 +191,7 @@ namespace HRMS.Core.Services
 
         public List<EntityBase> RetreiveAllEntities(int EmployeeRecordID)
         {
-            using (var db = new HrmsDbContext())
+            using (var db = new HrmsDb7Context())
             {
                 var EntityIDs = db.EmployeeEntities
                     .Where(er =>
@@ -199,7 +199,7 @@ namespace HRMS.Core.Services
                         !er.IsDeleted)
                     .Select(er =>
                         er.EntityID
-                    );
+                    ).ToArray();
 
                 var DbEntities = db.Entities
                     .Where(e =>
@@ -233,7 +233,7 @@ namespace HRMS.Core.Services
 
         public List<Models.EmployeeRecord> RetreiveAllEmployeeRecords(int EmployeeID)
         {
-            using (var db = new HrmsDbContext())
+            using (var db = new HrmsDb7Context())
             {
                 var DbEmployeeRecords = db.EmployeeRecords
                     .Where(er =>
@@ -255,7 +255,7 @@ namespace HRMS.Core.Services
 
         public Models.Db.EmployeeRecord RetreiveSingleDbEmployeeRecord(int EmployeeRecordID)
         {
-            using (var db = new HrmsDbContext())
+            using (var db = new HrmsDb7Context())
             {
                 var DbEmployeeRecord = db.EmployeeRecords
                     .Where(er =>

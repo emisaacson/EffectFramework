@@ -25,6 +25,7 @@ namespace HRMS.Core.Models
         public int? EmployeeRecordID { get; private set; }
         public DateTime EffectiveDate { get; set; }
         public DateTime? EndEffectiveDate { get; set; }
+        public Guid Guid { get; protected set; }
 
         private Dictionary<EntityType, List<EntityBase>> AllEntitiesByType = new Dictionary<EntityType, List<EntityBase>>();
 

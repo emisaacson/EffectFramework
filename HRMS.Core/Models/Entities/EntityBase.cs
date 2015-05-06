@@ -10,6 +10,7 @@ namespace HRMS.Core.Models.Entities
         public abstract EntityType Type { get; }
         public int? EntityID { get; protected set; }
         public int? EmployeeID { get; protected set; }
+        public Guid Guid { get; protected set; }
 
         protected IPersistenceService _PersistenceService = null;
         public IPersistenceService PersistenceService {

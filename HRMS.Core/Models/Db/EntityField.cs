@@ -13,6 +13,7 @@ namespace HRMS.Core.Models.Db
         public bool? ValueBoolean { get; set; }
         public int? ValueUser { get; set; }
         public bool IsDeleted { get; set; }
+        public Guid Guid { get; set; }
 
         public Entity Entity { get; set; }
     }

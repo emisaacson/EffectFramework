@@ -2,7 +2,7 @@
 
 namespace HRMS.Core.Models.Db
 {
-    public class HrmsDbContext : DbContext
+    public class HrmsDb7Context : DbContext
     {
         public DbSet<Employee> Employees { get; set; }
         public DbSet<EmployeeRecord> EmployeeRecords { get; set; }

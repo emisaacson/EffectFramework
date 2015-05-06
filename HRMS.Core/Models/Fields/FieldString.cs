@@ -5,7 +5,6 @@ namespace HRMS.Core.Models.Fields
 {
     public class FieldString : FieldBase, IField
     {
-        public int? FieldID { get; private set; }
         public string Name { get; private set; }
         public string Value
         {

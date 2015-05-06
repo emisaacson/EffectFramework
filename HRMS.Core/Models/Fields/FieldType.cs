@@ -10,6 +10,7 @@ namespace HRMS.Core.Models.Fields
 
         private FieldType(string Name, int Value, DataType DataType)
         {
+            this.Name = Name;
             this.Value = Value;
             this.DataType = DataType;
         }
