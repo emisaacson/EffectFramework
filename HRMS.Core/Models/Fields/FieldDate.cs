@@ -6,11 +6,20 @@ namespace HRMS.Core.Models.Fields
     public class FieldDate : FieldBase, IField
     {
         public string Name { get; private set; }
-        public DateTime Value
+        public DateTime? Value
         {
             get
             {
-                return this.ValueDate.Value;
+                return this.ValueDate;
+            }
+
+            set
+            {
+                if (this.ValueDate != value)
+                {
+                    this.Dirty = true;
+                    this.ValueDate = value;
+                }
             }
         }
 
@@ -23,7 +32,15 @@ namespace HRMS.Core.Models.Fields
 
             set
             {
-                throw new NotImplementedException();
+                if (!typeof(DateTime?).IsAssignableFrom(value.GetType()))
+                {
+                    throw new InvalidCastException("Must assign a datetime to a date field.");
+                }
+                if (this.ValueDate.Value != (DateTime?)value)
+                {
+                    this.Dirty = true;
+                    this.ValueDate = (DateTime?)value;
+                }
             }
         }
 

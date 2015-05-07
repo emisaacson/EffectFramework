@@ -119,6 +119,8 @@ namespace HRMS.Core.Models
                 return EmployeeRecords[EffectiveDate];
             }
 
+            // If adding a new employee record after an existing one, we copy the entities from the previous
+            // and adjust the effective dates of all three to make a continuous timeline.
             if (EmployeeRecords.Count > 0 && EmployeeRecords.First().Key /*The oldest date*/ < EffectiveDate)
             {
                 EmployeeRecord PreviousEmployeeRecord = GetEffectiveRecordForDate(EffectiveDate);
@@ -139,6 +141,8 @@ namespace HRMS.Core.Models
                 EmployeeRecords[EffectiveDate] = NewEmployeeRecord;
                 return NewEmployeeRecord;
             }
+            // If adding a new employee record before any existing, do not copy any entities, just
+            // create a blank one
             else
             {
                 EmployeeRecord NewEmployeeRecord = new EmployeeRecord(PersistenceService);

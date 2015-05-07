@@ -12,6 +12,11 @@ namespace HRMS.Core.Models.Fields
             {
                 return this.ValueString;
             }
+            set
+            {
+                this.Dirty = true;
+                this.ValueString = value;
+            }
         }
 
         object IField.Value
@@ -23,7 +28,14 @@ namespace HRMS.Core.Models.Fields
 
             set
             {
-                throw new NotImplementedException();
+                if (!typeof(String).IsAssignableFrom(value.GetType())) {
+                    throw new InvalidCastException("Must assign a string to a string field.");
+                }
+                if (this.ValueString != (string)value)
+                {
+                    this.Dirty = true;
+                    this.ValueString = (string)value;
+                }
             }
         }
 

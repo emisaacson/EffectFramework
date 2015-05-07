@@ -11,41 +11,57 @@ namespace HRMS.Core.Services
 {
     public class EntityFrameworkPersistenceService : IPersistenceService
     {
-        public void SaveSingleField(EntityBase Entity, IField Field)
+        public Guid SaveSingleField(EntityBase Entity, FieldBase Field, IDbContext ctx = null)
         {
-            using (var db = new HrmsDb7Context())
+            HrmsDb7Context db = null;
+            try
             {
-                if (!Entity.EntityID.HasValue)
+                if (ctx == null)
                 {
-                    throw new ArgumentException("Must commit the entity to the database before its fields.");
-                }
-
-                Entity DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value).FirstOrDefault();
-
-                if (DbEntity == null)
-                {
-                    throw new ArgumentException("The passed entity is not valid.");
-                }
-
-                EntityField DbField = null;
-                if (Field.FieldID.HasValue)
-                {
-                    DbEntity.EntityFields.Where(f => f.EntityFieldID == Field.FieldID.Value).FirstOrDefault();
-                    if (DbField == null)
-                    {
-                        throw new ArgumentException("The passed field ID is not valid.");
-                    }
-
-                    if (Field.Value == null)
-                    {
-                        DbField.IsDeleted = true;
-                        db.SaveChanges();
-                        return;
-                    }
+                    db = new HrmsDb7Context();
                 }
                 else
                 {
+                    db = (HrmsDb7Context)ctx;
+                }
+
+                EntityField DbField = null;
+                bool CreatedAnew = false;
+                if (!Field.FieldID.HasValue)
+                {
+                    DbField = new EntityField()
+                    {
+                        IsDeleted = false,
+                        Guid = Guid.NewGuid(),
+                    };
                     db.Fields.Add(DbField);
+                    db.SaveChanges();
+                    CreatedAnew = true;
+                }
+                else {
+                    DbField = db.Fields.Where(ef => ef.EntityFieldID == Field.FieldID.Value && ef.IsDeleted == false).FirstOrDefault();
+                }
+
+                if (DbField == null)
+                {
+                    throw new ArgumentException("The passed field ID is not valid.");
+                }
+
+                if (!CreatedAnew && DbField.Guid != Field.Guid)
+                {
+                    throw new Exceptions.GuidMismatchException();
+                }
+
+                if (!Field.Dirty)
+                {
+                    return Field.Guid;
+                }
+
+                if (((IField)Field).Value == null)
+                {
+                    DbField.IsDeleted = true;
+                    db.SaveChanges();
+                    return Field.Guid;
                 }
 
                 DbField.ValueBoolean = null;
@@ -53,29 +69,120 @@ namespace HRMS.Core.Services
                 DbField.ValueDecimal = null;
                 DbField.ValueText = null;
                 DbField.ValueUser = null;
+                DbField.Guid = Guid.NewGuid();
 
                 if (Field.Type.DataType == DataType.Boolean)
                 {
-                    DbField.ValueBoolean = (bool)Field.Value;
+                    DbField.ValueBoolean = (bool)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Date)
                 {
-                    DbField.ValueDate = (DateTime)Field.Value;
+                    DbField.ValueDate = (DateTime)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Decimal)
                 {
-                    DbField.ValueDecimal = (decimal)Field.Value;
+                    DbField.ValueDecimal = (decimal)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Person)
                 {
-                    DbField.ValueUser = (int)Field.Value;
+                    DbField.ValueUser = (int)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Text)
                 {
-                    DbField.ValueText = (string)Field.Value;
+                    DbField.ValueText = (string)((IField)Field).Value;
                 }
 
                 db.SaveChanges();
+
+                return DbField.Guid;
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+        public Guid SaveSingleField(FieldBase Field, IDbContext ctx = null)
+        {
+            HrmsDb7Context db = null;
+            try {
+                if (ctx == null)
+                {
+                    db = new HrmsDb7Context();
+                }
+                else
+                {
+                    db = (HrmsDb7Context)ctx;
+                }
+
+                if (!Field.FieldID.HasValue)
+                {
+                    throw new InvalidOperationException("Must create a new field in the context of an entity.");
+                }
+
+                EntityField DbField = db.Fields.Where(ef => ef.EntityFieldID == Field.FieldID.Value && ef.IsDeleted == false).FirstOrDefault();
+                if (DbField == null)
+                {
+                    throw new ArgumentException("The passed field ID is not valid.");
+                }
+
+                if (DbField.Guid != Field.Guid)
+                {
+                    throw new Exceptions.GuidMismatchException();
+                }
+
+                if (!Field.Dirty)
+                {
+                    return Field.Guid;
+                }
+
+                if (((IField)Field).Value == null)
+                {
+                    DbField.IsDeleted = true;
+                    db.SaveChanges();
+                    return Field.Guid;
+                }
+
+                DbField.ValueBoolean = null;
+                DbField.ValueDate = null;
+                DbField.ValueDecimal = null;
+                DbField.ValueText = null;
+                DbField.ValueUser = null;
+                DbField.Guid = Guid.NewGuid();
+
+                if (Field.Type.DataType == DataType.Boolean)
+                {
+                    DbField.ValueBoolean = (bool)((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.Date)
+                {
+                    DbField.ValueDate = (DateTime)((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.Decimal)
+                {
+                    DbField.ValueDecimal = (decimal)((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.Person)
+                {
+                    DbField.ValueUser = (int)((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.Text)
+                {
+                    DbField.ValueText = (string)((IField)Field).Value;
+                }
+
+                db.SaveChanges();
+
+                return DbField.Guid;
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
             }
         }
 
@@ -102,6 +209,25 @@ namespace HRMS.Core.Services
             {
                 var DbField = db.Fields.Where(f => f.EntityID == Entity.EntityID.Value &&
                                               f.FieldTypeID == FieldTypeID &&
+                                              !f.IsDeleted).FirstOrDefault();
+
+                if (DbField == null)
+                {
+                    return null;
+                }
+
+                FieldBase Base = new FieldBase(DbField);
+
+                return Base;
+            }
+        }
+
+        public FieldBase RetreiveSingleFieldOrDefault(int FieldID)
+        {
+
+            using (var db = new HrmsDb7Context())
+            {
+                var DbField = db.Fields.Where(f => f.EntityFieldID == FieldID &&
                                               !f.IsDeleted).FirstOrDefault();
 
                 if (DbField == null)

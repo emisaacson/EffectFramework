@@ -73,5 +73,24 @@ namespace HRMS.Core.Models.Fields
             FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(Entity, Field.Type);
             LoadUpValues(Base);
         }
+
+        public void FillFromDatabase(int FieldID)
+        {
+            this.FieldID = FieldID;
+            FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(FieldID);
+            LoadUpValues(Base);
+        }
+
+        public void PersistToDatabase()
+        {
+            this.Guid = PersistenceService.SaveSingleField(this);
+            this.Dirty = false;
+        }
+
+        public void PersistToDatabase(EntityBase Entity)
+        {
+            this.Guid = PersistenceService.SaveSingleField(Entity, this);
+            this.Dirty = false;
+        }
     }
 }

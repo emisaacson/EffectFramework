@@ -8,10 +8,12 @@ namespace HRMS.Core.Services
 {
     public interface IPersistenceService
     {
-        void SaveSingleField(EntityBase Entity, IField Field);
+        Guid SaveSingleField(EntityBase Entity, FieldBase Field, Models.Db.IDbContext ctx = null);
+        Guid SaveSingleField(FieldBase Field, Models.Db.IDbContext ctx = null);
 
         FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, FieldType FieldType);
         FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, int FieldTypeID);
+        FieldBase RetreiveSingleFieldOrDefault(int FieldID);
 
         FieldBase RetreiveSingleFieldOrDefault<FieldT>(EntityBase Entity) where FieldT : IField, new();
 
