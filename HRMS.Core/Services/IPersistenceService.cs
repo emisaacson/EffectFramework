@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HRMS.Core.Models;
 using HRMS.Core.Models.Entities;
 using HRMS.Core.Models.Fields;
@@ -21,6 +22,8 @@ namespace HRMS.Core.Services
         List<EmployeeRecord> RetreiveAllEmployeeRecords(int EmployeeID);
 
         Models.Db.EmployeeRecord RetreiveSingleDbEmployeeRecord(int EmployeeRecordID);
+
+        Guid RetreiveGuidForEmployeeRecord(int EmployeeID);
 
         List<EntityBase> RetreiveAllEntities(Models.EmployeeRecord EmployeeRecord);
         List<EntityBase> RetreiveAllEntities(int EmployeeRecordID);

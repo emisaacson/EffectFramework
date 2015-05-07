@@ -11,7 +11,8 @@ namespace HRMS.Core.Models
         public IEnumerable<EntityBase> AllEntities { get; private set; }
         private Dictionary<EntityType, IEnumerable<EntityBase>> AllEntitiesByType;
         public int? EmployeeID { get; private set; }
-        public Guid Guid { get; protected set; }
+        public Guid Guid { get; private set; }
+        public bool Dirty { get; private set; }
 
         private readonly IPersistenceService PersistenceService;
 
@@ -28,7 +29,7 @@ namespace HRMS.Core.Models
         {
             var _EffectiveRecord = EmployeeRecords
                 .Where(e =>
-                    e.Key <= this.EffectiveDate &&
+                    e.Key <= EffectiveDate &&
                     (!e.Value.EndEffectiveDate.HasValue || e.Value.EndEffectiveDate > EffectiveDate))
                 .FirstOrDefault();
 
@@ -54,6 +55,7 @@ namespace HRMS.Core.Models
 
         public Employee(IPersistenceService PersistenceService)
         {
+            this.Dirty = true;
             this.PersistenceService = PersistenceService;
         }
 
@@ -83,6 +85,8 @@ namespace HRMS.Core.Models
                 throw new InvalidOperationException("Please do not reuse the same employee object for an employee with a different ID.");
             }
             this.EmployeeID = EmployeeID;
+            this.Dirty = false;
+            this.Guid = PersistenceService.RetreiveGuidForEmployeeRecord(EmployeeID);
             var EmployeeRecordsList = PersistenceService.RetreiveAllEmployeeRecords(this);
 
             EmployeeRecords = new SortedDictionary<DateTime, EmployeeRecord>();
@@ -103,28 +107,51 @@ namespace HRMS.Core.Models
             this.EffectiveDate = EffectiveDate;
         }
 
-        //public EmployeeRecord GetOrCreateEffectiveDateRange(DateTime EffectiveDate)
-        //{
-        //    if (EffectiveDate == null || EffectiveDate == default(DateTime))
-        //    {
-        //        throw new ArgumentNullException();
-        //    }
+        public EmployeeRecord GetOrCreateEffectiveDateRange(DateTime EffectiveDate)
+        {
+            if (EffectiveDate == null || EffectiveDate == default(DateTime))
+            {
+                throw new ArgumentNullException();
+            }
 
-        //    if (EmployeeRecords.ContainsKey(EffectiveDate))
-        //    {
-        //        return EmployeeRecords[EffectiveDate];
-        //    }
+            if (EmployeeRecords.ContainsKey(EffectiveDate))
+            {
+                return EmployeeRecords[EffectiveDate];
+            }
 
-        //    if (EmployeeRecords.Count > 0 && EmployeeRecords.First().Key /*The oldest date*/ < EffectiveDate)
-        //    {
-        //        EmployeeRecord PreviousEmployeeRecord = GetEffectiveRecordForDate(EffectiveDate);
-        //        EmployeeRecord New
-        //    }
-        //    else
-        //    {
-        //        EmployeeRecords[EffectiveDate] = new EmployeeRecord(PersistenceService);
-        //        return EmployeeRecords[EffectiveDate];
-        //    }
-        //}
+            if (EmployeeRecords.Count > 0 && EmployeeRecords.First().Key /*The oldest date*/ < EffectiveDate)
+            {
+                EmployeeRecord PreviousEmployeeRecord = GetEffectiveRecordForDate(EffectiveDate);
+                var NextEmployeeRecord_kv = EmployeeRecords.Where(er => er.Key > PreviousEmployeeRecord.EffectiveDate).FirstOrDefault();
+                EmployeeRecord NextEmployeeRecord = null;
+                if (!NextEmployeeRecord_kv.Equals(default(KeyValuePair<DateTime, EmployeeRecord>)))
+                {
+                    NextEmployeeRecord = NextEmployeeRecord_kv.Value;
+                }
+                EmployeeRecord NewEmployeeRecord = new EmployeeRecord(PersistenceService);
+                PreviousEmployeeRecord.SetEndEffectiveDate(EffectiveDate);
+                NewEmployeeRecord.SetEffectiveDate(EffectiveDate);
+                if (NextEmployeeRecord != null)
+                {
+                    NewEmployeeRecord.SetEndEffectiveDate(NextEmployeeRecord.EffectiveDate);
+                }
+                NewEmployeeRecord.CopyEntitiesFrom(PreviousEmployeeRecord);
+                EmployeeRecords[EffectiveDate] = NewEmployeeRecord;
+                return NewEmployeeRecord;
+            }
+            else
+            {
+                EmployeeRecord NewEmployeeRecord = new EmployeeRecord(PersistenceService);
+                EmployeeRecord FirstEmployeeRecord = null;
+                if (EmployeeRecords.Count > 0)
+                {
+                    FirstEmployeeRecord = EmployeeRecords.First().Value;
+                }
+                NewEmployeeRecord.SetEffectiveDate(EffectiveDate);
+                NewEmployeeRecord.SetEndEffectiveDate(FirstEmployeeRecord.EffectiveDate);
+                EmployeeRecords[EffectiveDate] = NewEmployeeRecord;
+                return NewEmployeeRecord;
+            }
+        }
     }
 }

@@ -109,7 +109,7 @@ namespace HRMS.Core.Services
                     return null;
                 }
 
-                FieldBase Base = new FieldBase(DbField.EntityFieldID, DbField.ValueText, DbField.ValueDate, DbField.ValueDecimal, DbField.ValueBoolean, DbField.ValueUser);
+                FieldBase Base = new FieldBase(DbField);
 
                 return Base;
             }
@@ -264,6 +264,25 @@ namespace HRMS.Core.Services
                     .FirstOrDefault();
 
                 return DbEmployeeRecord;
+            }
+        }
+
+        public Guid RetreiveGuidForEmployeeRecord(int EmployeeID)
+        {
+            using (var db = new HrmsDb7Context())
+            {
+                var DbEmployeeRecord = db.Employees
+                    .Where(e =>
+                        e.EmployeeID == EmployeeID &&
+                        e.IsDeleted == false)
+                    .FirstOrDefault();
+
+                if (DbEmployeeRecord != null)
+                {
+                    return DbEmployeeRecord.Guid;
+                }
+
+                throw new ArgumentException("Invalid Employee ID passed.");
             }
         }
     }

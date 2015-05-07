@@ -11,6 +11,7 @@ namespace HRMS.Core.Models.Entities
         public int? EntityID { get; protected set; }
         public int? EmployeeID { get; protected set; }
         public Guid Guid { get; protected set; }
+        public bool Dirty { get; protected set; }
 
         protected IPersistenceService _PersistenceService = null;
         public IPersistenceService PersistenceService {
@@ -36,12 +37,13 @@ namespace HRMS.Core.Models.Entities
 
         public EntityBase()
         {
-
+            this.Dirty = true;
         }
 
         public EntityBase(IPersistenceService PersistenceService)
         {
             this._PersistenceService = PersistenceService;
+            this.Dirty = true;
             WireUpFields();
         }
 
@@ -49,6 +51,8 @@ namespace HRMS.Core.Models.Entities
         {
             this.EntityID = DbEntity.EntityID;
             this.EmployeeID = DbEntity.EmployeeID;
+            this.Guid = DbEntity.Guid;
+            this.Dirty = false;
 
             Type EntityType = this.GetType();
 

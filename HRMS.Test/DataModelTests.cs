@@ -294,6 +294,8 @@ namespace HRMS.Test
                 Assert.Equal(2, NewEmployee.EmployeeRecords.Count());
                 Assert.Equal(2, NewEmployee.EmployeeRecords.First().Value.AllEntities.Count());
                 Assert.Equal(2, NewEmployee.EmployeeRecords.Last().Value.AllEntities.Count());
+                Assert.False(NewEmployee.EmployeeRecords.First().Value.Dirty);
+                Assert.False(NewEmployee.EmployeeRecords.Last().Value.Dirty);
 
             }
         }
@@ -309,6 +311,9 @@ namespace HRMS.Test
                 Core.Models.Employee NewEmployee = Kernel.Get<Core.Models.Employee>(new ConstructorArgument("EmployeeID", Employee.EmployeeID.Value));
                 NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+
+                Assert.False(NewEmployee.Dirty);
+                Assert.Equal(Employee.Guid, NewEmployee.Guid);
 
                 EmployeeGeneralEntity GeneralEntity = NewEmployee.EmployeeRecords.First().Value.GetFirstEntityOrDefault<EmployeeGeneralEntity>();
 
@@ -345,12 +350,16 @@ namespace HRMS.Test
 
                 Assert.NotNull(GeneralEntity);
                 Assert.NotNull(GeneralEntity.EntityID);
+                Assert.NotEqual(Guid.Empty, GeneralEntity.Guid);
+                Assert.False(GeneralEntity.Dirty);
                 Assert.Equal(Strings.Employee_General, GeneralEntity.Type.Name);
 
                 JobEntity FirstJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
 
                 Assert.NotNull(FirstJob);
                 Assert.NotNull(FirstJob.EntityID);
+                Assert.NotEqual(Guid.Empty, FirstJob.Guid);
+                Assert.False(FirstJob.Dirty);
                 Assert.Equal(Strings.Job, FirstJob.Type.Name);
 
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 2, 2));
@@ -359,6 +368,8 @@ namespace HRMS.Test
 
                 Assert.NotNull(SecondJob);
                 Assert.NotNull(SecondJob.EntityID);
+                Assert.NotEqual(Guid.Empty, SecondJob.Guid);
+                Assert.False(SecondJob.Dirty);
                 Assert.Equal(Strings.Job, SecondJob.Type.Name);
             }
         }
@@ -380,6 +391,8 @@ namespace HRMS.Test
                 Assert.NotNull(GeneralEntity);
                 Assert.NotNull(GeneralEntity.HireDate);
                 Assert.NotNull(GeneralEntity.HireDate.FieldID);
+                Assert.NotEqual(Guid.Empty, GeneralEntity.HireDate.Guid);
+                Assert.False(GeneralEntity.HireDate.Dirty);
                 Assert.Equal(Strings.Hire_Date, GeneralEntity.HireDate.Type.Name);
                 Assert.Equal(Strings.Hire_Date, GeneralEntity.HireDate.Name);
 
@@ -388,6 +401,8 @@ namespace HRMS.Test
                 Assert.NotNull(FirstJob);
                 Assert.NotNull(FirstJob.JobTitle);
                 Assert.NotNull(FirstJob.JobTitle.FieldID);
+                Assert.NotEqual(Guid.Empty, FirstJob.JobTitle.Guid);
+                Assert.False(FirstJob.JobTitle.Dirty);
                 Assert.Equal(Strings.Job_Title, FirstJob.JobTitle.Type.Name);
                 Assert.Equal(Strings.Job_Title, FirstJob.JobTitle.Name);
 
@@ -398,6 +413,8 @@ namespace HRMS.Test
                 Assert.NotNull(SecondJob);
                 Assert.NotNull(SecondJob.JobTitle);
                 Assert.NotNull(SecondJob.JobTitle.FieldID);
+                Assert.NotEqual(Guid.Empty, SecondJob.JobTitle.Guid);
+                Assert.False(SecondJob.JobTitle.Dirty);
                 Assert.Equal(Strings.Job_Title, SecondJob.JobTitle.Type.Name);
                 Assert.Equal(Strings.Job_Title, SecondJob.JobTitle.Name);
             }
@@ -406,7 +423,59 @@ namespace HRMS.Test
         [Fact]
         public void ChangeEmployeeEffectiveRecord()
         {
+            using (IKernel Kernel = new StandardKernel())
+            {
+                Kernel.Load(new HRMS.Core.Configure());
+                Core.Models.Db.Employee Employee = TempEmployees.First();
 
+                Core.Models.Employee NewEmployee = Kernel.Get<Core.Models.Employee>(new ConstructorArgument("EmployeeID", Employee.EmployeeID.Value));
+                NewEmployee.Load();
+                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+
+                Core.Models.EmployeeRecord Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 1, 1));
+
+                Assert.Equal(Record, NewEmployee.EffectiveRecord);
+                Assert.Equal(2, NewEmployee.EmployeeRecords.Count());
+                Assert.False(Record.Dirty);
+
+                Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2014, 1, 1));
+
+                Assert.Equal(3, NewEmployee.EmployeeRecords.Count());
+                Assert.True(Record.Dirty);
+                Assert.Equal(new DateTime(2014, 1, 1), Record.EffectiveDate);
+                Assert.Equal(new DateTime(2015, 1, 1), Record.EndEffectiveDate);
+                Assert.Equal(0, Record.AllEntities.Count());
+
+                NewEmployee = Kernel.Get<Core.Models.Employee>(new ConstructorArgument("EmployeeID", Employee.EmployeeID.Value));
+                NewEmployee.Load();
+                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+
+                Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 1, 15));
+
+                Assert.Equal(3, NewEmployee.EmployeeRecords.Count());
+                Assert.True(Record.Dirty);
+                Assert.Equal(new DateTime(2015, 1, 15), Record.EffectiveDate);
+                Assert.Equal(new DateTime(2015, 2, 1), Record.EndEffectiveDate);
+                Assert.Equal(new DateTime(2015, 1, 1), NewEmployee.EmployeeRecords.First().Value.EffectiveDate);
+                Assert.Equal(new DateTime(2015, 1, 15), NewEmployee.EmployeeRecords.First().Value.EndEffectiveDate);
+                Assert.Equal(new DateTime(2015, 2, 1), NewEmployee.EmployeeRecords.Last().Value.EffectiveDate);
+                Assert.Null(NewEmployee.EmployeeRecords.Last().Value.EndEffectiveDate);
+
+                NewEmployee = Kernel.Get<Core.Models.Employee>(new ConstructorArgument("EmployeeID", Employee.EmployeeID.Value));
+                NewEmployee.Load();
+                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+
+                Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 3, 1));
+
+                Assert.Equal(3, NewEmployee.EmployeeRecords.Count());
+                Assert.True(Record.Dirty);
+                Assert.Equal(new DateTime(2015, 3, 1), Record.EffectiveDate);
+                Assert.Null(Record.EndEffectiveDate);
+                Assert.Equal(new DateTime(2015, 1, 1), NewEmployee.EmployeeRecords.First().Value.EffectiveDate);
+                Assert.Equal(new DateTime(2015, 2, 1), NewEmployee.EmployeeRecords.First().Value.EndEffectiveDate);
+                Assert.Equal(new DateTime(2015, 2, 1), NewEmployee.EmployeeRecords.ElementAt(1).Value.EffectiveDate);
+                Assert.Equal(new DateTime(2015, 3, 1), NewEmployee.EmployeeRecords.ElementAt(1).Value.EndEffectiveDate);
+            }
         }
 
         public void Dispose()

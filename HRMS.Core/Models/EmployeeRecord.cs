@@ -23,9 +23,10 @@ namespace HRMS.Core.Models
         private readonly IPersistenceService PersistenceService;
 
         public int? EmployeeRecordID { get; private set; }
-        public DateTime EffectiveDate { get; set; }
-        public DateTime? EndEffectiveDate { get; set; }
-        public Guid Guid { get; protected set; }
+        public DateTime EffectiveDate { get; private set; }
+        public DateTime? EndEffectiveDate { get; private set; }
+        public Guid Guid { get; private set; }
+        public bool Dirty { get; private set; }
 
         private Dictionary<EntityType, List<EntityBase>> AllEntitiesByType = new Dictionary<EntityType, List<EntityBase>>();
 
@@ -38,6 +39,18 @@ namespace HRMS.Core.Models
             }
 
             return (EntityT)AllEntitiesByType[Instance.Type].First();
+        }
+
+        public void SetEffectiveDate(DateTime EffectiveDate)
+        {
+            this.Dirty = true;
+            this.EffectiveDate = EffectiveDate;
+        }
+
+        public void SetEndEffectiveDate(DateTime? EndEffectiveDate)
+        {
+            this.Dirty = true;
+            this.EndEffectiveDate = EndEffectiveDate;
         }
 
         public IEnumerable<EntityT> GetAllEntitiesOrDefault<EntityT>() where EntityT : EntityBase, new()
@@ -54,6 +67,7 @@ namespace HRMS.Core.Models
         public EmployeeRecord(IPersistenceService PersistenceService)
         {
             this.PersistenceService = PersistenceService;
+            this.Dirty = true;
         }
 
         public EmployeeRecord(Db.EmployeeRecord DbEmployeeRecord, IPersistenceService PersistenceService)
@@ -67,6 +81,7 @@ namespace HRMS.Core.Models
                 throw new ArgumentException("Cannot create record with a null ID.");
             }
 
+            this.Dirty = false;
             this.EmployeeRecordID = DbEmployeeRecord.EmployeeRecordID.Value;
             this.PersistenceService = PersistenceService;
             this.LoadByDbRecord(DbEmployeeRecord);
@@ -74,6 +89,7 @@ namespace HRMS.Core.Models
 
         public EmployeeRecord(int EmployeeRecordID)
         {
+            this.Dirty = false;
             this.EmployeeRecordID = EmployeeRecordID;
             this.LoadByID(EmployeeRecordID);
         }
@@ -89,6 +105,7 @@ namespace HRMS.Core.Models
             this.EmployeeRecordID = DbEmployeeRecord.EmployeeRecordID;
             this.EffectiveDate = DbEmployeeRecord.EffectiveDate;
             this.EndEffectiveDate = DbEmployeeRecord.EndEffectiveDate;
+            this.Guid = DbEmployeeRecord.Guid;
             
             if (LoadEntities)
             {
@@ -116,6 +133,12 @@ namespace HRMS.Core.Models
                     AllEntitiesByType[Entity.Type] = new List<EntityBase> { Entity };
                 }
             }
+        }
+
+        public void CopyEntitiesFrom(EmployeeRecord OtherRecord)
+        {
+            this.Dirty = true;
+            AllEntitiesByType = OtherRecord.AllEntitiesByType;
         }
     }
 }

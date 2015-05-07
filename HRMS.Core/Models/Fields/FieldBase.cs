@@ -9,6 +9,7 @@ namespace HRMS.Core.Models.Fields
         public FieldType Type { get; protected set; }
         public Guid Guid { get; protected set; }
         public int? FieldID { get; protected set; }
+        public bool Dirty { get; protected set; }
 
         protected string ValueString { get; set; }
         protected DateTime? ValueDate { get; set; }
@@ -21,37 +22,43 @@ namespace HRMS.Core.Models.Fields
         {
             if (Base == null)
             {
-                this.FieldID = null;
-                this.ValueString = null;
-                this.ValueDate = null;
+                this.Dirty        = true;
+                this.FieldID      = null;
+                this.ValueString  = null;
+                this.ValueDate    = null;
                 this.ValueDecimal = null;
-                this.ValueBool = null;
-                this.ValuePerson = null;
+                this.ValueBool    = null;
+                this.ValuePerson  = null;
             }
             else
             {
-                this.FieldID = Base.FieldID;
-                this.ValueString = Base.ValueString;
-                this.ValueDate = Base.ValueDate;
+                this.Dirty        = false;
+                this.FieldID      = Base.FieldID;
+                this.ValueString  = Base.ValueString;
+                this.ValueDate    = Base.ValueDate;
                 this.ValueDecimal = Base.ValueDecimal;
-                this.ValueBool = Base.ValueBool;
-                this.ValuePerson = Base.ValuePerson;
+                this.ValueBool    = Base.ValueBool;
+                this.ValuePerson  = Base.ValuePerson;
+                this.Guid         = Base.Guid;
             }
         }
 
         public FieldBase(IPersistenceService PersistenceService)
         {
+            this.Dirty = true;
             this.PersistenceService = PersistenceService;
         }
 
-        public FieldBase(int? FieldID, string ValueString, DateTime? ValueDate, decimal? ValueDecimal, bool? ValueBool, int? ValuePerson)
+        public FieldBase(Db.EntityField Field)
         {
-            this.FieldID = FieldID;
-            this.ValueString  = ValueString;
-            this.ValueDate    = ValueDate;
-            this.ValueDecimal = ValueDecimal;
-            this.ValueBool    = ValueBool;
-            this.ValuePerson  = ValuePerson;
+            this.Dirty        = true;
+            this.FieldID      = Field.EntityFieldID;
+            this.ValueString  = Field.ValueText;
+            this.ValueDate    = Field.ValueDate;
+            this.ValueDecimal = Field.ValueDecimal;
+            this.ValueBool    = Field.ValueBoolean;
+            this.ValuePerson  = Field.ValueUser;
+            this.Guid         = Field.Guid;
         }
 
         public FieldBase(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
