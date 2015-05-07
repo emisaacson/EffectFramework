@@ -451,21 +451,27 @@ namespace HRMS.Test
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 1, 15));
+                Core.Models.EmployeeRecord PreviousRecord = NewEmployee.EmployeeRecords.First().Value;
 
                 Assert.Equal(3, NewEmployee.EmployeeRecords.Count());
                 Assert.True(Record.Dirty);
                 Assert.Equal(new DateTime(2015, 1, 15), Record.EffectiveDate);
                 Assert.Equal(new DateTime(2015, 2, 1), Record.EndEffectiveDate);
-                Assert.Equal(new DateTime(2015, 1, 1), NewEmployee.EmployeeRecords.First().Value.EffectiveDate);
-                Assert.Equal(new DateTime(2015, 1, 15), NewEmployee.EmployeeRecords.First().Value.EndEffectiveDate);
+                Assert.Equal(new DateTime(2015, 1, 1), PreviousRecord.EffectiveDate);
+                Assert.Equal(new DateTime(2015, 1, 15), PreviousRecord.EndEffectiveDate);
                 Assert.Equal(new DateTime(2015, 2, 1), NewEmployee.EmployeeRecords.Last().Value.EffectiveDate);
                 Assert.Null(NewEmployee.EmployeeRecords.Last().Value.EndEffectiveDate);
+                for (int i = 0; i < PreviousRecord.AllEntities.Count(); i++)
+                {
+                    Assert.Equal(PreviousRecord.AllEntities.ElementAt(i), Record.AllEntities.ElementAt(i));
+                }
 
                 NewEmployee = Kernel.Get<Core.Models.Employee>(new ConstructorArgument("EmployeeID", Employee.EmployeeID.Value));
                 NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 3, 1));
+                PreviousRecord = NewEmployee.EmployeeRecords.ElementAt(1).Value;
 
                 Assert.Equal(3, NewEmployee.EmployeeRecords.Count());
                 Assert.True(Record.Dirty);
@@ -473,8 +479,12 @@ namespace HRMS.Test
                 Assert.Null(Record.EndEffectiveDate);
                 Assert.Equal(new DateTime(2015, 1, 1), NewEmployee.EmployeeRecords.First().Value.EffectiveDate);
                 Assert.Equal(new DateTime(2015, 2, 1), NewEmployee.EmployeeRecords.First().Value.EndEffectiveDate);
-                Assert.Equal(new DateTime(2015, 2, 1), NewEmployee.EmployeeRecords.ElementAt(1).Value.EffectiveDate);
-                Assert.Equal(new DateTime(2015, 3, 1), NewEmployee.EmployeeRecords.ElementAt(1).Value.EndEffectiveDate);
+                Assert.Equal(new DateTime(2015, 2, 1), PreviousRecord.EffectiveDate);
+                Assert.Equal(new DateTime(2015, 3, 1), PreviousRecord.EndEffectiveDate);
+                for (int i = 0; i < PreviousRecord.AllEntities.Count(); i++)
+                {
+                    Assert.Equal(PreviousRecord.AllEntities.ElementAt(i), Record.AllEntities.ElementAt(i));
+                }
             }
         }
 

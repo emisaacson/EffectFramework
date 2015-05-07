@@ -138,7 +138,8 @@ namespace HRMS.Core.Models
         public void CopyEntitiesFrom(EmployeeRecord OtherRecord)
         {
             this.Dirty = true;
-            AllEntitiesByType = OtherRecord.AllEntitiesByType;
+            // Shallow clone
+            AllEntitiesByType = new Dictionary<EntityType, List<EntityBase>>(OtherRecord.AllEntitiesByType);
         }
     }
 }
