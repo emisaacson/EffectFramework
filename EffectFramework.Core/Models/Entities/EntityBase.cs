@@ -84,6 +84,8 @@ namespace EffectFramework.Core.Models.Entities
             this.EntityID = DbEntity.EntityID;
             this.ItemID = DbEntity.ItemID;
             this.Guid = DbEntity.Guid;
+            this._EffectiveDate = DbEntity.EffectiveDate;
+            this._EndEffectiveDate = DbEntity.EndEffectiveDate;
             this.Dirty = false;
 
             var FieldObjects = GetAllEntityFieldProperties();

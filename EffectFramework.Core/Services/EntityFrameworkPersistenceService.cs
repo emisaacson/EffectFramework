@@ -407,7 +407,7 @@ namespace EffectFramework.Core.Services
         public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, FieldType FieldType)
         {
 
-            int FieldTypeID = FieldType.DataType.Value;
+            int FieldTypeID = FieldType.Value;
 
             return RetreiveSingleFieldOrDefault(Entity, FieldTypeID);
         }

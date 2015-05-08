@@ -30,6 +30,7 @@ namespace EffectFramework.Core.Models.Entities
 
             EntityBase Output = (EntityBase)Activator.CreateInstance(EntityType.Type);
 
+            // TODO: Consolidate all the Ninject code in a single class
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
                 IPersistenceService PersistenceService = Kernel.Get<IPersistenceService>();

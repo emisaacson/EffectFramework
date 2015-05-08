@@ -15,6 +15,7 @@ namespace EffectFramework.Core.Models.Fields
             this.Name = Name;
             this.Value = Value;
             this.DataType = DataType;
+            RegisterType(this);
         }
 
         public static implicit operator int (FieldType dt)

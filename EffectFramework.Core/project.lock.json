@@ -5,13 +5,7 @@
     "": [
       "EntityFramework >= 7.0.0-beta4",
       "EntityFramework.SqlServer >= 7.0.0-beta4",
-      "Microsoft.DataAnnotations >= 1.0.0-beta1",
-      "libphonenumber-csharp >= 7.0.5.3",
       "System.Reflection >= 4.0.10-beta-22816",
-      "System.Reflection.Extensions >= 4.0.0-beta-22816",
-      "Humanizer >= 1.35.0",
-      "System.Reflection.Primitives >= 4.0.0-beta-22816",
-      "System.Runtime.Serialization.Primitives >= 4.0.10-beta-22816",
       "Ninject >= 3.2.3-unstable-012"
     ],
     "DNX,Version=v4.5.1": []
@@ -284,67 +278,6 @@
         "lib/net451/EntityFramework.SqlServer.Design.xml"
       ]
     },
-    "Humanizer/1.35.0": {
-      "serviceable": false,
-      "sha": "hAq5vdwWxlPI13CkHIufG8w7+EeQXKTXXIzYvdbis1+XJoGZvFeGa4aWMxX4zMBnZPGyQaGDpR2XUVydsAOPdQ==",
-      "frameworks": {
-        "DNX,Version=v4.5.1": {
-          "dependencies": {},
-          "frameworkAssemblies": [],
-          "runtimeAssemblies": [
-            "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/Humanizer.dll"
-          ],
-          "compileAssemblies": [
-            "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/Humanizer.dll"
-          ]
-        }
-      },
-      "files": [
-        "Humanizer.1.35.0.nupkg",
-        "Humanizer.1.35.0.nupkg.sha512",
-        "Humanizer.nuspec",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/Humanizer.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/Humanizer.pdb",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/Humanizer.xml",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/af/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/ar/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/bg/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/bn-BD/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/cs/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/da/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/de/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/el/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/es/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/fa/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/fi-FI/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/fr/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/fr-BE/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/he/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/hu/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/id/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/it/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/ja/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/nb/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/nb-NO/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/nl/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/pl/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/pt-BR/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/ro/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/ru/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/sk/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/sl/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/sr/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/sr-Latn/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/sv/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/tr/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/uz-Cyrl-UZ/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/uz-Latn-UZ/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/vi/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/zh-CN/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/zh-Hans/Humanizer.resources.dll",
-        "lib/portable-win+net40+sl50+wp8+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10/zh-Hant/Humanizer.resources.dll"
-      ]
-    },
     "Ix-Async/1.2.3": {
       "serviceable": false,
       "sha": "ytmPAD08eQL81pJRSjl13uN2cATHgOSGELx4uKnkFcI9fu9d+l2XlOdpXkqnJvFp/85svr65yatzDzNNIMD8Lg==",
@@ -373,28 +306,6 @@
         "lib/net45/System.Interactive.Async.XML",
         "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Interactive.Async.dll",
         "lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/System.Interactive.Async.XML"
-      ]
-    },
-    "libphonenumber-csharp/7.0.5.3": {
-      "serviceable": false,
-      "sha": "qL3oKCqEtoPDnLTCHjLQHQtucdDDYqyOClSiVe28KWqZAlH76Luwz9tG4+GIngANRb74KMt9FoUyE8N6iVkT+A==",
-      "frameworks": {
-        "DNX,Version=v4.5.1": {
-          "dependencies": {},
-          "frameworkAssemblies": [],
-          "runtimeAssemblies": [
-            "lib/PhoneNumbers.dll"
-          ],
-          "compileAssemblies": [
-            "lib/PhoneNumbers.dll"
-          ]
-        }
-      },
-      "files": [
-        "libphonenumber-csharp.7.0.5.3.nupkg",
-        "libphonenumber-csharp.7.0.5.3.nupkg.sha512",
-        "libphonenumber-csharp.nuspec",
-        "lib/PhoneNumbers.dll"
       ]
     },
     "Microsoft.AspNet.FeatureModel/1.0.0-beta4": {
@@ -826,41 +737,6 @@
         "lib/net45/Microsoft.CodeAnalysis.CSharp.xml",
         "lib/portable-net45+win8/Microsoft.CodeAnalysis.CSharp.dll",
         "lib/portable-net45+win8/Microsoft.CodeAnalysis.CSharp.xml"
-      ]
-    },
-    "Microsoft.DataAnnotations/1.0.0-beta1": {
-      "serviceable": false,
-      "sha": "ZvLzh5xkQSGkwHdrycpVU+o6bQNTsxVvIWCMgSiDE6Cbz9CyaxL2gwWukws4y6Dm8mwE5AFK4HWBSS79F9H1qA==",
-      "frameworks": {
-        "DNX,Version=v4.5.1": {
-          "dependencies": {
-            "System.ComponentModel.Annotations": "4.0.10-beta-22231"
-          },
-          "frameworkAssemblies": [
-            "System.ComponentModel.DataAnnotations",
-            "mscorlib",
-            "System",
-            "System.Core",
-            "Microsoft.CSharp"
-          ],
-          "runtimeAssemblies": [
-            "lib/net45/Microsoft.DataAnnotations.dll"
-          ],
-          "compileAssemblies": [
-            "lib/net45/Microsoft.DataAnnotations.dll"
-          ]
-        }
-      },
-      "files": [
-        "Microsoft.DataAnnotations.1.0.0-beta1.nupkg",
-        "Microsoft.DataAnnotations.1.0.0-beta1.nupkg.sha512",
-        "Microsoft.DataAnnotations.nuspec",
-        "lib/aspnetcore50/Microsoft.DataAnnotations.dll",
-        "lib/aspnetcore50/Microsoft.DataAnnotations.xml",
-        "lib/net45/Microsoft.DataAnnotations.dll",
-        "lib/net45/Microsoft.DataAnnotations.xml",
-        "lib/portable-net45+win+wpa81/Microsoft.DataAnnotations.dll",
-        "lib/portable-net45+win+wpa81/Microsoft.DataAnnotations.xml"
       ]
     },
     "Microsoft.Framework.Caching.Interfaces/1.0.0-beta4": {
@@ -1397,51 +1273,6 @@
         "lib/portable-net45+win8+wp8+wpa81/System.Collections.Immutable.xml"
       ]
     },
-    "System.ComponentModel/4.0.0-beta-22231": {
-      "serviceable": false,
-      "sha": "8omvXlxhrl662ZFNZV3mv64oFaKtzPjiTBduUv566kfL8fxQcY3pBMtt9/Ir2OgalqJXOgExp8pdC5uXWE7Jqw==",
-      "frameworks": {
-        "DNX,Version=v4.5.1": {
-          "dependencies": {
-            "System.Runtime": "4.0.0-beta-22231"
-          },
-          "frameworkAssemblies": [],
-          "runtimeAssemblies": [],
-          "compileAssemblies": []
-        }
-      },
-      "files": [
-        "License.rtf",
-        "System.ComponentModel.4.0.0-beta-22231.nupkg",
-        "System.ComponentModel.4.0.0-beta-22231.nupkg.sha512",
-        "System.ComponentModel.nuspec",
-        "lib/aspnetcore50/System.ComponentModel.dll",
-        "lib/contract/System.ComponentModel.dll"
-      ]
-    },
-    "System.ComponentModel.Annotations/4.0.10-beta-22231": {
-      "serviceable": false,
-      "sha": "UISJ/QJdrIgjkcEtmxrILc+h/DsfgxnJsEjKUyGi7E06qoPL8bpU4KdJfxmFnh+F7R776h760Mnd+TFnKWgQwA==",
-      "frameworks": {
-        "DNX,Version=v4.5.1": {
-          "dependencies": {
-            "System.ComponentModel": "4.0.0-beta-22231",
-            "System.Runtime": "4.0.0-beta-22231"
-          },
-          "frameworkAssemblies": [],
-          "runtimeAssemblies": [],
-          "compileAssemblies": []
-        }
-      },
-      "files": [
-        "License.rtf",
-        "System.ComponentModel.Annotations.4.0.10-beta-22231.nupkg",
-        "System.ComponentModel.Annotations.4.0.10-beta-22231.nupkg.sha512",
-        "System.ComponentModel.Annotations.nuspec",
-        "lib/aspnetcore50/System.ComponentModel.Annotations.dll",
-        "lib/contract/System.ComponentModel.Annotations.dll"
-      ]
-    },
     "System.IO/4.0.10-beta-22816": {
       "serviceable": false,
       "sha": "/wVhoi2uVXw5IZFU+JrPlyVgKrtMPtzQaYQ3DKUxH9nqiX64BChTFGNDcwZK3iNWTIWESxJhj9JR3lbqbG/PIg==",
@@ -1505,37 +1336,6 @@
         "lib/contract/System.Reflection.dll",
         "lib/net45/System.Reflection.dll",
         "lib/portable-wpa81+wp80+win80+net45+aspnetcore50/System.Reflection.dll"
-      ]
-    },
-    "System.Reflection.Extensions/4.0.0-beta-22816": {
-      "serviceable": false,
-      "sha": "jioNtekwiaIeTR5S6jz9rDRRkdZ+MQpRtQjl3Jw0JDOJ1EGoJiSW4rM8ve6HQeZzOR3goXwMGCYWgd97l4GomQ==",
-      "frameworks": {
-        "DNX,Version=v4.5.1": {
-          "dependencies": {
-            "System.Reflection": "4.0.10-beta-22816",
-            "System.Runtime": "4.0.20-beta-22816"
-          },
-          "frameworkAssemblies": [
-            "mscorlib"
-          ],
-          "runtimeAssemblies": [
-            "lib/net45/System.Reflection.Extensions.dll"
-          ],
-          "compileAssemblies": [
-            "lib/net45/System.Reflection.Extensions.dll"
-          ]
-        }
-      },
-      "files": [
-        "License.rtf",
-        "System.Reflection.Extensions.4.0.0-beta-22816.nupkg",
-        "System.Reflection.Extensions.4.0.0-beta-22816.nupkg.sha512",
-        "System.Reflection.Extensions.nuspec",
-        "lib/aspnetcore50/System.Reflection.Extensions.dll",
-        "lib/contract/System.Reflection.Extensions.dll",
-        "lib/net45/System.Reflection.Extensions.dll",
-        "lib/portable-wpa81+wp80+win80+net45+aspnetcore50/System.Reflection.Extensions.dll"
       ]
     },
     "System.Reflection.Metadata/1.0.18-beta": {
@@ -1623,37 +1423,6 @@
         "lib/contract/System.Runtime.dll",
         "lib/net45/System.Runtime.dll",
         "lib/portable-wpa81+wp80+win80+net45+aspnetcore50/System.Runtime.dll"
-      ]
-    },
-    "System.Runtime.Serialization.Primitives/4.0.10-beta-22816": {
-      "serviceable": false,
-      "sha": "G1uYDQfNiMy76tAgR6HPEZuXTp0Dwl1BE682raw1AE+0E4c74mKXg0a5CteMNsVkrS4KMftNvdR+18FQM4dGgQ==",
-      "frameworks": {
-        "DNX,Version=v4.5.1": {
-          "dependencies": {
-            "System.Runtime": "4.0.20-beta-22816"
-          },
-          "frameworkAssemblies": [
-            "mscorlib",
-            "System.Runtime.Serialization"
-          ],
-          "runtimeAssemblies": [
-            "lib/net45/System.Runtime.Serialization.Primitives.dll"
-          ],
-          "compileAssemblies": [
-            "lib/net45/System.Runtime.Serialization.Primitives.dll"
-          ]
-        }
-      },
-      "files": [
-        "License.rtf",
-        "System.Runtime.Serialization.Primitives.4.0.10-beta-22816.nupkg",
-        "System.Runtime.Serialization.Primitives.4.0.10-beta-22816.nupkg.sha512",
-        "System.Runtime.Serialization.Primitives.nuspec",
-        "lib/aspnetcore50/System.Runtime.Serialization.Primitives.dll",
-        "lib/contract/System.Runtime.Serialization.Primitives.dll",
-        "lib/net45/System.Runtime.Serialization.Primitives.dll",
-        "lib/portable-wpa81+wp80+win80+net45+aspnetcore50/System.Runtime.Serialization.Primitives.dll"
       ]
     },
     "System.Text.Encoding/4.0.10-beta-22816": {

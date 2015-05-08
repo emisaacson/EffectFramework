@@ -144,7 +144,7 @@ namespace EffectFramework.Test
                     EntityField NewField1 = new EntityField()
                     {
                         EntityID = NewEntity1.EntityID,
-                        FieldTypeID = TestFieldType.Hire_Date.DataType.Value,
+                        FieldTypeID = TestFieldType.Hire_Date.Value,
                         IsDeleted = false,
                         ValueDate = new DateTime(2015, 1, 1),
                         Guid = Guid.NewGuid(),
@@ -153,7 +153,7 @@ namespace EffectFramework.Test
                     EntityField NewField2 = new EntityField()
                     {
                         EntityID = NewEntity2.EntityID,
-                        FieldTypeID = TestFieldType.Job_Title.DataType.Value,
+                        FieldTypeID = TestFieldType.Job_Title.Value,
                         IsDeleted = false,
                         ValueText = "Manager",
                         Guid = Guid.NewGuid(),
@@ -162,7 +162,7 @@ namespace EffectFramework.Test
                     EntityField NewField3 = new EntityField()
                     {
                         EntityID = NewEntity3.EntityID,
-                        FieldTypeID = TestFieldType.Job_Title.DataType.Value,
+                        FieldTypeID = TestFieldType.Job_Title.Value,
                         IsDeleted = false,
                         ValueText = "Director",
                         Guid = Guid.NewGuid(),
@@ -288,7 +288,6 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 Assert.Equal(Item.ItemID, NewEmployee.ItemID);
@@ -311,7 +310,6 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 Assert.False(NewEmployee.Dirty);
@@ -345,7 +343,6 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 EmployeeGeneralEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<EmployeeGeneralEntity>();
@@ -353,6 +350,8 @@ namespace EffectFramework.Test
                 Assert.NotNull(GeneralEntity);
                 Assert.NotNull(GeneralEntity.EntityID);
                 Assert.NotEqual(Guid.Empty, GeneralEntity.Guid);
+                Assert.Equal(new DateTime(2015, 1, 1), GeneralEntity.EffectiveDate);
+                Assert.Null(GeneralEntity.EndEffectiveDate);
                 Assert.False(GeneralEntity.Dirty);
                 Assert.Equal(Strings.Employee_General, GeneralEntity.Type.Name);
 
@@ -361,6 +360,8 @@ namespace EffectFramework.Test
                 Assert.NotNull(FirstJob);
                 Assert.NotNull(FirstJob.EntityID);
                 Assert.NotEqual(Guid.Empty, FirstJob.Guid);
+                Assert.Equal(new DateTime(2015, 1, 1), FirstJob.EffectiveDate);
+                Assert.Equal(new DateTime(2015, 2, 1), FirstJob.EndEffectiveDate);
                 Assert.False(FirstJob.Dirty);
                 Assert.Equal(Strings.Job, FirstJob.Type.Name);
 
@@ -371,6 +372,8 @@ namespace EffectFramework.Test
                 Assert.NotNull(SecondJob);
                 Assert.NotNull(SecondJob.EntityID);
                 Assert.NotEqual(Guid.Empty, SecondJob.Guid);
+                Assert.Equal(new DateTime(2015, 2, 1), SecondJob.EffectiveDate);
+                Assert.Null(SecondJob.EndEffectiveDate);
                 Assert.False(SecondJob.Dirty);
                 Assert.Equal(Strings.Job, SecondJob.Type.Name);
             }
@@ -385,7 +388,6 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 EmployeeGeneralEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<EmployeeGeneralEntity>();
@@ -431,7 +433,6 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 Core.Models.ItemRecord Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 1, 1));
@@ -449,7 +450,6 @@ namespace EffectFramework.Test
                 Assert.Equal(0, Record.AllEntities.Count());
 
                 NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 1, 15));
@@ -469,7 +469,6 @@ namespace EffectFramework.Test
                 }
 
                 NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 3, 1));
@@ -499,7 +498,6 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 FieldString JobTitle = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>().JobTitle;
@@ -542,7 +540,6 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 JobEntity Job = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
@@ -556,7 +553,6 @@ namespace EffectFramework.Test
                 }
 
                 NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.Load();
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
                 Job = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
@@ -575,7 +571,7 @@ namespace EffectFramework.Test
     public class TestEntityType : EntityType
     {
         public static readonly TestEntityType Job = new TestEntityType(Strings.Job, 1, typeof(JobEntity));
-        public static readonly TestEntityType Address = new TestEntityType(Strings.Job, 2, typeof(AddressEntity));
+        public static readonly TestEntityType Address = new TestEntityType(Strings.Address, 2, typeof(AddressEntity));
         public static readonly TestEntityType Employee_General = new TestEntityType(Strings.Employee_General, 3, typeof(EmployeeGeneralEntity));
 
         protected TestEntityType(string Name, int Value, Type Type) : base(Name, Value, Type) { }
