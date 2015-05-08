@@ -7,6 +7,7 @@ namespace EffectFramework.Core.Models.Db
     {
         public int? ItemID { get; set; }
         public int? ItemRecordID { get; set; }
+        public int ItemTypeID { get; set; }
         public bool IsDeleted { get; set; }
         public string DisplayName { get; set; }
         public Guid Guid { get; set; }

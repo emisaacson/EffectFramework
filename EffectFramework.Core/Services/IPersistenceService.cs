@@ -28,7 +28,7 @@ namespace EffectFramework.Core.Services
 
         Models.Db.ItemRecord RetreiveSingleDbItemRecord(int ItemRecordID);
 
-        Guid RetreiveGuidForItemRecord(int ItemID);
+        Guid RetreiveGuidForItemRecord(Models.Item Item);
 
         List<EntityBase> RetreiveAllEntities(Models.ItemRecord ItemRecord);
         List<EntityBase> RetreiveAllEntities(int ItemRecordID);

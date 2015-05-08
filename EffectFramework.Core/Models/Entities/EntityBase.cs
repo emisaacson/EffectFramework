@@ -114,7 +114,7 @@ namespace EffectFramework.Core.Models.Entities
 
         public void PersistEntityToDatabase(Db.IDbContext ctx = null)
         {
-            var Identity = PersistenceService.SaveEntity(this, ctx);
+            var Identity = PersistenceService.SaveSingleEntity(this, ctx);
             this.Guid = Identity.ObjectGuid;
             this.EntityID = Identity.ObjectID;
 

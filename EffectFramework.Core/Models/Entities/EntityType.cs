@@ -1,22 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace EffectFramework.Core.Models.Entities
 {
-    public class EntityType
+    public abstract class EntityType
     {
-        public int Value { get; private set; }
-        public string Name { get; private set; }
-        public Type Type { get; private set; }
-        private EntityType(string Name, int Value, Type Type)
+        public int Value { get; protected set; }
+        public string Name { get; protected set; }
+        public Type Type { get; protected set; }
+        private static Dictionary<int, EntityType> TypeRegistry = new Dictionary<int, EntityType>();
+        protected EntityType(string Name, int Value, Type Type)
         {
             this.Value = Value;
             this.Name = Name;
             this.Type = Type;
+            RegisterType(this);
         }
-
-        public static readonly EntityType Job = new EntityType(Strings.Job, 1, typeof(JobEntity));
-        public static readonly EntityType Address = new EntityType(Strings.Job, 2, typeof(AddressEntity));
-        public static readonly EntityType Employee_General = new EntityType(Strings.Employee_General, 3, typeof(EmployeeGeneralEntity));
 
         public static implicit operator int (EntityType dt)
         {
@@ -25,17 +24,16 @@ namespace EffectFramework.Core.Models.Entities
 
         public static explicit operator EntityType(int i)
         {
-            switch (i)
+            if (TypeRegistry.ContainsKey(i))
             {
-                case 1:
-                    return Job;
-                case 2:
-                    return Address;
-                case 3:
-                    return Employee_General;
-                default:
-                    throw new InvalidCastException(string.Format("Cannot convert the int value {0} to an EmployeeEntity instance.", i));
+                return TypeRegistry[i];
             }
+            throw new InvalidCastException(string.Format("Cannot convert the int value {0} to an EntityType instance.", i));
+        }
+
+        private static void RegisterType(EntityType Type)
+        {
+            TypeRegistry[Type.Value] = Type;
         }
     }
 }

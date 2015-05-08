@@ -3,3 +3,8 @@
 ################################################################################
 
 *.user
+.vs
+artifacts
+EffectFramework.Core/bin
+EffectFramework.Tests/bin
+EffectFramework.Console/bin

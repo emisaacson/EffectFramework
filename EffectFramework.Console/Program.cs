@@ -7,7 +7,7 @@ namespace EffectFramework.Console
     {
         public void Main(string[] args)
         {
-            using (var db = new HrmsDb7Context())
+            using (var db = new ItemDb7Context())
             {
                 Item NewItem = new Item()
                 {

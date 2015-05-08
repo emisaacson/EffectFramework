@@ -6,17 +6,18 @@ using EffectFramework.Core.Services;
 
 namespace EffectFramework.Core.Models
 {
-    public class Item
+    public abstract class Item
     {
-        public IEnumerable<EntityBase> AllEntities { get; private set; }
+        public IEnumerable<EntityBase> AllEntities { get; protected set; }
         private Dictionary<EntityType, IEnumerable<EntityBase>> AllEntitiesByType;
-        public int? ItemID { get; private set; }
-        public Guid Guid { get; private set; }
-        public bool Dirty { get; private set; }
+        public int? ItemID { get; protected set; }
+        public Guid Guid { get; protected set; }
+        public bool Dirty { get; protected set; }
+        public abstract ItemType Type { get; }
 
-        private readonly IPersistenceService PersistenceService;
+        protected readonly IPersistenceService PersistenceService;
 
-        public SortedDictionary<DateTime, ItemRecord> ItemRecords { get; private set; }
+        public SortedDictionary<DateTime, ItemRecord> ItemRecords { get; protected set; }
         public ItemRecord EffectiveRecord
         {
             get
@@ -25,7 +26,7 @@ namespace EffectFramework.Core.Models
             }
         }
 
-        private ItemRecord GetEffectiveRecordForDate(DateTime EffectiveDate)
+        protected ItemRecord GetEffectiveRecordForDate(DateTime EffectiveDate)
         {
             var _EffectiveRecord = ItemRecords
                 .Where(e =>
@@ -41,7 +42,7 @@ namespace EffectFramework.Core.Models
             return null;
         }
 
-        private DateTime _EffectiveDate = DateTime.Now;
+        protected DateTime _EffectiveDate = DateTime.Now;
         public DateTime EffectiveDate {
             get
             {
@@ -86,7 +87,7 @@ namespace EffectFramework.Core.Models
             }
             this.ItemID = ItemID;
             this.Dirty = false;
-            this.Guid = PersistenceService.RetreiveGuidForItemRecord(ItemID);
+            this.Guid = PersistenceService.RetreiveGuidForItemRecord(this);
             var ItemRecordsList = PersistenceService.RetreiveAllItemRecords(this);
 
             ItemRecords = new SortedDictionary<DateTime, ItemRecord>();

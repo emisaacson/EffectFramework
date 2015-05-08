@@ -13,16 +13,16 @@ namespace EffectFramework.Core.Services
     {
         public ObjectIdentity SaveSingleField(EntityBase Entity, FieldBase Field, IDbContext ctx = null)
         {
-            HrmsDb7Context db = null;
+            ItemDb7Context db = null;
             try
             {
                 if (ctx == null)
                 {
-                    db = new HrmsDb7Context();
+                    db = new ItemDb7Context();
                 }
                 else
                 {
-                    db = (HrmsDb7Context)ctx;
+                    db = (ItemDb7Context)ctx;
                 }
 
                 if (Entity == null)
@@ -135,15 +135,15 @@ namespace EffectFramework.Core.Services
         }
         public ObjectIdentity SaveSingleField(FieldBase Field, IDbContext ctx = null)
         {
-            HrmsDb7Context db = null;
+            ItemDb7Context db = null;
             try {
                 if (ctx == null)
                 {
-                    db = new HrmsDb7Context();
+                    db = new ItemDb7Context();
                 }
                 else
                 {
-                    db = (HrmsDb7Context)ctx;
+                    db = (ItemDb7Context)ctx;
                 }
 
                 if (!Field.FieldID.HasValue)
@@ -235,16 +235,16 @@ namespace EffectFramework.Core.Services
 
         public ObjectIdentity SaveSingleEntity(Models.ItemRecord ItemRecord, EntityBase Entity, IDbContext ctx = null)
         {
-            HrmsDb7Context db = null;
+            ItemDb7Context db = null;
             try
             {
                 if (ctx == null)
                 {
-                    db = new HrmsDb7Context();
+                    db = new ItemDb7Context();
                 }
                 else
                 {
-                    db = (HrmsDb7Context)ctx;
+                    db = (ItemDb7Context)ctx;
                 }
 
                 if (ItemRecord == null)
@@ -335,16 +335,16 @@ namespace EffectFramework.Core.Services
 
         public ObjectIdentity SaveSingleEntity(EntityBase Entity, IDbContext ctx = null)
         {
-            HrmsDb7Context db = null;
+            ItemDb7Context db = null;
             try
             {
                 if (ctx == null)
                 {
-                    db = new HrmsDb7Context();
+                    db = new ItemDb7Context();
                 }
                 else
                 {
-                    db = (HrmsDb7Context)ctx;
+                    db = (ItemDb7Context)ctx;
                 }
 
                 Entity DbEntity = null;
@@ -423,7 +423,7 @@ namespace EffectFramework.Core.Services
                 throw new ArgumentException("Cannot retrieve a field without an EntityID");
             }
 
-            using (var db = new HrmsDb7Context())
+            using (var db = new ItemDb7Context())
             {
                 var DbField = db.Fields.Where(f => f.EntityID == Entity.EntityID.Value &&
                                               f.FieldTypeID == FieldTypeID &&
@@ -443,7 +443,7 @@ namespace EffectFramework.Core.Services
         public FieldBase RetreiveSingleFieldOrDefault(int FieldID)
         {
 
-            using (var db = new HrmsDb7Context())
+            using (var db = new ItemDb7Context())
             {
                 var DbField = db.Fields.Where(f => f.EntityFieldID == FieldID &&
                                               !f.IsDeleted).FirstOrDefault();
@@ -492,7 +492,7 @@ namespace EffectFramework.Core.Services
             EntityT Instance = new EntityT();
             Instance.PersistenceService = this;
 
-            using (var db = new HrmsDb7Context())
+            using (var db = new ItemDb7Context())
             using (db.Database.AsRelational().Connection.BeginTransaction())
             {
                 var EntityIDs = db.ItemEntities
@@ -535,7 +535,7 @@ namespace EffectFramework.Core.Services
 
         public List<EntityBase> RetreiveAllEntities(int ItemRecordID)
         {
-            using (var db = new HrmsDb7Context())
+            using (var db = new ItemDb7Context())
             {
                 var EntityIDs = db.ItemEntities
                     .Where(er =>
@@ -577,7 +577,7 @@ namespace EffectFramework.Core.Services
 
         public List<Models.ItemRecord> RetreiveAllItemRecords(int ItemID)
         {
-            using (var db = new HrmsDb7Context())
+            using (var db = new ItemDb7Context())
             {
                 var DbItemRecords = db.ItemRecords
                     .Where(er =>
@@ -599,7 +599,7 @@ namespace EffectFramework.Core.Services
 
         public Models.Db.ItemRecord RetreiveSingleDbItemRecord(int ItemRecordID)
         {
-            using (var db = new HrmsDb7Context())
+            using (var db = new ItemDb7Context())
             {
                 var DbItemRecord = db.ItemRecords
                     .Where(er =>
@@ -611,13 +611,14 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public Guid RetreiveGuidForItemRecord(int ItemID)
+        public Guid RetreiveGuidForItemRecord(Models.Item Item)
         {
-            using (var db = new HrmsDb7Context())
+            using (var db = new ItemDb7Context())
             {
                 var DbItemRecord = db.Items
                     .Where(e =>
-                        e.ItemID == ItemID &&
+                        e.ItemID == Item.ItemID &&
+                        e.ItemTypeID == Item.Type.Value &&
                         e.IsDeleted == false)
                     .FirstOrDefault();
 
