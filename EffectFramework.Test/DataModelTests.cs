@@ -10,6 +10,8 @@ using EffectFramework.Core.Models.Fields;
 using Ninject.Parameters;
 using EffectFramework.Core.Services;
 using EffectFramework.Core.Models;
+using EffectFramework.Core.Forms;
+using EffectFramework.Core;
 
 namespace EffectFramework.Test
 {
@@ -47,7 +49,7 @@ namespace EffectFramework.Test
                         EffectiveDate = new DateTime(2015, 1, 1),
                         EndEffectiveDate = null,
                         ItemID = NewItem.ItemID.Value,
-                        EntityTypeID = TestEntityType.Employee_General,
+                        EntityTypeID = TestEntityType.General_Info,
                         IsDeleted = false,
                         Guid = Guid.NewGuid(),
                     };
@@ -150,6 +152,24 @@ namespace EffectFramework.Test
                         Guid = Guid.NewGuid(),
                     };
 
+                    EntityField NewField4 = new EntityField()
+                    {
+                        EntityID = NewEntity1.EntityID,
+                        FieldTypeID = TestFieldType.First_Name.Value,
+                        IsDeleted = false,
+                        ValueText = "John",
+                        Guid = Guid.NewGuid(),
+                    };
+
+                    EntityField NewField5 = new EntityField()
+                    {
+                        EntityID = NewEntity1.EntityID,
+                        FieldTypeID = TestFieldType.Last_Name.Value,
+                        IsDeleted = false,
+                        ValueText = "Smith",
+                        Guid = Guid.NewGuid(),
+                    };
+
                     EntityField NewField2 = new EntityField()
                     {
                         EntityID = NewEntity2.EntityID,
@@ -171,6 +191,8 @@ namespace EffectFramework.Test
                     db.Fields.Add(NewField1);
                     db.Fields.Add(NewField2);
                     db.Fields.Add(NewField3);
+                    db.Fields.Add(NewField4);
+                    db.Fields.Add(NewField5);
                     db.SaveChanges();
 
                     db.Database.AsRelational().Connection.Transaction.Commit();
@@ -190,6 +212,8 @@ namespace EffectFramework.Test
                     TempEntityField.Add(NewField1);
                     TempEntityField.Add(NewField2);
                     TempEntityField.Add(NewField3);
+                    TempEntityField.Add(NewField4);
+                    TempEntityField.Add(NewField5);
                 }
             }
         }
@@ -315,7 +339,7 @@ namespace EffectFramework.Test
                 Assert.False(NewEmployee.Dirty);
                 Assert.Equal(Item.Guid, NewEmployee.Guid);
 
-                EmployeeGeneralEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<EmployeeGeneralEntity>();
+                GeneralInfoEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<GeneralInfoEntity>();
 
                 Assert.NotNull(GeneralEntity);
                 Assert.Equal(TempEntityField.First().ValueDate.Value, GeneralEntity.HireDate.Value);
@@ -345,7 +369,7 @@ namespace EffectFramework.Test
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
-                EmployeeGeneralEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<EmployeeGeneralEntity>();
+                GeneralInfoEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<GeneralInfoEntity>();
 
                 Assert.NotNull(GeneralEntity);
                 Assert.NotNull(GeneralEntity.EntityID);
@@ -353,7 +377,7 @@ namespace EffectFramework.Test
                 Assert.Equal(new DateTime(2015, 1, 1), GeneralEntity.EffectiveDate);
                 Assert.Null(GeneralEntity.EndEffectiveDate);
                 Assert.False(GeneralEntity.Dirty);
-                Assert.Equal(Strings.Employee_General, GeneralEntity.Type.Name);
+                Assert.Equal(Strings.General_Info, GeneralEntity.Type.Name);
 
                 JobEntity FirstJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
 
@@ -390,7 +414,7 @@ namespace EffectFramework.Test
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
                 NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
 
-                EmployeeGeneralEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<EmployeeGeneralEntity>();
+                GeneralInfoEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<GeneralInfoEntity>();
 
                 Assert.NotNull(GeneralEntity);
                 Assert.NotNull(GeneralEntity.HireDate);
@@ -561,18 +585,53 @@ namespace EffectFramework.Test
             }
         }
 
+        [Fact]
+        public void PopulateForm()
+        {
+            Employee Employee = null;
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                Employee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", TempItems.First().ItemID));
+            }
+            GeneralInfoForm Form = new GeneralInfoForm()
+            {
+                GeneralInfoID = Employee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>().EntityID,
+            };
+            Form.BindTo(Employee);
+            Form.Populate();
+
+            GeneralInfoEntity Entity = Employee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
+
+            Assert.NotNull(Entity);
+            Assert.Equal(Form.First_Name, Entity.First_Name.Value);
+            Assert.Equal(Form.Last_Name, Entity.Last_Name.Value);
+        }
+
         public void Dispose()
         {
             TearDownEF7DatabaseIfRequired();
         }
     }
 
-#region Entities And Fields
+#region Entities And Fields And Forms
+    [Bind(typeof(Employee), typeof(GeneralInfoEntity), "GeneralInfoID")]
+    public class GeneralInfoForm : Form
+    {
+
+        [Bind]
+        public string First_Name { get; set; }
+
+        [Bind]
+        public string Last_Name { get; set; }
+
+        public int? GeneralInfoID { get; set; }
+    }
+
     public class TestEntityType : EntityType
     {
         public static readonly TestEntityType Job = new TestEntityType(Strings.Job, 1, typeof(JobEntity));
         public static readonly TestEntityType Address = new TestEntityType(Strings.Address, 2, typeof(AddressEntity));
-        public static readonly TestEntityType Employee_General = new TestEntityType(Strings.Employee_General, 3, typeof(EmployeeGeneralEntity));
+        public static readonly TestEntityType General_Info = new TestEntityType(Strings.General_Info, 3, typeof(GeneralInfoEntity));
 
         protected TestEntityType(string Name, int Value, Type Type) : base(Name, Value, Type) { }
     }
@@ -584,6 +643,8 @@ namespace EffectFramework.Test
         public static readonly TestFieldType Job_Title = new TestFieldType(Strings.Job_Title, 1, DataType.Text);
         public static readonly TestFieldType Job_Start_Date = new TestFieldType(Strings.Job_Start_Date, 2, DataType.Date);
         public static readonly TestFieldType Hire_Date = new TestFieldType(Strings.Hire_Date, 3, DataType.Date);
+        public static readonly TestFieldType First_Name = new TestFieldType(Strings.First_Name, 4, DataType.Text);
+        public static readonly TestFieldType Last_Name = new TestFieldType(Strings.Last_Name, 5, DataType.Text);
 
     }
 
@@ -633,24 +694,24 @@ namespace EffectFramework.Test
         }
     }
 
-    public class EmployeeGeneralEntity : EntityBase
+    public class GeneralInfoEntity : EntityBase
     {
         public override EntityType Type
         {
             get
             {
-                return TestEntityType.Employee_General;
+                return TestEntityType.General_Info;
             }
         }
 
-        public EmployeeGeneralEntity() : base()
+        public GeneralInfoEntity() : base()
         {
 
         }
 
 
 
-        public EmployeeGeneralEntity(IPersistenceService PersistenceService)
+        public GeneralInfoEntity(IPersistenceService PersistenceService)
             : base(PersistenceService)
         {
         }
@@ -658,9 +719,13 @@ namespace EffectFramework.Test
         protected override void WireUpFields()
         {
             HireDate = new FieldDate(TestFieldType.Hire_Date, PersistenceService);
+            First_Name = new FieldString(TestFieldType.First_Name, PersistenceService);
+            Last_Name = new FieldString(TestFieldType.Last_Name, PersistenceService);
         }
 
         public FieldDate HireDate { get; private set; }
+        public FieldString First_Name { get; private set; }
+        public FieldString Last_Name { get; private set; }
     }
 
     public class JobEntity : EntityBase

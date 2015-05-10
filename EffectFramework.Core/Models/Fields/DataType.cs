@@ -16,6 +16,7 @@ namespace EffectFramework.Core.Models.Fields
         public static readonly DataType Decimal = new DataType(3);
         public static readonly DataType Boolean = new DataType(4);
         public static readonly DataType Person = new DataType(5);
+        public static readonly DataType Binary = new DataType(6);
 
         public static implicit operator int (DataType dt)
         {
@@ -36,6 +37,8 @@ namespace EffectFramework.Core.Models.Fields
                     return Boolean;
                 case 5:
                     return Person;
+                case 6:
+                    return Binary;
                 default:
                     throw new InvalidCastException(string.Format("Cannot convert the int value {0} to a DataTypes instance.", i));
             }

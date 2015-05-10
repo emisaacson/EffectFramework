@@ -53,6 +53,7 @@ CREATE TABLE [dbo].[EntityFields](
 	[ValueDecimal] [decimal](18, 4) NULL,
 	[ValueBoolean] [bit] NULL,
 	[ValueUser] [int] NULL,
+	[ValueBinary] [varbinary](max) NULL,
 	[IsDeleted] [bit] NOT NULL,
 	[Guid] [uniqueidentifier] NOT NULL,
  CONSTRAINT [PK_EntityFields] PRIMARY KEY CLUSTERED 
@@ -225,6 +226,8 @@ INSERT [dbo].[DataTypes] ([DataTypeID], [Name]) VALUES (4, N'Boolean')
 GO
 INSERT [dbo].[DataTypes] ([DataTypeID], [Name]) VALUES (5, N'Person')
 GO
+INSERT [dbo].[DataTypes] ([DataTypeID], [Name]) VALUES (6, N'Binary')
+GO
 
 CREATE VIEW [dbo].[CompleteItemRecord] AS
 SELECT
@@ -254,6 +257,7 @@ ef.ValueDate,
 ef.ValueDecimal,
 ef.ValueBoolean,
 ef.ValueUser,
+ef.ValueBinary,
 ef.[Guid] as EntityFieldGuid
 FROM Items i
 JOIN ItemTypes it on it.ItemTypeID = i.ItemTypeID
@@ -303,6 +307,7 @@ ef.ValueDate,
 ef.ValueDecimal,
 ef.ValueBoolean,
 ef.ValueUser,
+ef.ValueBinary,
 ef.[Guid] as EntityFieldGuid
 FROM Items i
 JOIN ItemTypes it on it.ItemTypeID = i.ItemTypeID

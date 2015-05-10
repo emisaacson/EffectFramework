@@ -16,6 +16,7 @@ namespace EffectFramework.Core.Models.Fields
         protected decimal? ValueDecimal { get; set; }
         protected bool? ValueBool { get; set; }
         protected int? ValuePerson { get; set; }
+        protected byte[] ValueBinary { get; set; }
         protected readonly IPersistenceService PersistenceService;
 
         protected void LoadUpValues(FieldBase Base)
@@ -29,6 +30,7 @@ namespace EffectFramework.Core.Models.Fields
                 this.ValueDecimal = null;
                 this.ValueBool    = null;
                 this.ValuePerson  = null;
+                this.ValueBinary  = null;
             }
             else
             {
@@ -39,6 +41,7 @@ namespace EffectFramework.Core.Models.Fields
                 this.ValueDecimal = Base.ValueDecimal;
                 this.ValueBool    = Base.ValueBool;
                 this.ValuePerson  = Base.ValuePerson;
+                this.ValueBinary  = Base.ValueBinary;
                 this.Guid         = Base.Guid;
             }
         }
@@ -58,6 +61,7 @@ namespace EffectFramework.Core.Models.Fields
             this.ValueDecimal = Field.ValueDecimal;
             this.ValueBool    = Field.ValueBoolean;
             this.ValuePerson  = Field.ValueUser;
+            this.ValueBinary  = Field.ValueBinary;
             this.Guid         = Field.Guid;
         }
 

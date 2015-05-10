@@ -8,7 +8,20 @@ namespace EffectFramework.Core.Models
 {
     public abstract class Item
     {
-        public IEnumerable<EntityBase> AllEntities { get; protected set; }
+        public IEnumerable<EntityBase> AllEntities {
+            get
+            {
+                HashSet<EntityBase> Output = new HashSet<EntityBase>();
+                foreach (var Record in ItemRecords)
+                {
+                    foreach (var Entity in Record.Value.AllEntities)
+                    {
+                        Output.Add(Entity);
+                    }
+                }
+                return Output;
+            }
+        }
         private Dictionary<EntityType, IEnumerable<EntityBase>> AllEntitiesByType;
         public int? ItemID { get; protected set; }
         public Guid Guid { get; protected set; }

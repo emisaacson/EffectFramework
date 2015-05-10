@@ -7,6 +7,8 @@
         public static readonly string Hire_Date = "Hire Date";
         public static readonly string Job = "Job";
         public static readonly string Address = "Address";
-        public static readonly string Employee_General = "Employee General";
+        public static readonly string General_Info = "General Info";
+        public static readonly string First_Name = "First Name";
+        public static readonly string Last_Name = "Last Name";
     }
 }
