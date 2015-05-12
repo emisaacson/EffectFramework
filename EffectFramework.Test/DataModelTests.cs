@@ -50,7 +50,6 @@ namespace EffectFramework.Test
                 {
                     Core.Models.Db.Item NewItem = new Core.Models.Db.Item()
                     {
-                        DisplayName = "xUnit Test Item",
                         ItemTypeID = TestItemType.Employee.Value,
                         IsDeleted = false,
                         Guid = Guid.NewGuid(),
