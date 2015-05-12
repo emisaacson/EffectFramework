@@ -16,7 +16,7 @@ namespace EffectFramework.Core.Forms
             this.BoundItem = Item;
         }
 
-        // EITODO: refactor for readability
+        // EITODO: refactor for readability and code duplication
         public void Populate()
         {
             if (this.BoundItem == null)

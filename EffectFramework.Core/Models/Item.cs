@@ -73,11 +73,20 @@ namespace EffectFramework.Core.Models
         }
 
 
-        public void PersistToDatabase()
+        public void PersistToDatabase(Db.IDbContext ctx = null)
         {
-            using (var ctx = PersistenceService.GetDbContext())
-            using (ctx.BeginTransaction())
-            {
+            Db.IDbContext db = null;
+            try {
+                if (ctx == null)
+                {
+                    db = PersistenceService.GetDbContext();
+                    db.BeginTransaction();
+                }
+                else
+                {
+                    db = ctx;
+                }
+
                 var Identity = PersistenceService.SaveSingleItem(this, ctx);
                 this.ItemID = Identity.ObjectID;
                 this.Guid = Identity.ObjectGuid;
@@ -89,7 +98,17 @@ namespace EffectFramework.Core.Models
 
                 this.Dirty = false;
 
-                ctx.Commit();
+                if (ctx == null)
+                {
+                    db.Commit();
+                }
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
             }
         }
         protected void LoadByID(int ItemID, bool Sparse = false)
