@@ -52,10 +52,10 @@ namespace EffectFramework.Core.Models.Fields
             this.PersistenceService = PersistenceService;
         }
 
-        public FieldBase(Db.EntityField Field)
+        public FieldBase(Db.Field Field)
         {
             this.Dirty        = true;
-            this.FieldID      = Field.EntityFieldID;
+            this.FieldID      = Field.FieldID;
             this.ValueString  = Field.ValueText;
             this.ValueDate    = Field.ValueDate;
             this.ValueDecimal = Field.ValueDecimal;

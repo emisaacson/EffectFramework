@@ -1,0 +1,7 @@
+﻿{
+	"Data": {
+		"DefaultConnection": {
+			"ConnectionString": "Server=EMIKEKDC02;Database=HRMS;Trusted_Connection=True;MultipleActiveResultSets=true"
+		}
+	}
+}

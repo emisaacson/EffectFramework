@@ -12,6 +12,8 @@ using EffectFramework.Core.Services;
 using EffectFramework.Core.Models;
 using EffectFramework.Core.Forms;
 using EffectFramework.Core;
+using Microsoft.Framework.ConfigurationModel;
+using System.IO;
 
 namespace EffectFramework.Test
 {
@@ -21,17 +23,30 @@ namespace EffectFramework.Test
     {
         private List<Core.Models.Db.Item> TempItems = new List<Core.Models.Db.Item>();
         private List<Entity> TempEntity = new List<Entity>();
-        private List<Core.Models.Db.ItemRecord> TempItemRecord = new List<Core.Models.Db.ItemRecord>();
-        private List<ItemEntity> TempItemEntity = new List<ItemEntity>();
-        private List<EntityField> TempEntityField = new List<EntityField>();
+        private List<Field> TempField = new List<Field>();
         private bool DatabaseIsPrepared = false;
+
+        private IConfiguration Configuration { get; set; }
+
+        private string _BasePath = null;
+        private string BasePath
+        {
+            get
+            {
+                if (_BasePath == null)
+                {
+                    _BasePath = Directory.GetCurrentDirectory();
+                }
+                return _BasePath;
+            }
+        }
 
         private void PrepareEF7DatabaseIfRequired()
         {
             if (!DatabaseIsPrepared)
             {
-                using (var db = new ItemDb7Context())
-                using (db.Database.AsRelational().Connection.BeginTransaction())
+                using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
+                //using (db.BeginTransaction())
                 {
                     Core.Models.Db.Item NewItem = new Core.Models.Db.Item()
                     {
@@ -80,70 +95,7 @@ namespace EffectFramework.Test
                     db.Entities.Add(NewEntity3);
                     db.SaveChanges();
 
-                    Core.Models.Db.ItemRecord NewItemRecord1 = new Core.Models.Db.ItemRecord()
-                    {
-                        EffectiveDate = new DateTime(2015, 1, 1),
-                        EndEffectiveDate = new DateTime(2015, 2, 1),
-                        ItemID = NewItem.ItemID.Value,
-                        IsDeleted = false,
-                        Guid = Guid.NewGuid(),
-                    };
-
-                    Core.Models.Db.ItemRecord NewItemRecord2 = new Core.Models.Db.ItemRecord()
-                    {
-                        EffectiveDate = new DateTime(2015, 2, 1),
-                        EndEffectiveDate = null,
-                        ItemID = NewItem.ItemID.Value,
-                        IsDeleted = false,
-                        Guid = Guid.NewGuid(),
-                    };
-
-                    db.ItemRecords.Add(NewItemRecord1);
-                    db.ItemRecords.Add(NewItemRecord2);
-                    db.SaveChanges();
-
-                    NewItem.ItemRecordID = NewItemRecord2.ItemRecordID;
-                    db.SaveChanges();
-
-                    ItemEntity NewItemEntity1 = new ItemEntity()
-                    {
-                        ItemRecordID = NewItemRecord1.ItemRecordID.Value,
-                        EntityID = NewEntity1.EntityID,
-                        IsDeleted = false,
-                        Guid = Guid.NewGuid(),
-                    };
-
-                    ItemEntity NewItemEntity2 = new ItemEntity()
-                    {
-                        ItemRecordID = NewItemRecord1.ItemRecordID.Value,
-                        EntityID = NewEntity2.EntityID,
-                        IsDeleted = false,
-                        Guid = Guid.NewGuid(),
-                    };
-
-                    ItemEntity NewItemEntity3 = new ItemEntity()
-                    {
-                        ItemRecordID = NewItemRecord2.ItemRecordID.Value,
-                        EntityID = NewEntity1.EntityID,
-                        IsDeleted = false,
-                        Guid = Guid.NewGuid(),
-                    };
-
-                    ItemEntity NewItemEntity4 = new ItemEntity()
-                    {
-                        ItemRecordID = NewItemRecord2.ItemRecordID.Value,
-                        EntityID = NewEntity3.EntityID,
-                        IsDeleted = false,
-                        Guid = Guid.NewGuid(),
-                    };
-
-                    db.ItemEntities.Add(NewItemEntity1);
-                    db.ItemEntities.Add(NewItemEntity2);
-                    db.ItemEntities.Add(NewItemEntity3);
-                    db.ItemEntities.Add(NewItemEntity4);
-                    db.SaveChanges();
-
-                    EntityField NewField1 = new EntityField()
+                    Field NewField1 = new Field()
                     {
                         EntityID = NewEntity1.EntityID,
                         FieldTypeID = TestFieldType.Hire_Date.Value,
@@ -152,7 +104,7 @@ namespace EffectFramework.Test
                         Guid = Guid.NewGuid(),
                     };
 
-                    EntityField NewField4 = new EntityField()
+                    Field NewField4 = new Field()
                     {
                         EntityID = NewEntity1.EntityID,
                         FieldTypeID = TestFieldType.First_Name.Value,
@@ -161,7 +113,7 @@ namespace EffectFramework.Test
                         Guid = Guid.NewGuid(),
                     };
 
-                    EntityField NewField5 = new EntityField()
+                    Field NewField5 = new Field()
                     {
                         EntityID = NewEntity1.EntityID,
                         FieldTypeID = TestFieldType.Last_Name.Value,
@@ -170,7 +122,7 @@ namespace EffectFramework.Test
                         Guid = Guid.NewGuid(),
                     };
 
-                    EntityField NewField2 = new EntityField()
+                    Field NewField2 = new Field()
                     {
                         EntityID = NewEntity2.EntityID,
                         FieldTypeID = TestFieldType.Job_Title.Value,
@@ -179,7 +131,7 @@ namespace EffectFramework.Test
                         Guid = Guid.NewGuid(),
                     };
 
-                    EntityField NewField3 = new EntityField()
+                    Field NewField3 = new Field()
                     {
                         EntityID = NewEntity3.EntityID,
                         FieldTypeID = TestFieldType.Job_Title.Value,
@@ -203,17 +155,11 @@ namespace EffectFramework.Test
                     TempEntity.Add(NewEntity1);
                     TempEntity.Add(NewEntity2);
                     TempEntity.Add(NewEntity3);
-                    TempItemRecord.Add(NewItemRecord1);
-                    TempItemRecord.Add(NewItemRecord2);
-                    TempItemEntity.Add(NewItemEntity1);
-                    TempItemEntity.Add(NewItemEntity2);
-                    TempItemEntity.Add(NewItemEntity3);
-                    TempItemEntity.Add(NewItemEntity4);
-                    TempEntityField.Add(NewField1);
-                    TempEntityField.Add(NewField2);
-                    TempEntityField.Add(NewField3);
-                    TempEntityField.Add(NewField4);
-                    TempEntityField.Add(NewField5);
+                    TempField.Add(NewField1);
+                    TempField.Add(NewField2);
+                    TempField.Add(NewField3);
+                    TempField.Add(NewField4);
+                    TempField.Add(NewField5);
                 }
             }
         }
@@ -222,38 +168,12 @@ namespace EffectFramework.Test
         {
             if (DatabaseIsPrepared)
             {
-                using (var db = new ItemDb7Context())
+                using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
                 using (db.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    foreach (var Field in TempEntityField)
+                    foreach (var Field in TempField)
                     {
                         db.Fields.Remove(Field);
-                    }
-                    db.SaveChanges();
-
-                    foreach (var Item in TempItems)
-                    {
-                        Item.ItemRecordID = null;
-                    }
-                    db.SaveChanges();
-
-                    var Command = db.Database.AsSqlServer().Connection.DbConnection.CreateCommand();
-                    Command.CommandText = @"
-                            ALTER TABLE ItemRecords NOCHECK CONSTRAINT all;
-                            ALTER TABLE ItemEntities NOCHECK CONSTRAINT all;
-                            ALTER TABLE Items NOCHECK CONSTRAINT all;";
-                    Command.Transaction = db.Database.AsRelational().Connection.DbTransaction;
-                    Command.ExecuteNonQuery();
-
-                    foreach (var ItemRecord in TempItemRecord)
-                    {
-                        db.ItemRecords.Remove(ItemRecord);
-                    }
-                    db.SaveChanges();
-
-                    foreach (var ItemEntity in TempItemEntity)
-                    {
-                        db.ItemEntities.Remove(ItemEntity);
                     }
                     db.SaveChanges();
 
@@ -269,20 +189,10 @@ namespace EffectFramework.Test
                     }
                     db.SaveChanges();
 
-                    var Command2 = db.Database.AsSqlServer().Connection.DbConnection.CreateCommand();
-                    Command2.CommandText = @"
-                            ALTER TABLE ItemRecords WITH CHECK CHECK CONSTRAINT all;
-                            ALTER TABLE ItemEntities WITH CHECK CHECK CONSTRAINT all;
-                            ALTER TABLE Items WITH CHECK CHECK CONSTRAINT all;";
-                    Command2.Transaction = db.Database.AsRelational().Connection.DbTransaction;
-                    Command2.ExecuteNonQuery();
-
                     db.Database.AsRelational().Connection.Transaction.Commit();
 
-                    TempEntityField.Clear();
+                    TempField.Clear();
                     TempItems.Clear();
-                    TempItemRecord.Clear();
-                    TempItemEntity.Clear();
                     TempEntity.Clear();
                 }
             }
@@ -290,13 +200,17 @@ namespace EffectFramework.Test
 
         public DataModelTests()
         {
+            var configuration = new Configuration(BasePath)
+                .AddJsonFile("config.json");
+            Configuration = configuration;
+
             PrepareEF7DatabaseIfRequired();
         }
 
         [Fact]
         public void CreateEF7DBContext()
         {
-            using (var db = new ItemDb7Context())
+            using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
             {
 
             }
@@ -312,16 +226,21 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+                NewEmployee.EffectiveDate = new DateTime(2015, 1, 1);
 
                 Assert.Equal(Item.ItemID, NewEmployee.ItemID);
                 Assert.Equal(Item.ItemTypeID, NewEmployee.Type.Value);
-                Assert.Equal(2, NewEmployee.ItemRecords.Count());
-                Assert.Equal(2, NewEmployee.ItemRecords.First().Value.AllEntities.Count());
-                Assert.Equal(2, NewEmployee.ItemRecords.Last().Value.AllEntities.Count());
-                Assert.False(NewEmployee.ItemRecords.First().Value.Dirty);
-                Assert.False(NewEmployee.ItemRecords.Last().Value.Dirty);
+                Assert.Equal(3, NewEmployee.AllEntities.Count());
+                Assert.Equal(2, NewEmployee.EffectiveRecord.AllEntities.Count());
+                Assert.False(NewEmployee.EffectiveRecord.AllEntities.First().Dirty);
+                Assert.False(NewEmployee.EffectiveRecord.AllEntities.Last().Dirty);
+                Assert.False(NewEmployee.Dirty);
 
+                var Record = NewEmployee.GetEntityCollectionForDate(new DateTime(2015, 2, 1));
+
+                Assert.Equal(2, Record.AllEntities.Count());
+                Assert.False(Record.AllEntities.First().Dirty);
+                Assert.False(Record.AllEntities.Last().Dirty);
             }
         }
 
@@ -334,22 +253,22 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+                NewEmployee.EffectiveDate = new DateTime(2015, 1, 1);
 
                 Assert.False(NewEmployee.Dirty);
                 Assert.Equal(Item.Guid, NewEmployee.Guid);
 
-                GeneralInfoEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<GeneralInfoEntity>();
+                GeneralInfoEntity GeneralEntity = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
 
                 Assert.NotNull(GeneralEntity);
-                Assert.Equal(TempEntityField.First().ValueDate.Value, GeneralEntity.HireDate.Value);
+                Assert.Equal(TempField.First().ValueDate.Value, GeneralEntity.HireDate.Value);
 
                 JobEntity FirstJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
 
                 Assert.NotNull(FirstJob);
                 Assert.Equal("Manager", FirstJob.JobTitle.Value);
 
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 2, 2));
+                NewEmployee.EffectiveDate = new DateTime(2015, 2, 2);
 
                 JobEntity SecondJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
 
@@ -367,9 +286,9 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+                NewEmployee.EffectiveDate = new DateTime(2015, 1, 1);
 
-                GeneralInfoEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<GeneralInfoEntity>();
+                GeneralInfoEntity GeneralEntity = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
 
                 Assert.NotNull(GeneralEntity);
                 Assert.NotNull(GeneralEntity.EntityID);
@@ -389,7 +308,7 @@ namespace EffectFramework.Test
                 Assert.False(FirstJob.Dirty);
                 Assert.Equal(Strings.Job, FirstJob.Type.Name);
 
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 2, 2));
+                NewEmployee.EffectiveDate = new DateTime(2015, 2, 2);
 
                 JobEntity SecondJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
 
@@ -412,9 +331,9 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+                NewEmployee.EffectiveDate = new DateTime(2015, 1, 1);
 
-                GeneralInfoEntity GeneralEntity = NewEmployee.ItemRecords.First().Value.GetFirstEntityOrDefault<GeneralInfoEntity>();
+                GeneralInfoEntity GeneralEntity = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
 
                 Assert.NotNull(GeneralEntity);
                 Assert.NotNull(GeneralEntity.HireDate);
@@ -434,7 +353,7 @@ namespace EffectFramework.Test
                 Assert.Equal(Strings.Job_Title, FirstJob.JobTitle.Type.Name);
                 Assert.Equal(Strings.Job_Title, FirstJob.JobTitle.Name);
 
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 2, 2));
+                NewEmployee.EffectiveDate = new DateTime(2015, 2, 2);
 
                 JobEntity SecondJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
 
@@ -449,67 +368,22 @@ namespace EffectFramework.Test
         }
 
         [Fact]
-        public void ChangeItemEffectiveRecord()
+        public void CreateNewEntity()
         {
-            using (IKernel Kernel = new StandardKernel())
+            using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                Kernel.Load(new EffectFramework.Core.Configure());
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+                NewEmployee.EffectiveDate = new DateTime(2015, 1, 1);
 
-                Core.Models.ItemRecord Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 1, 1));
+                var Address = NewEmployee.EffectiveRecord.GetOrCreateEntity<AddressEntity>();
 
-                Assert.Equal(Record, NewEmployee.EffectiveRecord);
-                Assert.Equal(2, NewEmployee.ItemRecords.Count());
-                Assert.False(Record.Dirty);
-
-                Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2014, 1, 1));
-
-                Assert.Equal(3, NewEmployee.ItemRecords.Count());
-                Assert.True(Record.Dirty);
-                Assert.Equal(new DateTime(2014, 1, 1), Record.EffectiveDate);
-                Assert.Equal(new DateTime(2015, 1, 1), Record.EndEffectiveDate);
-                Assert.Equal(0, Record.AllEntities.Count());
-
-                NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
-
-                Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 1, 15));
-                Core.Models.ItemRecord PreviousRecord = NewEmployee.ItemRecords.First().Value;
-
-                Assert.Equal(3, NewEmployee.ItemRecords.Count());
-                Assert.True(Record.Dirty);
-                Assert.Equal(new DateTime(2015, 1, 15), Record.EffectiveDate);
-                Assert.Equal(new DateTime(2015, 2, 1), Record.EndEffectiveDate);
-                Assert.Equal(new DateTime(2015, 1, 1), PreviousRecord.EffectiveDate);
-                Assert.Equal(new DateTime(2015, 1, 15), PreviousRecord.EndEffectiveDate);
-                Assert.Equal(new DateTime(2015, 2, 1), NewEmployee.ItemRecords.Last().Value.EffectiveDate);
-                Assert.Null(NewEmployee.ItemRecords.Last().Value.EndEffectiveDate);
-                for (int i = 0; i < PreviousRecord.AllEntities.Count(); i++)
-                {
-                    Assert.Equal(PreviousRecord.AllEntities.ElementAt(i), Record.AllEntities.ElementAt(i));
-                }
-
-                NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
-
-                Record = NewEmployee.GetOrCreateEffectiveDateRange(new DateTime(2015, 3, 1));
-                PreviousRecord = NewEmployee.ItemRecords.ElementAt(1).Value;
-
-                Assert.Equal(3, NewEmployee.ItemRecords.Count());
-                Assert.True(Record.Dirty);
-                Assert.Equal(new DateTime(2015, 3, 1), Record.EffectiveDate);
-                Assert.Null(Record.EndEffectiveDate);
-                Assert.Equal(new DateTime(2015, 1, 1), NewEmployee.ItemRecords.First().Value.EffectiveDate);
-                Assert.Equal(new DateTime(2015, 2, 1), NewEmployee.ItemRecords.First().Value.EndEffectiveDate);
-                Assert.Equal(new DateTime(2015, 2, 1), PreviousRecord.EffectiveDate);
-                Assert.Equal(new DateTime(2015, 3, 1), PreviousRecord.EndEffectiveDate);
-                for (int i = 0; i < PreviousRecord.AllEntities.Count(); i++)
-                {
-                    Assert.Equal(PreviousRecord.AllEntities.ElementAt(i), Record.AllEntities.ElementAt(i));
-                }
+                Assert.NotNull(Address);
+                Assert.True(Address.Dirty);
+                Assert.False(Address.EntityID.HasValue);
+                Assert.Equal(NewEmployee.EffectiveRecord.EffectiveDate, Address.EffectiveDate);
+                
             }
         }
 
@@ -522,7 +396,7 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+                NewEmployee.EffectiveDate = new DateTime(2015, 1, 1);
 
                 FieldString JobTitle = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>().JobTitle;
 
@@ -536,9 +410,9 @@ namespace EffectFramework.Test
 
                 Assert.False(JobTitle.Dirty);
 
-                using (var db = new ItemDb7Context())
+                using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
                 {
-                    EntityField Field = db.Fields.Where(ef => ef.EntityFieldID == JobTitle.FieldID.Value).Single();
+                    Field Field = db.Fields.Where(ef => ef.FieldID == JobTitle.FieldID.Value).Single();
 
                     Assert.Equal(Field.Guid, JobTitle.Guid);
                     Assert.Equal("Code Monkey", JobTitle.Value);
@@ -564,20 +438,20 @@ namespace EffectFramework.Test
                 Core.Models.Db.Item Item = TempItems.First();
 
                 Employee NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+                NewEmployee.EffectiveDate = new DateTime(2015, 1, 1);
 
                 JobEntity Job = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
                 Job.JobStartDate.Value = new DateTime(2015, 1, 1);
 
                 Job.PersistEntityToDatabase();
 
-                using (var db = new ItemDb7Context())
+                using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
                 {
-                    TempEntityField.Add(db.Fields.Where(f => f.EntityFieldID == Job.JobStartDate.FieldID.Value).Single());
+                    TempField.Add(db.Fields.Where(f => f.FieldID == Job.JobStartDate.FieldID.Value).Single());
                 }
 
                 NewEmployee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", Item.ItemID.Value));
-                NewEmployee.ChangeEffectiveDate(new DateTime(2015, 1, 1));
+                NewEmployee.EffectiveDate = new DateTime(2015, 1, 1);
 
                 Job = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
                 Assert.Equal(new DateTime(2015, 1, 1), Job.JobStartDate.Value);

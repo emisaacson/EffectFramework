@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Services;
@@ -8,51 +7,27 @@ namespace EffectFramework.Core.Models
 {
     public abstract class Item
     {
-        public IEnumerable<EntityBase> AllEntities {
+        public IEnumerable<EntityBase> AllEntities
+        {
             get
             {
-                HashSet<EntityBase> Output = new HashSet<EntityBase>();
-                foreach (var Record in ItemRecords)
-                {
-                    foreach (var Entity in Record.Value.AllEntities)
-                    {
-                        Output.Add(Entity);
-                    }
-                }
-                return Output;
+                return _AllEntities;
             }
         }
-        private Dictionary<EntityType, IEnumerable<EntityBase>> AllEntitiesByType;
+        private List<EntityBase> _AllEntities = new List<EntityBase>();
         public int? ItemID { get; protected set; }
         public Guid Guid { get; protected set; }
         public bool Dirty { get; protected set; }
         public abstract ItemType Type { get; }
 
         protected readonly IPersistenceService PersistenceService;
-
-        public SortedDictionary<DateTime, ItemRecord> ItemRecords { get; protected set; }
-        public ItemRecord EffectiveRecord
+        
+        public EntityCollection EffectiveRecord
         {
             get
             {
-                return GetEffectiveRecordForDate(EffectiveDate);
+                return GetEntityCollectionForDate(EffectiveDate);
             }
-        }
-
-        protected ItemRecord GetEffectiveRecordForDate(DateTime EffectiveDate)
-        {
-            var _EffectiveRecord = ItemRecords
-                .Where(e =>
-                    e.Key <= EffectiveDate &&
-                    (!e.Value.EndEffectiveDate.HasValue || e.Value.EndEffectiveDate > EffectiveDate))
-                .FirstOrDefault();
-
-            if (!_EffectiveRecord.Equals(default(KeyValuePair<DateTime, ItemRecord>)) && _EffectiveRecord.Value != null)
-            {
-                return _EffectiveRecord.Value;
-            }
-
-            return null;
         }
 
         protected DateTime _EffectiveDate = DateTime.Now;
@@ -61,7 +36,7 @@ namespace EffectFramework.Core.Models
             {
                 return this._EffectiveDate;
             }
-            private set
+            set
             {
                 this._EffectiveDate = value;
             }
@@ -73,103 +48,70 @@ namespace EffectFramework.Core.Models
             this.PersistenceService = PersistenceService;
         }
 
-        public Item(int ItemID, IPersistenceService PersistenceService, bool LoadItem = true)
+        public Item(int ItemID, IPersistenceService PersistenceService, bool LoadItem = true, bool Sparse = false)
         {
             this.ItemID = ItemID;
             this.PersistenceService = PersistenceService;
             if (LoadItem)
             {
-                this.LoadByID(ItemID);
+                this.LoadByID(ItemID, Sparse);
             }
         }
 
-        public void Load()
+        public EntityCollection GetEntityCollectionForDate(DateTime EffectiveDate)
+        {
+            return new EntityCollection(this, EffectiveDate, PersistenceService);
+        }
+
+        public void Load(bool Sparse = false)
         {
             if (!ItemID.HasValue)
             {
                 throw new InvalidOperationException("Cannot reload an item with a null ID.");
             }
-            LoadByID(ItemID.Value);
+            LoadByID(ItemID.Value, Sparse);
         }
 
-        public void LoadByID(int ItemID)
+
+        public void PersistToDatabase()
+        {
+            using (var ctx = PersistenceService.GetDbContext())
+            using (ctx.BeginTransaction())
+            {
+                var Identity = PersistenceService.SaveSingleItem(this, ctx);
+                this.ItemID = Identity.ObjectID;
+                this.Guid = Identity.ObjectGuid;
+
+                foreach (var Entity in _AllEntities)
+                {
+                    Entity.PersistToDatabase(this, ctx);
+                }
+
+                this.Dirty = false;
+
+                ctx.Commit();
+            }
+        }
+        protected void LoadByID(int ItemID, bool Sparse = false)
         {
             if (this.ItemID.HasValue && ItemID != this.ItemID.Value)
             {
                 throw new InvalidOperationException("Please do not reuse the same item object for an Item with a different ID.");
             }
             this.ItemID = ItemID;
+            this.Guid = PersistenceService.RetreiveGuidForItem(this);
+
+            DateTime? DateToSend = EffectiveDate;
+
+            _AllEntities = PersistenceService.RetreiveAllEntities(this, Sparse ? DateToSend : null);
+
             this.Dirty = false;
-            this.Guid = PersistenceService.RetreiveGuidForItemRecord(this);
-            var ItemRecordsList = PersistenceService.RetreiveAllItemRecords(this);
-
-            ItemRecords = new SortedDictionary<DateTime, ItemRecord>();
-
-            foreach (var ItemRecord in ItemRecordsList)
-            {
-                ItemRecords[ItemRecord.EffectiveDate] = ItemRecord;
-            }
         }
 
-        public void ChangeEffectiveDate(DateTime EffectiveDate)
+        internal void AddEntity(EntityBase Entity)
         {
-            if (EffectiveDate == null || EffectiveDate == default(DateTime))
-            {
-                throw new ArgumentNullException();
-            }
-
-            this.EffectiveDate = EffectiveDate;
+            _AllEntities.Add(Entity);
         }
 
-        public ItemRecord GetOrCreateEffectiveDateRange(DateTime EffectiveDate)
-        {
-            if (EffectiveDate == null || EffectiveDate == default(DateTime))
-            {
-                throw new ArgumentNullException();
-            }
-
-            if (ItemRecords.ContainsKey(EffectiveDate))
-            {
-                return ItemRecords[EffectiveDate];
-            }
-
-            // If adding a new item record after an existing one, we copy the entities from the previous
-            // and adjust the effective dates of all three to make a continuous timeline.
-            if (ItemRecords.Count > 0 && ItemRecords.First().Key /*The oldest date*/ < EffectiveDate)
-            {
-                ItemRecord PreviousItemRecord = GetEffectiveRecordForDate(EffectiveDate);
-                var NextItemRecord_kv = ItemRecords.Where(er => er.Key > PreviousItemRecord.EffectiveDate).FirstOrDefault();
-                ItemRecord NextItemRecord = null;
-                if (!NextItemRecord_kv.Equals(default(KeyValuePair<DateTime, ItemRecord>)))
-                {
-                    NextItemRecord = NextItemRecord_kv.Value;
-                }
-                ItemRecord NewItemRecord = new ItemRecord(PersistenceService);
-                PreviousItemRecord.SetEndEffectiveDate(EffectiveDate);
-                NewItemRecord.SetEffectiveDate(EffectiveDate);
-                if (NextItemRecord != null)
-                {
-                    NewItemRecord.SetEndEffectiveDate(NextItemRecord.EffectiveDate);
-                }
-                NewItemRecord.CopyEntitiesFrom(PreviousItemRecord);
-                ItemRecords[EffectiveDate] = NewItemRecord;
-                return NewItemRecord;
-            }
-            // If adding a new item record before any existing, do not copy any entities, just
-            // create a blank one
-            else
-            {
-                ItemRecord NewItemRecord = new ItemRecord(PersistenceService);
-                ItemRecord FirstItemRecord = null;
-                if (ItemRecords.Count > 0)
-                {
-                    FirstItemRecord = ItemRecords.First().Value;
-                }
-                NewItemRecord.SetEffectiveDate(EffectiveDate);
-                NewItemRecord.SetEndEffectiveDate(FirstItemRecord.EffectiveDate);
-                ItemRecords[EffectiveDate] = NewItemRecord;
-                return NewItemRecord;
-            }
-        }
     }
 }

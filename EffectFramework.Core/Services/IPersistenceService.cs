@@ -11,8 +11,10 @@ namespace EffectFramework.Core.Services
         Models.Db.ObjectIdentity SaveSingleField(EntityBase Entity, FieldBase Field, Models.Db.IDbContext ctx = null);
         Models.Db.ObjectIdentity SaveSingleField(FieldBase Field, Models.Db.IDbContext ctx = null);
 
-        Models.Db.ObjectIdentity SaveSingleEntity(ItemRecord ItemRecord, EntityBase Entity, Models.Db.IDbContext ctx = null);
+        Models.Db.ObjectIdentity SaveSingleEntity(Item Item, EntityBase Entity, Models.Db.IDbContext ctx = null);
         Models.Db.ObjectIdentity SaveSingleEntity(EntityBase Entity, Models.Db.IDbContext ctx = null);
+
+        Models.Db.ObjectIdentity SaveSingleItem(Item Item, Models.Db.IDbContext ctx = null);
 
         FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, FieldType FieldType);
         FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, int FieldTypeID);
@@ -20,17 +22,12 @@ namespace EffectFramework.Core.Services
 
         FieldBase RetreiveSingleFieldOrDefault<FieldT>(EntityBase Entity) where FieldT : IField, new();
 
-        EntityT RetreiveSingleEntityOrDefault<EntityT>(Models.ItemRecord ItemRecord) where EntityT : EntityBase, new();
-        EntityT RetreiveSingleEntityOrDefault<EntityT>(int ItemRecordID) where EntityT : EntityBase, new();
+        EntityT RetreiveSingleEntityOrDefault<EntityT>(Item Item, DateTime? EffectiveDate = null) where EntityT : EntityBase, new();
 
-        List<ItemRecord> RetreiveAllItemRecords(Item Item);
-        List<ItemRecord> RetreiveAllItemRecords(int ItemID);
+        Guid RetreiveGuidForItem(Item Item);
 
-        Models.Db.ItemRecord RetreiveSingleDbItemRecord(int ItemRecordID);
+        List<EntityBase> RetreiveAllEntities(Item Item, DateTime? EffectiveDate = null);
 
-        Guid RetreiveGuidForItemRecord(Models.Item Item);
-
-        List<EntityBase> RetreiveAllEntities(Models.ItemRecord ItemRecord);
-        List<EntityBase> RetreiveAllEntities(int ItemRecordID);
+        Models.Db.IDbContext GetDbContext();
     }
 }

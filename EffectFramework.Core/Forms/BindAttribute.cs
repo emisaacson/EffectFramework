@@ -9,6 +9,8 @@ namespace EffectFramework.Core.Forms
         public Type EntityType { get; private set; }
         public string FieldType { get; private set; }
         public string IDPropertyName { get; private set; }
+
+
         public BindAttribute(Type ItemType, Type EntityType, string FieldType, string IDPropertyName = null)
         {
             this.ItemType = ItemType;
@@ -32,7 +34,6 @@ namespace EffectFramework.Core.Forms
 
         public BindAttribute()
         {
-
         }
     }
 }

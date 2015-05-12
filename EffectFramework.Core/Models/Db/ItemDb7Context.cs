@@ -1,14 +1,14 @@
-﻿using Microsoft.Data.Entity;
+﻿using System;
+using Microsoft.Data.Entity;
 
 namespace EffectFramework.Core.Models.Db
 {
     public class ItemDb7Context : DbContext, IDbContext
     {
         public DbSet<Item> Items { get; set; }
-        public DbSet<ItemRecord> ItemRecords { get; set; }
         public DbSet<Entity> Entities { get; set; }
-        public DbSet<EntityField> Fields { get; set; }
-        public DbSet<ItemEntity> ItemEntities { get; set; }
+        public DbSet<Field> Fields { get; set; }
+        private string ConnectionString { get; set; }
 
         public void usp_DeleteEntireDatabase(bool ForReal = false)
         {
@@ -20,16 +20,14 @@ namespace EffectFramework.Core.Models.Db
             }
         }
 
+        public ItemDb7Context(string ConnectionString)
+        {
+            this.ConnectionString = ConnectionString;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Visual Studio 2015 | Use the LocalDb 12 instance created by Visual Studio
-            optionsBuilder.UseSqlServer(@"Server=EMIKEKDC02;Database=HRMS;Trusted_Connection=True;MultipleActiveResultSets=True;");
-
-            // Visual Studio 2013 | Use the LocalDb 11 instance created by Visual Studio
-            //optionsBuilder.UseSqlServer(@"Server=(localdb)\v11.0;Database=Blogging;Trusted_Connection=True;");
-
-            // Visual Studio 2012 | Use the SQL Express instance created by Visual Studio
-            //optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=Blogging;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer(this.ConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -38,50 +36,27 @@ namespace EffectFramework.Core.Models.Db
 
             builder.ForSqlServer().UseIdentity();
 
-            builder.Entity<ItemRecord>(e =>
-            {
-                e.ForRelational(rb =>
-                {
-                    rb.Table("ItemRecords");
-                });
-
-                e.Key(er => er.ItemRecordID);
-
-                e.Property(er => er.ItemRecordID).ForSqlServer().UseIdentity();
-
-            });
-
             builder.Entity<Item>(e =>
             {
-                e.ForRelational(rb =>
-                {
-                    rb.Table("Items");
-                });
+                e.Table("Items");
 
-                e.Key(em => em.ItemID);
+                e.Key(i => i.ItemID);
 
-                e.Property(em => em.ItemID).ForSqlServer().UseIdentity();
+                e.Property(i => i.ItemID).ForSqlServer().UseIdentity();
 
-                e.Collection(er => er.ItemRecords)
-                    .InverseReference(em => em.Item)
-                    .ForeignKey(em => em.ItemID);
+                e.Collection(i => i.Entities)
+                    .InverseReference(en => en.Item)
+                    .ForeignKey(en => en.ItemID);
             });
 
 
             builder.Entity<Entity>(e =>
             {
-                e.ForRelational(rb =>
-                {
-                    rb.Table("Entities");
-                });
+                e.Table("Entities");
 
                 e.Key(en => en.EntityID);
 
                 e.Property(en => en.EntityID).ForSqlServer().UseIdentity();
-
-                e.Reference(em => em.Item)
-                    .InverseReference()
-                    .ForeignKey<Entity>(en => en.ItemID);
 
                 e.Collection(en => en.EntityFields)
                     .InverseReference(ef => ef.Entity)
@@ -90,31 +65,30 @@ namespace EffectFramework.Core.Models.Db
 
 
 
-            builder.Entity<EntityField>(e => {
-                e.ForRelational(rb =>
-                {
-                    rb.Table("EntityFields");
-                });
+            builder.Entity<Field>(e => {
+                e.Table("Fields");
 
-                e.Key(ef => ef.EntityFieldID);
+                e.Key(ef => ef.FieldID);
 
-                e.Property(ef => ef.EntityFieldID).ForSqlServer().UseIdentity();
+                e.Property(ef => ef.FieldID).ForSqlServer().UseIdentity();
             });
                 
 
-            builder.Entity<ItemEntity>(e => {
-                e.ForRelational(rb =>
-                {
-                    rb.Table("ItemEntities");
-                });
+        }
 
-                e.Key(ee => ee.ItemEntityID);
+        public IDisposable BeginTransaction()
+        {
+            return this.Database.AsRelational().Connection.BeginTransaction();
+        }
 
-                e.Property(ee => ee.ItemEntityID).ForSqlServer().UseIdentity();
+        public void Rollback()
+        {
+            this.Database.AsRelational().Connection.DbTransaction.Rollback();
+        }
 
-                e.Index(ee => new { ee.ItemRecordID, ee.ItemEntityID });
-            });
-                
+        public void Commit()
+        {
+            this.Database.AsRelational().Connection.DbTransaction.Commit();
         }
     }
 }

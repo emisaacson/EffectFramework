@@ -11,6 +11,11 @@ namespace EffectFramework.Core.Services
 {
     public class EntityFrameworkPersistenceService : IPersistenceService
     {
+        private string ConnectionString;
+        public EntityFrameworkPersistenceService(string ConnectionString)
+        {
+            this.ConnectionString = ConnectionString;
+        }
         public ObjectIdentity SaveSingleField(EntityBase Entity, FieldBase Field, IDbContext ctx = null)
         {
             ItemDb7Context db = null;
@@ -18,7 +23,7 @@ namespace EffectFramework.Core.Services
             {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context();
+                    db = new ItemDb7Context(ConnectionString);
                 }
                 else
                 {
@@ -30,7 +35,7 @@ namespace EffectFramework.Core.Services
                     throw new ArgumentNullException();
                 }
 
-                EntityField DbField = null;
+                Field DbField = null;
                 bool CreatedAnew = false;
                 if (!Field.FieldID.HasValue)
                 {
@@ -39,7 +44,7 @@ namespace EffectFramework.Core.Services
                         throw new ArgumentException("Must persist the entity to the database before the field.");
                     }
 
-                    DbField = new EntityField()
+                    DbField = new Field()
                     {
                         IsDeleted = false,
                         FieldTypeID = Field.Type.Value,
@@ -51,7 +56,7 @@ namespace EffectFramework.Core.Services
                     CreatedAnew = true;
                 }
                 else {
-                    DbField = db.Fields.Where(ef => ef.EntityFieldID == Field.FieldID.Value && ef.IsDeleted == false).FirstOrDefault();
+                    DbField = db.Fields.Where(ef => ef.FieldID == Field.FieldID.Value && ef.IsDeleted == false).FirstOrDefault();
                 }
 
                 if (DbField == null)
@@ -84,7 +89,7 @@ namespace EffectFramework.Core.Services
                     db.SaveChanges();
                     return new ObjectIdentity()
                     {
-                        ObjectID = DbField.EntityFieldID,
+                        ObjectID = DbField.FieldID,
                         ObjectGuid = DbField.Guid
                     };
                 }
@@ -121,7 +126,7 @@ namespace EffectFramework.Core.Services
 
                 return new ObjectIdentity()
                 {
-                    ObjectID = DbField.EntityFieldID,
+                    ObjectID = DbField.FieldID,
                     ObjectGuid = DbField.Guid
                 };
             }
@@ -139,7 +144,7 @@ namespace EffectFramework.Core.Services
             try {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context();
+                    db = new ItemDb7Context(ConnectionString);
                 }
                 else
                 {
@@ -151,7 +156,7 @@ namespace EffectFramework.Core.Services
                     throw new InvalidOperationException("Must create a new field in the context of an entity.");
                 }
 
-                EntityField DbField = db.Fields.Where(ef => ef.EntityFieldID == Field.FieldID.Value && ef.IsDeleted == false).FirstOrDefault();
+                Field DbField = db.Fields.Where(ef => ef.FieldID == Field.FieldID.Value && ef.IsDeleted == false).FirstOrDefault();
                 if (DbField == null)
                 {
                     throw new ArgumentException("The passed field ID is not valid.");
@@ -171,7 +176,7 @@ namespace EffectFramework.Core.Services
                 {
                     return new ObjectIdentity()
                     {
-                        ObjectID = DbField.EntityFieldID,
+                        ObjectID = DbField.FieldID,
                         ObjectGuid = DbField.Guid
                     };
                 }
@@ -183,7 +188,7 @@ namespace EffectFramework.Core.Services
                     db.SaveChanges();
                     return new ObjectIdentity()
                     {
-                        ObjectID = DbField.EntityFieldID,
+                        ObjectID = DbField.FieldID,
                         ObjectGuid = DbField.Guid
                     };
                 }
@@ -220,7 +225,7 @@ namespace EffectFramework.Core.Services
 
                 return new ObjectIdentity()
                 {
-                    ObjectID = DbField.EntityFieldID,
+                    ObjectID = DbField.FieldID,
                     ObjectGuid = DbField.Guid
                 };
             }
@@ -233,21 +238,21 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public ObjectIdentity SaveSingleEntity(Models.ItemRecord ItemRecord, EntityBase Entity, IDbContext ctx = null)
+        public ObjectIdentity SaveSingleEntity(Models.Item Item, EntityBase Entity, IDbContext ctx = null)
         {
             ItemDb7Context db = null;
             try
             {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context();
+                    db = new ItemDb7Context(ConnectionString);
                 }
                 else
                 {
                     db = (ItemDb7Context)ctx;
                 }
 
-                if (ItemRecord == null)
+                if (Item == null)
                 {
                     throw new ArgumentNullException();
                 }
@@ -256,29 +261,20 @@ namespace EffectFramework.Core.Services
                 bool CreatedAnew = false;
                 if (!Entity.EntityID.HasValue)
                 {
-                    if (!ItemRecord.ItemRecordID.HasValue)
+                    if (!Item.ItemID.HasValue)
                     {
-                        throw new ArgumentException("Must persist the item record to the database before the entity.");
+                        throw new ArgumentException("Must persist the item to the database before the entity.");
                     }
                     DbEntity = new Entity()
                     {
                         IsDeleted = false,
                         EntityTypeID = Entity.Type.Value,
-                        ItemID = ItemRecord.ItemID,
+                        ItemID = Item.ItemID.Value,
                         Guid = Guid.NewGuid(),
                     };
                     db.Entities.Add(DbEntity);
                     db.SaveChanges();
 
-                    ItemEntity DbItemEntity = new ItemEntity()
-                    {
-                        ItemRecordID = ItemRecord.ItemRecordID.Value,
-                        EntityID = DbEntity.EntityID,
-                        Guid = Guid.NewGuid(),
-                        IsDeleted = false,
-                    };
-                    db.ItemEntities.Add(DbItemEntity);
-                    db.SaveChanges();
                     CreatedAnew = true;
                 }
                 else
@@ -340,7 +336,7 @@ namespace EffectFramework.Core.Services
             {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context();
+                    db = new ItemDb7Context(ConnectionString);
                 }
                 else
                 {
@@ -404,6 +400,84 @@ namespace EffectFramework.Core.Services
             }
         }
 
+        public ObjectIdentity SaveSingleItem(Models.Item Item, IDbContext ctx = null)
+        {
+            ItemDb7Context db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new ItemDb7Context(ConnectionString);
+                }
+                else
+                {
+                    db = (ItemDb7Context)ctx;
+                }
+
+                Models.Db.Item DbItem = null;
+                bool CreatedAnew = false;
+                if (!Item.ItemID.HasValue)
+                {
+                    DbItem = new Models.Db.Item()
+                    {
+                        IsDeleted = false,
+                        ItemTypeID = Item.Type.Value,
+                        Guid = Guid.NewGuid(),
+                    };
+                    db.Items.Add(DbItem);
+                    db.SaveChanges();
+
+                    CreatedAnew = true;
+                }
+                else
+                {
+                    DbItem = db.Items.Where(i => i.ItemID == Item.ItemID.Value && i.IsDeleted == false).FirstOrDefault();
+                }
+
+
+                if (DbItem == null)
+                {
+                    throw new ArgumentException("The passed item ID is not valid.");
+                }
+
+                if (!CreatedAnew && DbItem.Guid != Item.Guid)
+                {
+                    throw new Exceptions.GuidMismatchException();
+                }
+
+                if (DbItem.ItemTypeID != Item.Type.Value)
+                {
+                    throw new Exceptions.DataTypeMismatchException();
+                }
+
+                if (!Item.Dirty)
+                {
+                    return new ObjectIdentity()
+                    {
+                        ObjectID = DbItem.ItemID.Value,
+                        ObjectGuid = DbItem.Guid
+                    };
+                }
+
+                DbItem.Guid = Guid.NewGuid();
+
+                db.SaveChanges();
+
+                return new ObjectIdentity()
+                {
+                    ObjectID = DbItem.ItemID.Value,
+                    ObjectGuid = DbItem.Guid
+                };
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+
         public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, FieldType FieldType)
         {
 
@@ -423,7 +497,7 @@ namespace EffectFramework.Core.Services
                 throw new ArgumentException("Cannot retrieve a field without an EntityID");
             }
 
-            using (var db = new ItemDb7Context())
+            using (var db = new ItemDb7Context(ConnectionString))
             {
                 var DbField = db.Fields.Where(f => f.EntityID == Entity.EntityID.Value &&
                                               f.FieldTypeID == FieldTypeID &&
@@ -443,9 +517,9 @@ namespace EffectFramework.Core.Services
         public FieldBase RetreiveSingleFieldOrDefault(int FieldID)
         {
 
-            using (var db = new ItemDb7Context())
+            using (var db = new ItemDb7Context(ConnectionString))
             {
-                var DbField = db.Fields.Where(f => f.EntityFieldID == FieldID &&
+                var DbField = db.Fields.Where(f => f.FieldID == FieldID &&
                                               !f.IsDeleted).FirstOrDefault();
 
                 if (DbField == null)
@@ -468,47 +542,40 @@ namespace EffectFramework.Core.Services
             return RetreiveSingleFieldOrDefault(Entity, FieldTypeID);
         }
 
-        public EntityT RetreiveSingleEntityOrDefault<EntityT>(Models.ItemRecord ItemRecord) where EntityT : EntityBase, new()
+
+        public EntityT RetreiveSingleEntityOrDefault<EntityT>(Models.Item Item, DateTime? EffectiveDate = null) where EntityT : EntityBase, new()
         {
-            if (ItemRecord == null)
+            if (Item == null)
             {
                 throw new ArgumentNullException();
             }
-            if (!ItemRecord.ItemRecordID.HasValue)
+            if (!Item.ItemID.HasValue)
             {
-                throw new ArgumentException("Cannot fetch an entity from an item record with a null ID.");
-            }
-
-            return RetreiveSingleEntityOrDefault<EntityT>(ItemRecord.ItemRecordID.Value);
-        }
-
-        public EntityT RetreiveSingleEntityOrDefault<EntityT>(int ItemRecordID) where EntityT : EntityBase, new()
-        {
-            if (ItemRecordID < 1)
-            {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentException("Must pass an Item with a valid ID.");
             }
 
             EntityT Instance = new EntityT();
             Instance.PersistenceService = this;
 
-            using (var db = new ItemDb7Context())
+            using (var db = new ItemDb7Context(ConnectionString))
             using (db.Database.AsRelational().Connection.BeginTransaction())
             {
-                var EntityIDs = db.ItemEntities
-                    .Where(er =>
-                        er.ItemRecordID == ItemRecordID &&
-                        !er.IsDeleted)
-                    .Select(er =>
-                        er.EntityID
-                    );
 
-                var DbEntity = db.Entities
+                var DbEntityPossibilities = db.Entities
                     .Where(e =>
-                        EntityIDs.Contains(e.EntityID) &&
+                        e.ItemID == Item.ItemID.Value &&
                         e.EntityTypeID == Instance.Type.Value &&
-                        !e.IsDeleted)
-                    .FirstOrDefault();
+                        !e.IsDeleted);
+
+                if (EffectiveDate.HasValue)
+                {
+                    DbEntityPossibilities = DbEntityPossibilities.Where(e =>
+                        e.EffectiveDate <= EffectiveDate.Value &&
+                        (!e.EndEffectiveDate.HasValue || e.EndEffectiveDate.Value < EffectiveDate.Value)
+                    );
+                }
+
+                var DbEntity = DbEntityPossibilities.FirstOrDefault();
 
                 if (DbEntity != null)
                 {
@@ -519,37 +586,35 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public List<EntityBase> RetreiveAllEntities(Models.ItemRecord ItemRecord)
+        public List<EntityBase> RetreiveAllEntities(Models.Item Item, DateTime? EffectiveDate = null)
         {
-            if (ItemRecord == null)
+            if (Item == null)
             {
                 throw new ArgumentNullException();
             }
-            if (!ItemRecord.ItemRecordID.HasValue)
+            if (!Item.ItemID.HasValue)
             {
                 throw new ArgumentException("Record must have an ID.");
             }
 
-            return RetreiveAllEntities(ItemRecord.ItemRecordID.Value);
-        }
-
-        public List<EntityBase> RetreiveAllEntities(int ItemRecordID)
-        {
-            using (var db = new ItemDb7Context())
+            using (var db = new ItemDb7Context(ConnectionString))
+            using (db.Database.AsRelational().Connection.BeginTransaction())
             {
-                var EntityIDs = db.ItemEntities
-                    .Where(er =>
-                        er.ItemRecordID == ItemRecordID &&
-                        !er.IsDeleted)
-                    .Select(er =>
-                        er.EntityID
-                    ).ToArray();
-
-                var DbEntities = db.Entities
+                var DbEntityPossibilities = db.Entities
                     .Where(e =>
-                        EntityIDs.Contains(e.EntityID) &&
-                        !e.IsDeleted)
-                    .ToList();
+                        e.ItemID == Item.ItemID.Value &&
+                        !e.IsDeleted);
+
+
+                if (EffectiveDate.HasValue)
+                {
+                    DbEntityPossibilities = DbEntityPossibilities.Where(e =>
+                        e.EffectiveDate <= EffectiveDate.Value &&
+                        (!e.EndEffectiveDate.HasValue || e.EndEffectiveDate.Value < EffectiveDate.Value)
+                    );
+                }
+
+                var DbEntities = DbEntityPossibilities.ToList();
 
                 List<EntityBase> Output = new List<EntityBase>();
                 foreach (var DbEntity in DbEntities)
@@ -561,59 +626,9 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public List<Models.ItemRecord> RetreiveAllItemRecords(Models.Item Item)
+        public Guid RetreiveGuidForItem(Models.Item Item)
         {
-            if (Item == null)
-            {
-                throw new ArgumentNullException();
-            }
-            if (!Item.ItemID.HasValue)
-            {
-                throw new ArgumentException("Item must has a valid ID.");
-            }
-
-            return RetreiveAllItemRecords(Item.ItemID.Value);
-        }
-
-        public List<Models.ItemRecord> RetreiveAllItemRecords(int ItemID)
-        {
-            using (var db = new ItemDb7Context())
-            {
-                var DbItemRecords = db.ItemRecords
-                    .Where(er =>
-                        er.ItemID == ItemID &&
-                        er.IsDeleted == false)
-                    .ToList();
-
-                List<Models.ItemRecord> Output = new List<Models.ItemRecord>();
-
-                foreach (var DbItemRecord in DbItemRecords)
-                {
-                    var ItemRecord = new Models.ItemRecord(DbItemRecord, this);
-                    Output.Add(ItemRecord);
-                }
-
-                return Output;
-            }
-        }
-
-        public Models.Db.ItemRecord RetreiveSingleDbItemRecord(int ItemRecordID)
-        {
-            using (var db = new ItemDb7Context())
-            {
-                var DbItemRecord = db.ItemRecords
-                    .Where(er =>
-                        er.ItemRecordID == ItemRecordID &&
-                        er.IsDeleted == false)
-                    .FirstOrDefault();
-
-                return DbItemRecord;
-            }
-        }
-
-        public Guid RetreiveGuidForItemRecord(Models.Item Item)
-        {
-            using (var db = new ItemDb7Context())
+            using (var db = new ItemDb7Context(ConnectionString))
             {
                 var DbItemRecord = db.Items
                     .Where(e =>
@@ -631,5 +646,9 @@ namespace EffectFramework.Core.Services
             }
         }
 
+        public IDbContext GetDbContext()
+        {
+            return new ItemDb7Context(ConnectionString);
+        }
     }
 }

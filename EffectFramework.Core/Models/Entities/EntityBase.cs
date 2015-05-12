@@ -86,7 +86,6 @@ namespace EffectFramework.Core.Models.Entities
             this.Guid = DbEntity.Guid;
             this._EffectiveDate = DbEntity.EffectiveDate;
             this._EndEffectiveDate = DbEntity.EndEffectiveDate;
-            this.Dirty = false;
 
             var FieldObjects = GetAllEntityFieldProperties();
 
@@ -94,6 +93,8 @@ namespace EffectFramework.Core.Models.Entities
             {
                 FieldObject.FillFromDatabase(this, FieldObject);
             }
+
+            this.Dirty = false;
         }
 
         private List<FieldBase> GetAllEntityFieldProperties()
@@ -126,6 +127,24 @@ namespace EffectFramework.Core.Models.Entities
             {
                 FieldObject.PersistToDatabase(this, ctx);
             }
+
+            this.Dirty = false;
+        }
+
+        public void PersistToDatabase(Item Item, Db.IDbContext ctx = null)
+        {
+            var Identity = PersistenceService.SaveSingleEntity(Item, this, ctx);
+            this.Guid = Identity.ObjectGuid;
+            this.EntityID = Identity.ObjectID;
+
+            var FieldObjects = GetAllEntityFieldProperties();
+
+            foreach (var FieldObject in FieldObjects)
+            {
+                FieldObject.PersistToDatabase(this, ctx);
+            }
+
+            this.Dirty = false;
         }
     }
 }

@@ -14,6 +14,6 @@ namespace EffectFramework.Core.Models.Db
         public Guid Guid { get; set; }
 
         public Item Item { get; set; }
-        public List<EntityField> EntityFields { get; set; }
+        public List<Field> EntityFields { get; set; }
     }
 }
