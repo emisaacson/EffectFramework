@@ -8,15 +8,27 @@ using EffectFramework.Core.Models.Fields;
 
 namespace EffectFramework.Core.Forms
 {
+    /// <summary>
+    /// A Form is used to bundle fields coming from some external source and map
+    /// them to one or more EffectFramework entities. Attributes on the form class
+    /// and properties are used to configure the bindings. Forms can be used to
+    /// push or pull data from the Item models.
+    /// </summary>
     public abstract class Form
     {
         protected Dictionary<Type, Item> BoundItems { get; set; }
 
+
+        // The fields below are the result of running ParseFormAttributes,
+        // which is run when the form is first initialized and stores information
+        // about the Binding attributes on the form class.
         private Type FormItemType = null;
         private Type FormEntityType = null;
         private string FormIDPropertyName = null;
         private string EffectiveDateFieldName = null;
         private string EndEffectiveDateFieldName = null;
+
+
         private enum Direction { Push, Pull };
 
         public Form()
@@ -24,6 +36,11 @@ namespace EffectFramework.Core.Forms
             ParseFormAttributes();
         }
 
+        /// <summary>
+        /// Adds an Item to the list of bound Items for this form. Multiple Items
+        /// may be specified, but they must all be different ItemTypes.
+        /// </summary>
+        /// <param name="Items">A variable number of Items to bind to the form.</param>
         public void BindTo(params Item[] Items)
         {
             BoundItems = new Dictionary<Type, Item>();
@@ -39,6 +56,11 @@ namespace EffectFramework.Core.Forms
             }
         }
 
+        /// <summary>
+        /// Pulls or pushes information between the current form and the 
+        /// bound objects, depending on the passed Direction flag.
+        /// </summary>
+        /// <param name="Direction">The direction.</param>
         private void TransferValues(Direction Direction)
         {
             if (this.BoundItems == null)
@@ -58,17 +80,31 @@ namespace EffectFramework.Core.Forms
             TransferValuesFromMembers(AllProperties, Direction, Now, ref EntityCache);
             TransferValuesFromMembers(AllFields, Direction, Now, ref EntityCache);
         }
-        
+
+
+        /// <summary>
+        /// Take values from the bound Items and transfer them to the
+        /// members of the Form object, according to the Form's Binding
+        /// attributes.
+        /// </summary>
         public void PopulateForm()
         {
             TransferValues(Direction.Pull);
         }
 
+        /// <summary>
+        /// Take values from the Form object and transfer them to the bound
+        /// Items, according to the Form's Binding attributes.
+        /// </summary>
         public void PushValuesToModel()
         {
             TransferValues(Direction.Push);
         }
 
+
+        /// <summary>
+        /// Parses the form attributes.
+        /// </summary>
         private void ParseFormAttributes()
         {
 
@@ -107,15 +143,18 @@ namespace EffectFramework.Core.Forms
 
             // Get Property and field bindings
             var AllProperties = TypeOfForm.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            ParseAttributesFromMemberInfo(AllProperties, ref EffectiveDateBinding, ref EndEffectiveDateBinding);
-
             var AllFields = TypeOfForm.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
+            ParseAttributesFromMemberInfo(AllProperties, ref EffectiveDateBinding, ref EndEffectiveDateBinding);
             ParseAttributesFromMemberInfo(AllFields, ref EffectiveDateBinding, ref EndEffectiveDateBinding);
-
         }
 
+        /// <summary>
+        /// This was factored out of the ParseFormAttributes method to avoid code duplication
+        /// between performing these operations on both Fields and Properties. The ref
+        /// parameters are local state from the containing ParseFormAttributes method. This
+        /// method should not be used in any other context.
+        /// </summary>
         private void ParseAttributesFromMemberInfo(IEnumerable<MemberInfo> AllMembers, ref EffectiveDateAttribute EffectiveDateBinding, ref EndEffectiveDateAttribute EndEffectiveDateBinding)
         {
             foreach (var Member in AllMembers)
@@ -148,6 +187,30 @@ namespace EffectFramework.Core.Forms
             }
         }
 
+        /// <summary>
+        /// This was factored out of the TransferValues method to avoid code duplication
+        /// between performing these operations on both Fields and Properties. The ref
+        /// parameters are local state from the containing TransferValues method. This
+        /// method should not be used in any other context.
+        /// 
+        /// The logic below is complicated but here is the general idea:
+        /// 
+        /// * Only members with [Bind] on the for will be included in any push or pull operation
+        /// * Global defaults for the item type, entity type, and EntityID / EffectiveDate / EndEffectiveDate
+        ///   are specified on the class
+        /// * If EffectiveDate or EndEffectiveDate attributes are used on a member, it is also a global
+        ///   default
+        /// * Individual members can be bound differently if specified on the particular member's Bind
+        ///   attribute.
+        /// * If you an EntityID is present in the configured EntityID binding on the form, it is used,
+        ///   otherwise a new entity is found or created. Found in the case of Pull, created if find
+        ///   fails and in all cases with push.
+        /// * If there is any unresolvable binding or discrepencies in the Binding an InvalidOperationException
+        ///   is thrown.
+        /// * Forms can have fields spanning multiple entities across multiple items, but only one Item per
+        ///   ItemType and one entity per EntityType. Use multiple form objects for multiple Items or Entities
+        ///   of the same types.
+        /// </summary>
         private void TransferValuesFromMembers(IEnumerable<MemberInfo> AllMembers, Direction Direction, DateTime Now, ref Dictionary<EntityType, EntityBase> EntityCache)
         {
             foreach (var Member in AllMembers)
@@ -305,6 +368,13 @@ namespace EffectFramework.Core.Forms
             }
         }
 
+        /// <summary>
+        /// Sets the value on on this form from the provided Field or Property
+        /// Info object. There's no common interface between FieldInfo and PropertyInfo
+        /// that includes the SetValue method, which makes this method necessary.
+        /// </summary>
+        /// <param name="Member">A PropertyInfo or FieldInfo object.</param>
+        /// <param name="Value">The value to set.</param>
         private void SetValueOn(MemberInfo Member, object Value)
         {
             if (Member is PropertyInfo)
@@ -321,6 +391,13 @@ namespace EffectFramework.Core.Forms
             }
         }
 
+        /// <summary>
+        /// Gets the value on from this form from the provided Field or Property
+        /// Info object. There's no common interface between FieldInfo and PropertyInfo
+        /// that includes the GetValue method, which makes this method necessary.
+        /// </summary>
+        /// <param name="Member">A PropertyInfo or FieldInfo object.</param>
+        /// <returns>The value from the current Form object.</returns>
         private object GetValueFrom(MemberInfo Member)
         {
             if (Member is PropertyInfo)

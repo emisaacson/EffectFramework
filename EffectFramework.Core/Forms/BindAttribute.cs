@@ -2,6 +2,11 @@
 
 namespace EffectFramework.Core.Forms
 {
+    /// <summary>
+    /// Configures binding for a Form or its properties. Only properties with
+    /// this attribute present will be bound. Global defaults should be added to the
+    /// Form class and overrides and be specified on the Field or Property leve.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Class)]
     public class BindAttribute : Attribute
     {
