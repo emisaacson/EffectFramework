@@ -35,6 +35,10 @@ namespace EffectFramework.Core.Models
 
         private static void RegisterType(ItemType Type)
         {
+            if (TypeRegistry.ContainsKey(Type.Value))
+            {
+                throw new InvalidOperationException("Cannot register the same Item Type twice.");
+            }
             TypeRegistry[Type.Value] = Type;
         }
     }

@@ -34,6 +34,10 @@ namespace EffectFramework.Core.Models.Fields
 
         private static void RegisterType(FieldType Type)
         {
+            if (TypeRegistry.ContainsKey(Type.Value))
+            {
+                throw new InvalidOperationException("Cannot register the same Field Type twice.");
+            }
             TypeRegistry[Type.Value] = Type;
         }
     }

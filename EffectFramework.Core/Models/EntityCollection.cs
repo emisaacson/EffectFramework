@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EffectFramework.Core.Models.Entities;
+using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Services;
 
 namespace EffectFramework.Core.Models
@@ -15,8 +16,8 @@ namespace EffectFramework.Core.Models
             {
                 return Item.AllEntities
                     .Where(e =>
-                        e.EffectiveDate >= this.EffectiveDate &&
-                        (!e.EndEffectiveDate.HasValue || e.EndEffectiveDate < this.EffectiveDate)).AsEnumerable();
+                        e.EffectiveDate <= this.EffectiveDate &&
+                        (!e.EndEffectiveDate.HasValue || e.EndEffectiveDate > this.EffectiveDate)).AsEnumerable();
             }
         }
 
@@ -51,9 +52,9 @@ namespace EffectFramework.Core.Models
         {
             EntityT Instance = new EntityT();
 
-            var Entities = AllEntities.Where(e => e.Type == Instance.Type).OrderBy(e => e.EffectiveDate).AsEnumerable();
+            var Entities = AllEntities.Where(e => e.Type == Instance.Type).OrderBy(e => e.EffectiveDate).Cast<EntityT>();
 
-            return (IEnumerable<EntityT>)Entities;
+            return Entities;
         }
 
         public EntityBase GetFirstEntityOrDefault(EntityType EntityType)
@@ -64,6 +65,102 @@ namespace EffectFramework.Core.Models
         public IEnumerable<EntityBase> GetAllEntitiesOfType(EntityType EntityType)
         {
             return AllEntities.Where(e => e.Type == EntityType).OrderBy(e => e.EffectiveDate).AsEnumerable();
+        }
+
+        // EITODO: Test if we really can create one or not.
+        public EntityT CreateEntity<EntityT>(DateTime? EndEffectiveDate = null) where EntityT : EntityBase, new()
+        {
+            EntityT Entity = new EntityT();
+
+            Entity.EffectiveDate = EffectiveDate;
+            Entity.EndEffectiveDate = EndEffectiveDate;
+            Entity.PersistenceService = PersistenceService;
+
+            Item.AddEntity(Entity);
+
+            return Entity;
+        }
+
+        public EntityBase CreateEntity(EntityType EntityType, DateTime? EndEffectiveDate = null)
+        {
+
+            var Entity = (EntityBase)Activator.CreateInstance(EntityType.Type);
+            Entity.EffectiveDate = EffectiveDate;
+            Entity.EndEffectiveDate = EndEffectiveDate;
+            Entity.PersistenceService = PersistenceService;
+
+            Item.AddEntity(Entity);
+
+            return Entity;
+        }
+
+        public EntityT CreateEntityAndEndDateAllPrevious<EntityT>(bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null) where EntityT : EntityBase, new()
+        {
+            var ExistingEntities = GetAllEntitiesOfType<EntityT>();
+            var MostRecent = ExistingEntities.LastOrDefault();
+
+            foreach (var ExistingEntity in ExistingEntities)
+            {
+                ExistingEntity.EndEffectiveDate = EffectiveDate;
+            }
+
+            EntityT Entity = new EntityT();
+
+            Entity.EffectiveDate = EffectiveDate;
+            Entity.EndEffectiveDate = EndEffectiveDate;
+            Entity.PersistenceService = PersistenceService;
+
+            if (CopyValuesFromPrevious && MostRecent != null)
+            {
+                var Properties = typeof(EntityT).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                foreach (var Property in Properties)
+                {
+                    if (typeof(IField).IsAssignableFrom(Property.PropertyType))
+                    {
+                        IField PreviousField = (IField)Property.GetValue(MostRecent);
+                        IField NewField = (IField)Property.GetValue(Entity);
+                        NewField.Value = PreviousField.Value;
+                    }
+                }
+            }
+
+            Item.AddEntity(Entity);
+
+            return Entity;
+        }
+
+        public EntityBase CreateEntityAndEndDateAllPrevious(EntityType EntityType, bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null)
+        {
+            var ExistingEntities = GetAllEntitiesOfType(EntityType);
+            var MostRecent = ExistingEntities.LastOrDefault();
+
+            foreach (var ExistingEntity in ExistingEntities)
+            {
+                ExistingEntity.EndEffectiveDate = EffectiveDate;
+            }
+
+            var Entity = (EntityBase)Activator.CreateInstance(EntityType.Type);
+            Entity.EffectiveDate = EffectiveDate;
+            Entity.EndEffectiveDate = EndEffectiveDate;
+            Entity.PersistenceService = PersistenceService;
+
+            if (CopyValuesFromPrevious && MostRecent != null)
+            {
+                var Properties = EntityType.Type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                foreach (var Property in Properties)
+                {
+                    if (typeof(IField).IsAssignableFrom(Property.PropertyType))
+                    {
+                        IField PreviousField = (IField)Property.GetValue(MostRecent);
+                        IField NewField = (IField)Property.GetValue(Entity);
+                        NewField.Value = PreviousField.Value;
+                    }
+                }
+            }
+
+            Item.AddEntity(Entity);
+
+            return Entity;
         }
 
         public EntityT GetOrCreateEntity<EntityT>(DateTime? EndEffectiveDate = null) where EntityT : EntityBase, new()

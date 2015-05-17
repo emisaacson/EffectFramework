@@ -28,7 +28,7 @@ namespace EffectFramework.Core.Models.Fields
 
             set
             {
-                if (!typeof(String).IsAssignableFrom(value.GetType())) {
+                if (value != null && !typeof(String).IsAssignableFrom(value.GetType())) {
                     throw new InvalidCastException("Must assign a string to a string field.");
                 }
                 if (this.ValueString != (string)value)

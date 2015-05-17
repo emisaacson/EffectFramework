@@ -23,6 +23,7 @@ namespace EffectFramework.Core.Services
         FieldBase RetreiveSingleFieldOrDefault<FieldT>(EntityBase Entity) where FieldT : IField, new();
 
         EntityT RetreiveSingleEntityOrDefault<EntityT>(Item Item, DateTime? EffectiveDate = null) where EntityT : EntityBase, new();
+        void SaveAndDeleteSingleEntity(EntityBase Entity, Models.Db.IDbContext ctx = null);
 
         Guid RetreiveGuidForItem(Item Item);
 

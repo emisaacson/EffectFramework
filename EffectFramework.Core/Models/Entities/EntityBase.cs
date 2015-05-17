@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Services;
@@ -13,6 +14,8 @@ namespace EffectFramework.Core.Models.Entities
         public int? ItemID { get; protected set; }
         public Guid Guid { get; protected set; }
         public bool Dirty { get; protected set; }
+        public Item Item { get; internal set; }
+        internal bool? FlagForRemoval { get; set; }
 
         private DateTime _EffectiveDate;
         public DateTime EffectiveDate {
@@ -97,6 +100,15 @@ namespace EffectFramework.Core.Models.Entities
             this.Dirty = false;
         }
 
+        private void Seppuku(Db.IDbContext ctx = null)
+        {
+            if (this.EntityID.HasValue)
+            {
+                PersistenceService.SaveAndDeleteSingleEntity(this, ctx);
+            }
+            this.FlagForRemoval = true;
+        }
+
         private List<FieldBase> GetAllEntityFieldProperties()
         {
             Type EntityType = this.GetType();
@@ -115,7 +127,7 @@ namespace EffectFramework.Core.Models.Entities
             return Output;
         }
 
-        public void PersistEntityToDatabase(Db.IDbContext ctx = null)
+        public void PersistToDatabase(Db.IDbContext ctx = null)
         {
             var Identity = PersistenceService.SaveSingleEntity(this, ctx);
             this.Guid = Identity.ObjectGuid;
@@ -133,9 +145,19 @@ namespace EffectFramework.Core.Models.Entities
 
         public void PersistToDatabase(Item Item, Db.IDbContext ctx = null)
         {
+            if (Item == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             var Identity = PersistenceService.SaveSingleEntity(Item, this, ctx);
             this.Guid = Identity.ObjectGuid;
             this.EntityID = Identity.ObjectID;
+
+            var PossiblePreviousEntity = Item.AllEntities
+                .Where(e => e.Type == this.Type &&
+                            e.EndEffectiveDate.HasValue &&
+                            e.EndEffectiveDate.Value == this.EffectiveDate).SingleOrDefault();
 
             var FieldObjects = GetAllEntityFieldProperties();
 
@@ -145,6 +167,31 @@ namespace EffectFramework.Core.Models.Entities
             }
 
             this.Dirty = false;
+
+            if (PossiblePreviousEntity != null)
+            {
+                var PreviousEntityFieldObjects = PossiblePreviousEntity.GetAllEntityFieldProperties();
+                bool AreIdentical = true;
+                foreach (var PreviousEntityField in PreviousEntityFieldObjects)
+                {
+                    var CurrentEntityField = FieldObjects.Where(f => f.Type == PreviousEntityField.Type).Single();
+                    if (!(((IField)CurrentEntityField).Value == null && ((IField)PreviousEntityField).Value == null) && // If both null, they are identical. stop
+                        ((((IField)CurrentEntityField).Value == null && ((IField)PreviousEntityField).Value != null) || // If a is null and b is not, not identical
+                         (((IField)PreviousEntityField).Value == null && ((IField)CurrentEntityField).Value != null) || // If b is null and a is not, not identical
+                         !((IField)CurrentEntityField).Value.Equals(((IField)PreviousEntityField).Value)))              // Neither are null, use the default comparer
+                    {
+                        AreIdentical = false;
+                        break;
+                    }
+                }
+                if (AreIdentical)
+                {
+                    PossiblePreviousEntity.EndEffectiveDate = this.EndEffectiveDate;
+                    PossiblePreviousEntity.PersistToDatabase(Item, ctx);
+                    this.Seppuku(ctx);
+                }
+            }
+
         }
     }
 }

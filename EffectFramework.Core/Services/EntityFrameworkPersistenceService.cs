@@ -269,6 +269,7 @@ namespace EffectFramework.Core.Services
                     {
                         IsDeleted = false,
                         EntityTypeID = Entity.Type.Value,
+                        EffectiveDate = Entity.EffectiveDate,
                         ItemID = Item.ItemID.Value,
                         Guid = Guid.NewGuid(),
                     };
@@ -585,6 +586,65 @@ namespace EffectFramework.Core.Services
                 return default(EntityT);
             }
         }
+        public void SaveAndDeleteSingleEntity(EntityBase Entity, IDbContext ctx = null)
+        {
+            ItemDb7Context db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new ItemDb7Context(ConnectionString);
+                }
+                else
+                {
+                    db = (ItemDb7Context)ctx;
+                }
+
+                if (Entity == null)
+                {
+                    throw new ArgumentNullException();
+                }
+
+                Entity DbEntity = null;
+                if (!Entity.EntityID.HasValue)
+                {
+                    throw new InvalidOperationException("Cannot delete an entity without an ID.");
+                }
+                else
+                {
+                    DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value && e.IsDeleted == false).FirstOrDefault();
+                }
+
+                if (DbEntity == null)
+                {
+                    throw new ArgumentException("The passed entity ID is not valid.");
+                }
+
+                if (DbEntity.Guid != Entity.Guid)
+                {
+                    throw new Exceptions.GuidMismatchException();
+                }
+
+                if (DbEntity.EntityTypeID != Entity.Type.Value)
+                {
+                    throw new Exceptions.DataTypeMismatchException();
+                }
+
+                DbEntity.EffectiveDate = Entity.EffectiveDate;
+                DbEntity.EndEffectiveDate = Entity.EndEffectiveDate;
+                DbEntity.Guid = Guid.NewGuid();
+                DbEntity.IsDeleted = true;
+
+                db.SaveChanges();
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
 
         public List<EntityBase> RetreiveAllEntities(Models.Item Item, DateTime? EffectiveDate = null)
         {
@@ -610,7 +670,7 @@ namespace EffectFramework.Core.Services
                 {
                     DbEntityPossibilities = DbEntityPossibilities.Where(e =>
                         e.EffectiveDate <= EffectiveDate.Value &&
-                        (!e.EndEffectiveDate.HasValue || e.EndEffectiveDate.Value < EffectiveDate.Value)
+                        (!e.EndEffectiveDate.HasValue || e.EndEffectiveDate.Value > EffectiveDate.Value)
                     );
                 }
 

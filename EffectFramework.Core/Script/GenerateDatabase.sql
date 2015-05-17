@@ -1,4 +1,36 @@
-﻿/****** Object:  Table [dbo].[DataTypes]    Script Date: 5/7/2015 5:47:43 PM ******/
+﻿USE [HRMS]
+GO
+/****** Object:  StoredProcedure [dbo].[usp_DeleteEntireDatabase]    Script Date: 5/12/2015 4:55:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[usp_DeleteEntireDatabase]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	BEGIN TRANSACTION deleteDatabase;
+
+	DELETE FROM Fields;
+	DELETE FROM Entities;
+	DELETE FROM Items;
+
+	DBCC CHECKIDENT ('dbo.Fields',RESEED, 0);
+	DBCC CHECKIDENT ('dbo.Entities',RESEED, 0);
+	DBCC CHECKIDENT ('dbo.Items',RESEED, 0);
+
+	COMMIT TRANSACTION deleteDatabase;
+
+END
+
+
+
+GO
+/****** Object:  Table [dbo].[DataTypes]    Script Date: 5/12/2015 4:55:16 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -17,7 +49,7 @@ CREATE TABLE [dbo].[DataTypes](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  Table [dbo].[Entities]    Script Date: 5/7/2015 5:47:43 PM ******/
+/****** Object:  Table [dbo].[Entities]    Script Date: 5/12/2015 4:55:16 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -37,35 +69,7 @@ CREATE TABLE [dbo].[Entities](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[EntityFields]    Script Date: 5/7/2015 5:47:43 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-SET ANSI_PADDING ON
-GO
-CREATE TABLE [dbo].[EntityFields](
-	[EntityFieldID] [int] IDENTITY(1,1) NOT NULL,
-	[FieldTypeID] [int] NOT NULL,
-	[EntityID] [int] NOT NULL,
-	[ValueText] [varchar](max) NULL,
-	[ValueDate] [datetime] NULL,
-	[ValueDecimal] [decimal](18, 4) NULL,
-	[ValueBoolean] [bit] NULL,
-	[ValueUser] [int] NULL,
-	[ValueBinary] [varbinary](max) NULL,
-	[IsDeleted] [bit] NOT NULL,
-	[Guid] [uniqueidentifier] NOT NULL,
- CONSTRAINT [PK_EntityFields] PRIMARY KEY CLUSTERED 
-(
-	[EntityFieldID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-
-GO
-SET ANSI_PADDING OFF
-GO
-/****** Object:  Table [dbo].[EntityTypes]    Script Date: 5/7/2015 5:47:43 PM ******/
+/****** Object:  Table [dbo].[EntityTypes]    Script Date: 5/12/2015 4:55:16 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -84,7 +88,35 @@ CREATE TABLE [dbo].[EntityTypes](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  Table [dbo].[FieldTypes]    Script Date: 5/7/2015 5:47:43 PM ******/
+/****** Object:  Table [dbo].[Fields]    Script Date: 5/12/2015 4:55:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_PADDING ON
+GO
+CREATE TABLE [dbo].[Fields](
+	[FieldID] [int] IDENTITY(1,1) NOT NULL,
+	[FieldTypeID] [int] NOT NULL,
+	[EntityID] [int] NOT NULL,
+	[ValueText] [varchar](max) NULL,
+	[ValueDate] [datetime] NULL,
+	[ValueDecimal] [decimal](18, 4) NULL,
+	[ValueBoolean] [bit] NULL,
+	[ValueUser] [int] NULL,
+	[ValueBinary] [varbinary](max) NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[Guid] [uniqueidentifier] NOT NULL,
+ CONSTRAINT [PK_Fields] PRIMARY KEY CLUSTERED 
+(
+	[FieldID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+SET ANSI_PADDING OFF
+GO
+/****** Object:  Table [dbo].[FieldTypes]    Script Date: 5/12/2015 4:55:16 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -104,62 +136,16 @@ CREATE TABLE [dbo].[FieldTypes](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  Table [dbo].[ItemEntities]    Script Date: 5/7/2015 5:47:43 PM ******/
+/****** Object:  Table [dbo].[Items]    Script Date: 5/12/2015 4:55:16 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[ItemEntities](
-	[ItemEntityID] [int] IDENTITY(1,1) NOT NULL,
-	[ItemRecordID] [int] NOT NULL,
-	[EntityID] [int] NOT NULL,
-	[IsDeleted] [bit] NOT NULL,
-	[Guid] [uniqueidentifier] NOT NULL,
- CONSTRAINT [PK_ItemEntities] PRIMARY KEY CLUSTERED 
-(
-	[ItemEntityID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
- CONSTRAINT [IX_ItemEntities] UNIQUE NONCLUSTERED 
-(
-	[ItemEntityID] ASC,
-	[ItemRecordID] ASC,
-	[EntityID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-
-GO
-/****** Object:  Table [dbo].[ItemRecords]    Script Date: 5/7/2015 5:47:43 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[ItemRecords](
-	[ItemRecordID] [int] IDENTITY(1,1) NOT NULL,
-	[ItemID] [int] NOT NULL,
-	[EffectiveDate] [datetime] NOT NULL,
-	[EndEffectiveDate] [datetime] NULL,
-	[IsDeleted] [bit] NOT NULL,
-	[Guid] [uniqueidentifier] NOT NULL,
- CONSTRAINT [PK_ItemRecords] PRIMARY KEY CLUSTERED 
-(
-	[ItemRecordID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-
-GO
-/****** Object:  Table [dbo].[Items]    Script Date: 5/7/2015 5:47:43 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[Items](
 	[ItemID] [int] IDENTITY(1,1) NOT NULL,
-	[ItemRecordID] [int] NULL,
 	[IsDeleted] [bit] NOT NULL,
-	[DisplayName] [varchar](1024) NOT NULL,
 	[Guid] [uniqueidentifier] NOT NULL,
+	[ItemTypeID] [int] NOT NULL,
  CONSTRAINT [PK_Items] PRIMARY KEY CLUSTERED 
 (
 	[ItemID] ASC
@@ -167,7 +153,112 @@ CREATE TABLE [dbo].[Items](
 ) ON [PRIMARY]
 
 GO
+/****** Object:  Table [dbo].[ItemTypes]    Script Date: 5/12/2015 4:55:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_PADDING ON
+GO
+CREATE TABLE [dbo].[ItemTypes](
+	[ItemTypeID] [int] NOT NULL,
+	[Name] [varchar](1024) NOT NULL,
+ CONSTRAINT [PK_ItemTypes] PRIMARY KEY CLUSTERED 
+(
+	[ItemTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
 SET ANSI_PADDING OFF
+GO
+/****** Object:  View [dbo].[CompleteItemRecord]    Script Date: 5/12/2015 4:55:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE VIEW [dbo].[CompleteItems] AS
+SELECT
+i.ItemID,
+i.[Guid] as ItemGuid,
+it.ItemTypeID,
+it.Name as ItemTypeName,
+en.EntityID,
+et.EntityTypeID,
+et.Name as EntityTypeName,
+en.EffectiveDate as EntityEffectiveDate,
+en.EndEffectiveDate as EntityEndEffectiveDate,
+en.[Guid] as EntityGuid,
+ft.FieldTypeID,
+ft.Name as FieldTypeName,
+dt.DataTypeID,
+dt.Name as DataTypeName,
+f.FieldID,
+f.ValueText,
+f.ValueDate,
+f.ValueDecimal,
+f.ValueBoolean,
+f.ValueUser,
+f.ValueBinary,
+f.[Guid] as EntityFieldGuid
+FROM Items i
+JOIN ItemTypes it on it.ItemTypeID = i.ItemTypeID
+JOIN Entities en on en.ItemID = i.ItemID and en.IsDeleted = 0
+JOIN EntityTypes et on et.EntityTypeID = en.EntityTypeID
+JOIN Fields f on f.EntityID = en.EntityID and f.IsDeleted = 0
+JOIN FieldTypes ft on ft.FieldTypeID = f.FieldTypeID
+JOIN DataTypes dt on dt.DataTypeID = ft.DataTypeID
+WHERE i.IsDeleted = 0
+
+
+
+
+GO
+/****** Object:  View [dbo].[CurrentItemRecord]    Script Date: 5/12/2015 4:55:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+CREATE VIEW [dbo].[CurrentItems] AS
+SELECT
+i.ItemID,
+i.[Guid] as ItemGuid,
+it.ItemTypeID,
+it.Name as ItemTypeName,
+en.EntityID,
+et.EntityTypeID,
+et.Name as EntityTypeName,
+en.EffectiveDate as EntityEffectiveDate,
+en.EndEffectiveDate as EntityEndEffectiveDate,
+en.[Guid] as EntityGuid,
+ft.FieldTypeID,
+ft.Name as FieldTypeName,
+dt.DataTypeID,
+dt.Name as DataTypeName,
+f.FieldID,
+f.ValueText,
+f.ValueDate,
+f.ValueDecimal,
+f.ValueBoolean,
+f.ValueUser,
+f.ValueBinary,
+f.[Guid] as EntityFieldGuid
+FROM Items i
+JOIN ItemTypes it on it.ItemTypeID = i.ItemTypeID
+JOIN Entities en on en.ItemID = i.ItemID and en.IsDeleted = 0
+JOIN EntityTypes et on et.EntityTypeID = en.EntityTypeID
+JOIN Fields f on f.EntityID = en.EntityID and f.IsDeleted = 0
+JOIN FieldTypes ft on ft.FieldTypeID = f.FieldTypeID
+JOIN DataTypes dt on dt.DataTypeID = ft.DataTypeID
+WHERE i.IsDeleted = 0 AND en.EffectiveDate <= GETDATE() AND (en.EndEffectiveDate IS NULL OR en.EndEffectiveDate > GETDATE())
+
+
+
 GO
 ALTER TABLE [dbo].[Entities]  WITH CHECK ADD  CONSTRAINT [FK_Entities_EntityTypes] FOREIGN KEY([EntityTypeID])
 REFERENCES [dbo].[EntityTypes] ([EntityTypeID])
@@ -179,40 +270,25 @@ REFERENCES [dbo].[Items] ([ItemID])
 GO
 ALTER TABLE [dbo].[Entities] CHECK CONSTRAINT [FK_Entities_Items]
 GO
-ALTER TABLE [dbo].[EntityFields]  WITH CHECK ADD  CONSTRAINT [FK_EntityFields_Entities] FOREIGN KEY([EntityID])
+ALTER TABLE [dbo].[Fields]  WITH CHECK ADD  CONSTRAINT [FK_Fields_Entities] FOREIGN KEY([EntityID])
 REFERENCES [dbo].[Entities] ([EntityID])
 GO
-ALTER TABLE [dbo].[EntityFields] CHECK CONSTRAINT [FK_EntityFields_Entities]
+ALTER TABLE [dbo].[Fields] CHECK CONSTRAINT [FK_Fields_Entities]
 GO
-ALTER TABLE [dbo].[EntityFields]  WITH CHECK ADD  CONSTRAINT [FK_EntityFields_FieldTypes] FOREIGN KEY([FieldTypeID])
+ALTER TABLE [dbo].[Fields]  WITH CHECK ADD  CONSTRAINT [FK_Fields_FieldTypes] FOREIGN KEY([FieldTypeID])
 REFERENCES [dbo].[FieldTypes] ([FieldTypeID])
 GO
-ALTER TABLE [dbo].[EntityFields] CHECK CONSTRAINT [FK_EntityFields_FieldTypes]
+ALTER TABLE [dbo].[Fields] CHECK CONSTRAINT [FK_Fields_FieldTypes]
 GO
 ALTER TABLE [dbo].[FieldTypes]  WITH CHECK ADD  CONSTRAINT [FK_FieldTypes_DataTypes] FOREIGN KEY([DataTypeID])
 REFERENCES [dbo].[DataTypes] ([DataTypeID])
 GO
 ALTER TABLE [dbo].[FieldTypes] CHECK CONSTRAINT [FK_FieldTypes_DataTypes]
 GO
-ALTER TABLE [dbo].[ItemEntities]  WITH CHECK ADD  CONSTRAINT [FK_ItemEntities_Entities] FOREIGN KEY([EntityID])
-REFERENCES [dbo].[Entities] ([EntityID])
+ALTER TABLE [dbo].[Items]  WITH CHECK ADD  CONSTRAINT [FK_Items_ItemTypes] FOREIGN KEY([ItemTypeID])
+REFERENCES [dbo].[ItemTypes] ([ItemTypeID])
 GO
-ALTER TABLE [dbo].[ItemEntities] CHECK CONSTRAINT [FK_ItemEntities_Entities]
-GO
-ALTER TABLE [dbo].[ItemEntities]  WITH CHECK ADD  CONSTRAINT [FK_ItemEntities_ItemRecords] FOREIGN KEY([ItemRecordID])
-REFERENCES [dbo].[ItemRecords] ([ItemRecordID])
-GO
-ALTER TABLE [dbo].[ItemEntities] CHECK CONSTRAINT [FK_ItemEntities_ItemRecords]
-GO
-ALTER TABLE [dbo].[ItemRecords]  WITH CHECK ADD  CONSTRAINT [FK_ItemRecords_Items] FOREIGN KEY([ItemID])
-REFERENCES [dbo].[Items] ([ItemID])
-GO
-ALTER TABLE [dbo].[ItemRecords] CHECK CONSTRAINT [FK_ItemRecords_Items]
-GO
-ALTER TABLE [dbo].[Items]  WITH CHECK ADD  CONSTRAINT [FK_Items_ItemRecords] FOREIGN KEY([ItemRecordID])
-REFERENCES [dbo].[ItemRecords] ([ItemRecordID])
-GO
-ALTER TABLE [dbo].[Items] CHECK CONSTRAINT [FK_Items_ItemRecords]
+ALTER TABLE [dbo].[Items] CHECK CONSTRAINT [FK_Items_ItemTypes]
 GO
 
 
@@ -228,142 +304,3 @@ INSERT [dbo].[DataTypes] ([DataTypeID], [Name]) VALUES (5, N'Person')
 GO
 INSERT [dbo].[DataTypes] ([DataTypeID], [Name]) VALUES (6, N'Binary')
 GO
-
-CREATE VIEW [dbo].[CompleteItemRecord] AS
-SELECT
-i.ItemID,
-i.[Guid] as ItemGuid,
-it.ItemTypeID,
-it.Name as ItemTypeName,
-ir.ItemRecordID,
-ir.EffectiveDate as ItemRecordEffectiveDate,
-ir.EndEffectiveDate as ItemRecordEndEffectiveDate,
-ir.[Guid] as ItemRecordGuid,
-et.EntityTypeID,
-et.Name as EntityTypeName,
-ie.ItemEntityID,
-ie.[Guid] as ItemEntityGuid,
-en.EntityID,
-en.EffectiveDate as EntityEffectiveDate,
-en.EndEffectiveDate as EntityEndEffectiveDate,
-en.[Guid] as EntityGuid,
-ft.FieldTypeID,
-ft.Name as FieldTypeName,
-dt.DataTypeID,
-dt.Name as DataTypeName,
-ef.EntityFieldID,
-ef.ValueText,
-ef.ValueDate,
-ef.ValueDecimal,
-ef.ValueBoolean,
-ef.ValueUser,
-ef.ValueBinary,
-ef.[Guid] as EntityFieldGuid
-FROM Items i
-JOIN ItemTypes it on it.ItemTypeID = i.ItemTypeID
-JOIN ItemRecords ir on ir.ItemID = i.ItemID and ir.IsDeleted = 0
-JOIN ItemEntities ie on ie.ItemRecordID = ir.ItemRecordID and ie.IsDeleted = 0
-JOIN Entities en on en.EntityID = ie.EntityID and en.IsDeleted = 0
-JOIN EntityTypes et on et.EntityTypeID = en.EntityTypeID
-JOIN EntityFields ef on ef.EntityID = en.EntityID and ef.IsDeleted = 0
-JOIN FieldTypes ft on ft.FieldTypeID = ef.FieldTypeID
-JOIN DataTypes dt on dt.DataTypeID = ft.DataTypeID
-
-
-GO
-/****** Object:  View [dbo].[CurrentItemRecord]    Script Date: 4/30/2015 2:45:02 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-
-CREATE VIEW [dbo].[CurrentItemRecord] AS
-SELECT
-i.ItemID,
-i.[Guid] as ItemGuid,
-it.ItemTypeID,
-it.Name as ItemTypeName,
-ir.ItemRecordID,
-ir.EffectiveDate as ItemRecordEffectiveDate,
-ir.EndEffectiveDate as ItemRecordEndEffectiveDate,
-ir.[Guid] as ItemRecordGuid,
-et.EntityTypeID,
-et.Name as EntityTypeName,
-ie.ItemEntityID,
-ie.[Guid] as ItemEntityGuid,
-en.EntityID,
-en.EffectiveDate as EntityEffectiveDate,
-en.EndEffectiveDate as EntityEndEffectiveDate,
-en.[Guid] as EntityGuid,
-ft.FieldTypeID,
-ft.Name as FieldTypeName,
-dt.DataTypeID,
-dt.Name as DataTypeName,
-ef.EntityFieldID,
-ef.ValueText,
-ef.ValueDate,
-ef.ValueDecimal,
-ef.ValueBoolean,
-ef.ValueUser,
-ef.ValueBinary,
-ef.[Guid] as EntityFieldGuid
-FROM Items i
-JOIN ItemTypes it on it.ItemTypeID = i.ItemTypeID
-JOIN ItemRecords ir on ir.ItemID = i.ItemID and ir.ItemRecordID = i.ItemRecordID and ir.IsDeleted = 0
-JOIN ItemEntities ie on ie.ItemRecordID = ir.ItemRecordID and ie.IsDeleted = 0
-JOIN Entities en on en.EntityID = ie.EntityID and en.IsDeleted = 0
-JOIN EntityTypes et on et.EntityTypeID = en.EntityTypeID
-JOIN EntityFields ef on ef.EntityID = en.EntityID and ef.IsDeleted = 0
-JOIN FieldTypes ft on ft.FieldTypeID = ef.FieldTypeID
-JOIN DataTypes dt on dt.DataTypeID = ft.DataTypeID
-
-GO
-
-/****** Object:  StoredProcedure [dbo].[usp_DeleteEntireDatabase]    Script Date: 5/5/2015 7:54:02 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-CREATE PROCEDURE [dbo].[usp_DeleteEntireDatabase]
-AS
-BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
-
-	BEGIN TRANSACTION deleteDatabase;
-
-	DELETE FROM EntityFields;
-
-	ALTER TABLE ItemRecords NOCHECK CONSTRAINT all;
-	ALTER TABLE ItemEntities NOCHECK CONSTRAINT all;
-	ALTER TABLE Items NOCHECK CONSTRAINT all;
-	ALTER TABLE Entities NOCHECK CONSTRAINT all;
-
-	DELETE FROM Items;
-	DELETE FROM ItemRecords;
-	DELETE FROM Entities;
-	DELETE FROM ItemEntities;
-
-	ALTER TABLE ItemRecords WITH CHECK CHECK CONSTRAINT all;
-	ALTER TABLE ItemEntities WITH CHECK CHECK CONSTRAINT all;
-	ALTER TABLE Items WITH CHECK CHECK CONSTRAINT all;
-	ALTER TABLE Entities WITH CHECK CHECK CONSTRAINT all;
-
-	DBCC CHECKIDENT ('dbo.EntityFields',RESEED, 0);
-	DBCC CHECKIDENT ('dbo.Items',RESEED, 0);
-	DBCC CHECKIDENT ('dbo.ItemRecords',RESEED, 0);
-	DBCC CHECKIDENT ('dbo.Entities',RESEED, 0);
-	DBCC CHECKIDENT ('dbo.ItemEntities',RESEED, 0);
-
-	COMMIT TRANSACTION deleteDatabase;
-
-END
-
-GO
-
-

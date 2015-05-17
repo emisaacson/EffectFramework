@@ -33,6 +33,10 @@ namespace EffectFramework.Core.Models.Entities
 
         private static void RegisterType(EntityType Type)
         {
+            if (TypeRegistry.ContainsKey(Type.Value))
+            {
+                throw new InvalidOperationException("Cannot register the same Entity Type twice.");
+            }
             TypeRegistry[Type.Value] = Type;
         }
     }

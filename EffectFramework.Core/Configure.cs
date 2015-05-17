@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using EffectFramework.Core.Models;
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Models.Fields;
@@ -9,10 +10,25 @@ namespace EffectFramework.Core
 {
     public class Configure : NinjectModule
     {
+        public static string ConnectionString;
+
+        public Configure()
+        {
+
+        }
+        public Configure(string ConnectionString)
+        {
+            Configure.ConnectionString = ConnectionString;
+        }
         public override void Load()
         {
+            if (ConnectionString == null)
+            {
+                throw new InvalidOperationException("Must set connection string.");
+            }
             Kernel.Bind<IPersistenceService>()
-                    .To<EntityFrameworkPersistenceService>();
+                    .To<EntityFrameworkPersistenceService>()
+                    .WithConstructorArgument("ConnectionString", ConnectionString);
         }
 
         public static void RegisterTypeClasses<TItemType, TEntityType, TFieldType>()

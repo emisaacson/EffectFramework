@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Services;
@@ -11,7 +12,7 @@ namespace EffectFramework.Core.Models
         {
             get
             {
-                return _AllEntities;
+                return _AllEntities.Where(e => !e.FlagForRemoval.HasValue || !e.FlagForRemoval.Value);
             }
         }
         private List<EntityBase> _AllEntities = new List<EntityBase>();
@@ -95,6 +96,7 @@ namespace EffectFramework.Core.Models
                 {
                     Entity.PersistToDatabase(this, ctx);
                 }
+                RemoveDeadEntities();
 
                 this.Dirty = false;
 
@@ -123,14 +125,38 @@ namespace EffectFramework.Core.Models
             DateTime? DateToSend = EffectiveDate;
 
             _AllEntities = PersistenceService.RetreiveAllEntities(this, Sparse ? DateToSend : null);
+            foreach (var Entity in _AllEntities)
+            {
+                Entity.Item = this;
+            }
 
             this.Dirty = false;
         }
 
         internal void AddEntity(EntityBase Entity)
         {
+            if (Entity == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             _AllEntities.Add(Entity);
+            Entity.Item = this;
         }
 
+        internal void RemoveEntity(EntityBase Entity)
+        {
+            if (Entity == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            _AllEntities.Remove(Entity);
+        }
+
+        internal void RemoveDeadEntities()
+        {
+            _AllEntities.RemoveAll(x => x.FlagForRemoval.HasValue && x.FlagForRemoval.Value);
+        }
     }
 }

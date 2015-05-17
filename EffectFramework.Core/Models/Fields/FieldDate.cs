@@ -27,16 +27,20 @@ namespace EffectFramework.Core.Models.Fields
         {
             get
             {
-                return this.ValueDate.Value;
+                if (this.ValueDate.HasValue)
+                {
+                    return this.ValueDate.Value;
+                }
+                return null;
             }
 
             set
             {
-                if (!typeof(DateTime?).IsAssignableFrom(value.GetType()))
+                if (value != null && !typeof(DateTime?).IsAssignableFrom(value.GetType()))
                 {
                     throw new InvalidCastException("Must assign a datetime to a date field.");
                 }
-                if (this.ValueDate.Value != (DateTime?)value)
+                if (!this.ValueDate.HasValue || this.ValueDate.Value != (DateTime?)value)
                 {
                     this.Dirty = true;
                     this.ValueDate = (DateTime?)value;

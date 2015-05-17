@@ -14,6 +14,7 @@ using EffectFramework.Core.Forms;
 using EffectFramework.Core;
 using Microsoft.Framework.ConfigurationModel;
 using System.IO;
+using EffectFramework.Core.Exceptions;
 
 namespace EffectFramework.Test
 {
@@ -46,7 +47,7 @@ namespace EffectFramework.Test
             if (!DatabaseIsPrepared)
             {
                 using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
-                //using (db.BeginTransaction())
+                using (db.BeginTransaction())
                 {
                     Core.Models.Db.Item NewItem = new Core.Models.Db.Item()
                     {
@@ -151,14 +152,6 @@ namespace EffectFramework.Test
                     DatabaseIsPrepared = true;
 
                     TempItems.Add(NewItem);
-                    TempEntity.Add(NewEntity1);
-                    TempEntity.Add(NewEntity2);
-                    TempEntity.Add(NewEntity3);
-                    TempField.Add(NewField1);
-                    TempField.Add(NewField2);
-                    TempField.Add(NewField3);
-                    TempField.Add(NewField4);
-                    TempField.Add(NewField5);
                 }
             }
         }
@@ -170,13 +163,16 @@ namespace EffectFramework.Test
                 using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
                 using (db.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    foreach (var Field in TempField)
+                    var AllEntities = db.Entities.Where(e => e.ItemID == TempItems.First().ItemID).ToList();
+                    var AllFields = db.Fields.Where(f => AllEntities.Select(e => e.EntityID).Contains(f.EntityID)).ToList();
+
+                    foreach (var Field in AllFields)
                     {
                         db.Fields.Remove(Field);
                     }
                     db.SaveChanges();
 
-                    foreach (var Entity in TempEntity)
+                    foreach (var Entity in AllEntities)
                     {
                         db.Entities.Remove(Entity);
                     }
@@ -202,6 +198,8 @@ namespace EffectFramework.Test
             var configuration = new Configuration(BasePath)
                 .AddJsonFile("config.json");
             Configuration = configuration;
+
+            Configure.ConnectionString = Configuration["Data:DefaultConnection:ConnectionString"];
 
             PrepareEF7DatabaseIfRequired();
         }
@@ -260,7 +258,7 @@ namespace EffectFramework.Test
                 GeneralInfoEntity GeneralEntity = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
 
                 Assert.NotNull(GeneralEntity);
-                Assert.Equal(TempField.First().ValueDate.Value, GeneralEntity.HireDate.Value);
+                Assert.Equal(new DateTime(2015, 1, 1), GeneralEntity.HireDate.Value);
 
                 JobEntity FirstJob = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
 
@@ -442,7 +440,7 @@ namespace EffectFramework.Test
                 JobEntity Job = NewEmployee.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
                 Job.JobStartDate.Value = new DateTime(2015, 1, 1);
 
-                Job.PersistEntityToDatabase();
+                Job.PersistToDatabase();
 
                 using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
                 {
@@ -466,18 +464,155 @@ namespace EffectFramework.Test
             {
                 Employee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", TempItems.First().ItemID));
             }
+
+            Employee.EffectiveDate = new DateTime(2015, 3, 1);
+            GeneralInfoEntity Entity = Employee.EffectiveRecord.CreateEntityAndEndDateAllPrevious<GeneralInfoEntity>(CopyValuesFromPrevious: true);
+            Entity.First_Name.Value = "Bobby";
+            Employee.PersistToDatabase();
+
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                Employee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", TempItems.First().ItemID));
+            }
+            Employee.EffectiveDate = new DateTime(2015, 1, 1);
             GeneralInfoForm Form = new GeneralInfoForm()
             {
                 GeneralInfoID = Employee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>().EntityID,
             };
             Form.BindTo(Employee);
-            Form.Populate();
+            Form.PopulateForm();
 
-            GeneralInfoEntity Entity = Employee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
+            Entity = Employee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
+
+            Assert.NotNull(Entity);
+            Assert.Equal(Entity.First_Name.Value, Form.First_Name);
+            Assert.Equal(Entity.Last_Name.Value, Form.Last_Name);
+            Assert.Equal(Entity.EntityID.Value, Form.GeneralInfoID);
+
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                Employee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", TempItems.First().ItemID));
+            }
+            Employee.EffectiveDate = new DateTime(2015, 1, 1);
+            Form = new GeneralInfoForm();
+            Form.BindTo(Employee);
+            Form.PopulateForm();
+
+            Entity = Employee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
+
+            Assert.NotNull(Entity);
+            Assert.Equal(Entity.First_Name.Value, Form.First_Name);
+            Assert.Equal(Entity.Last_Name.Value, Form.Last_Name);
+            Assert.Equal(Entity.EntityID.Value, Form.GeneralInfoID);
+
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                Employee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", TempItems.First().ItemID));
+            }
+            Employee.EffectiveDate = new DateTime(2015, 3, 1);
+            Form = new GeneralInfoForm()
+            {
+                GeneralInfoID = Employee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>().EntityID,
+                Effective_Date = new DateTime(2015, 3, 1),
+            };
+            Form.BindTo(Employee);
+            Form.PopulateForm();
+
+            Entity = Employee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
+
+            Assert.NotNull(Entity);
+            Assert.Equal(Entity.First_Name.Value, Form.First_Name);
+            Assert.Equal(Entity.Last_Name.Value, Form.Last_Name);
+            Assert.Equal(Entity.EntityID.Value, Form.GeneralInfoID);
+            Assert.Equal("Bobby", Form.First_Name);
+        }
+
+        [Fact]
+        public void PersistForm()
+        {
+            Employee Employee = null;
+
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                Employee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", TempItems.First().ItemID));
+            }
+            Employee.EffectiveDate = new DateTime(2015, 1, 1);
+            GeneralInfoForm Form = new GeneralInfoForm();
+            Form.BindTo(Employee);
+            Form.PopulateForm();
+
+            Form.Effective_Date = new DateTime(2015, 4, 1);
+            Form.GeneralInfoID = null;
+            Form.First_Name = "Johnny";
+            Form.Last_Name = "Jones";
+            Form.PushValuesToModel();
+
+            Employee.PersistToDatabase();
+
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                Employee = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", TempItems.First().ItemID));
+            }
+            Employee.EffectiveDate = new DateTime(2015, 4, 1);
+            var Entity = Employee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
 
             Assert.NotNull(Entity);
             Assert.Equal(Form.First_Name, Entity.First_Name.Value);
             Assert.Equal(Form.Last_Name, Entity.Last_Name.Value);
+
+            Employee.EffectiveDate = new DateTime(2015, 1, 1);
+
+            Entity = Employee.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
+            Assert.NotNull(Entity);
+            Assert.Equal("John", Entity.First_Name.Value);
+            Assert.Equal("Smith", Entity.Last_Name.Value);
+
+        }
+        
+        [Fact]
+        public void EnsureConcurrentUpdatesDontOverwriteEachOther()
+        {
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                Employee Employee1 = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", TempItems.First().ItemID));
+                Employee Employee2 = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", TempItems.First().ItemID));
+
+                Employee1.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>().JobTitle.Value = "CEO";
+                Employee2.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>().JobTitle.Value = "Janitor";
+
+                Employee1.PersistToDatabase();
+                Assert.Throws(typeof(GuidMismatchException), () => { Employee2.PersistToDatabase(); });
+
+                Employee2.Load();
+                Assert.Equal("CEO", Employee2.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>().JobTitle.Value);
+            }
+        }
+
+        [Fact]
+        public void EnsureButtSplicedEntitiesDontPersist()
+        {
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                Employee Employee1 = Kernel.Get<Employee>(new ConstructorArgument("EmployeeID", TempItems.First().ItemID));
+
+                Employee1.EffectiveRecord.CreateEntityAndEndDateAllPrevious<GeneralInfoEntity>(true);
+
+                Employee1.PersistToDatabase();
+
+                Assert.Equal(1, Employee1.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+                Employee1.Load();
+
+                Assert.Equal(1, Employee1.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+
+                Employee1.EffectiveRecord.CreateEntityAndEndDateAllPrevious<GeneralInfoEntity>(true, new DateTime(2015,9,1));
+                Employee1.PersistToDatabase();
+
+                Assert.Equal(1, Employee1.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+                Employee1.Load();
+
+                Assert.Equal(1, Employee1.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+                Assert.Equal(new DateTime(2015, 9, 1), Employee1.AllEntities.Where(e => e.Type == TestEntityType.General_Info).First().EndEffectiveDate);
+            }
         }
 
         public void Dispose()
@@ -490,16 +625,15 @@ namespace EffectFramework.Test
     [Bind(typeof(Employee), typeof(GeneralInfoEntity), "GeneralInfoID")]
     public class GeneralInfoForm : Form
     {
-
         [Bind]
         public string First_Name { get; set; }
-
         [Bind]
         public string Last_Name { get; set; }
 
+        [EffectiveDate]
+        public DateTime Effective_Date { get; set; }
         public int? GeneralInfoID { get; set; }
     }
-
     public class TestEntityType : EntityType
     {
         public static readonly TestEntityType Job = new TestEntityType(Strings.Job, 1, typeof(JobEntity));
