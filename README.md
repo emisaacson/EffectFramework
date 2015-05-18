@@ -60,6 +60,7 @@ How To Use
 ----------
 First, create an item type:
 
+```c#
     using System;
     using EffectFramework.Core.Models;
 
@@ -73,6 +74,7 @@ First, create an item type:
 
         }
     }
+```
 
 For this as well as the Entity and Field Types, make sure that the same type is registered in the database
 with the same ID:
@@ -84,6 +86,7 @@ with the same ID:
 
 Now you can create your item class:
 
+```c#
     using EffectFramework.Core;
     using EffectFramework.Core.Models;
     using EffectFramework.Core.Services;
@@ -125,9 +128,11 @@ Now you can create your item class:
             }
         }
     }
+```
 
 Then, create your entity types:
 
+```c#
     using System;
     using EffectFramework.Core.Models.Entities;
 
@@ -141,9 +146,11 @@ Then, create your entity types:
             protected MyEntityType(string Name, int Value, Type Type) : base(Name, Value, Type) { }
         }
     }
+```
 
 And your field types:
 
+```c#
     using EffectFramework.Core.Models.Fields;
 
     namespace MyApp
@@ -159,10 +166,11 @@ And your field types:
             public static readonly MyFieldType Zip = new MyFieldType("Zip", 5, DataType.Text);
         }
     }
-
+```
 
 And your entities, along with any fields you want included in code:
 
+```c#
     using EffectFramework.Core.Models.Annotations;
     using EffectFramework.Core.Models.Entities;
     using EffectFramework.Core.Models.Fields;
@@ -200,10 +208,12 @@ And your entities, along with any fields you want included in code:
             public FieldString Zip { get; private set; }
         }
     }
+```
 
 You only need to define a field type once then you can use it in as many entities as you'd like. For instance, this could be
 an addition Shipping Address entity:
 
+```c#
     using EffectFramework.Core.Models.Annotations;
     using EffectFramework.Core.Models.Entities;
     using EffectFramework.Core.Models.Fields;
@@ -241,13 +251,17 @@ an addition Shipping Address entity:
             public FieldString Zip { get; private set; }
         }
     }
+```
 
 Now register your types and you're ready to go:
 
+```c#
     Configure.RegisterTypeClasses<MyItemType, MyEntityType, MyFieldType>();
+```
 
 Use the object model to build and persist your item:
 
+```c#
     User MyUser = User.CreateUser();
     
     // Change the current effective date to Jan 1, 2015.
@@ -300,6 +314,7 @@ Use the object model to build and persist your item:
     User.EffectiveDate = new DateTime(2016, 2, 1);
     Assert.Equal(1, User.EffectiveRecord.AllEntities.Count());
     Assert.Equal(typeof(BillingAddress), User.EffectiveRecord.AllEntities.First());
+```
 
 The rest of the APIs for retreiving, manipulating, and storing entities, items, and fields should be self-explanitory.
 
