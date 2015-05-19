@@ -617,7 +617,7 @@ namespace EffectFramework.Test
 
         public void Dispose()
         {
-            TearDownEF7DatabaseIfRequired();
+            //TearDownEF7DatabaseIfRequired();
         }
     }
 
