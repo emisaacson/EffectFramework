@@ -112,6 +112,13 @@ namespace EffectFramework.Core.Models
         }
 
         // EITODO: Test if we really can create one or not.
+        /// <summary>
+        /// Creates an entity using the EntityCollection's EffectiveDate
+        /// as start date and optionally an EndEffectiveDate if provided.
+        /// </summary>
+        /// <typeparam name="EntityT">The type of the Entity to create.</typeparam>
+        /// <param name="EndEffectiveDate">An optional EndEffectiveDate to set.</param>
+        /// <returns>The new Entity.</returns>
         public EntityT CreateEntity<EntityT>(DateTime? EndEffectiveDate = null) where EntityT : EntityBase, new()
         {
             EntityT Entity = new EntityT();
@@ -125,9 +132,19 @@ namespace EffectFramework.Core.Models
             return Entity;
         }
 
+        /// <summary>
+        /// Creates an entity using the EntityCollection's EffectiveDate
+        /// as start date and optionally an EndEffectiveDate if provided.
+        /// </summary>
+        /// <param name="EntityType">Type of the entity to create.</param>
+        /// <param name="EndEffectiveDate">The end effective date.</param>
+        /// <returns>The new Entity.</returns>
         public EntityBase CreateEntity(EntityType EntityType, DateTime? EndEffectiveDate = null)
         {
-
+            if (EntityType == null)
+            {
+                throw new ArgumentNullException();
+            }
             var Entity = (EntityBase)Activator.CreateInstance(EntityType.Type);
             Entity.EffectiveDate = EffectiveDate;
             Entity.EndEffectiveDate = EndEffectiveDate;
