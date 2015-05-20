@@ -260,17 +260,17 @@ namespace EffectFramework.Test
                 Assert.NotNull(GeneralEntity);
                 Assert.Equal(new DateTime(2015, 1, 1), GeneralEntity.HireDate.Value);
 
-                JobEntity FirstJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+                UserTypeEntity FirstJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>();
 
                 Assert.NotNull(FirstJob);
-                Assert.Equal("Subscriber", FirstJob.JobTitle.Value);
+                Assert.Equal("Subscriber", FirstJob.UserType.Value);
 
                 NewUser.EffectiveDate = new DateTime(2015, 2, 2);
 
-                JobEntity SecondJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+                UserTypeEntity SecondJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>();
 
                 Assert.NotNull(SecondJob);
-                Assert.Equal("Editor", SecondJob.JobTitle.Value);
+                Assert.Equal("Editor", SecondJob.UserType.Value);
             }
         }
 
@@ -295,7 +295,7 @@ namespace EffectFramework.Test
                 Assert.False(GeneralEntity.Dirty);
                 Assert.Equal(Strings.General_Info, GeneralEntity.Type.Name);
 
-                JobEntity FirstJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+                UserTypeEntity FirstJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>();
 
                 Assert.NotNull(FirstJob);
                 Assert.NotNull(FirstJob.EntityID);
@@ -307,7 +307,7 @@ namespace EffectFramework.Test
 
                 NewUser.EffectiveDate = new DateTime(2015, 2, 2);
 
-                JobEntity SecondJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+                UserTypeEntity SecondJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>();
 
                 Assert.NotNull(SecondJob);
                 Assert.NotNull(SecondJob.EntityID);
@@ -340,27 +340,27 @@ namespace EffectFramework.Test
                 Assert.Equal(Strings.Hire_Date, GeneralEntity.HireDate.Type.Name);
                 Assert.Equal(Strings.Hire_Date, GeneralEntity.HireDate.Name);
 
-                JobEntity FirstJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+                UserTypeEntity FirstJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>();
 
                 Assert.NotNull(FirstJob);
-                Assert.NotNull(FirstJob.JobTitle);
-                Assert.NotNull(FirstJob.JobTitle.FieldID);
-                Assert.NotEqual(Guid.Empty, FirstJob.JobTitle.Guid);
-                Assert.False(FirstJob.JobTitle.Dirty);
-                Assert.Equal(Strings.Job_Title, FirstJob.JobTitle.Type.Name);
-                Assert.Equal(Strings.Job_Title, FirstJob.JobTitle.Name);
+                Assert.NotNull(FirstJob.UserType);
+                Assert.NotNull(FirstJob.UserType.FieldID);
+                Assert.NotEqual(Guid.Empty, FirstJob.UserType.Guid);
+                Assert.False(FirstJob.UserType.Dirty);
+                Assert.Equal(Strings.Job_Title, FirstJob.UserType.Type.Name);
+                Assert.Equal(Strings.Job_Title, FirstJob.UserType.Name);
 
                 NewUser.EffectiveDate = new DateTime(2015, 2, 2);
 
-                JobEntity SecondJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+                UserTypeEntity SecondJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>();
 
                 Assert.NotNull(SecondJob);
-                Assert.NotNull(SecondJob.JobTitle);
-                Assert.NotNull(SecondJob.JobTitle.FieldID);
-                Assert.NotEqual(Guid.Empty, SecondJob.JobTitle.Guid);
-                Assert.False(SecondJob.JobTitle.Dirty);
-                Assert.Equal(Strings.Job_Title, SecondJob.JobTitle.Type.Name);
-                Assert.Equal(Strings.Job_Title, SecondJob.JobTitle.Name);
+                Assert.NotNull(SecondJob.UserType);
+                Assert.NotNull(SecondJob.UserType.FieldID);
+                Assert.NotEqual(Guid.Empty, SecondJob.UserType.Guid);
+                Assert.False(SecondJob.UserType.Dirty);
+                Assert.Equal(Strings.Job_Title, SecondJob.UserType.Type.Name);
+                Assert.Equal(Strings.Job_Title, SecondJob.UserType.Name);
             }
         }
 
@@ -395,7 +395,7 @@ namespace EffectFramework.Test
                 User NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
                 NewUser.EffectiveDate = new DateTime(2015, 1, 1);
 
-                FieldString JobTitle = NewUser.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>().JobTitle;
+                FieldString JobTitle = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>().UserType;
 
                 Assert.False(JobTitle.Dirty);
 
@@ -437,7 +437,7 @@ namespace EffectFramework.Test
                 User NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
                 NewUser.EffectiveDate = new DateTime(2015, 1, 1);
 
-                JobEntity Job = NewUser.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+                UserTypeEntity Job = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>();
                 Job.JobStartDate.Value = new DateTime(2015, 1, 1);
 
                 Job.PersistToDatabase();
@@ -450,7 +450,7 @@ namespace EffectFramework.Test
                 NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
                 NewUser.EffectiveDate = new DateTime(2015, 1, 1);
 
-                Job = NewUser.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>();
+                Job = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>();
                 Assert.Equal(new DateTime(2015, 1, 1), Job.JobStartDate.Value);
 
             }
@@ -577,14 +577,14 @@ namespace EffectFramework.Test
                 User User1 = Kernel.Get<User>(new ConstructorArgument("UserID", TempItems.First().ItemID));
                 User User2 = Kernel.Get<User>(new ConstructorArgument("UserID", TempItems.First().ItemID));
 
-                User1.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>().JobTitle.Value = "CEO";
-                User2.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>().JobTitle.Value = "Janitor";
+                User1.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>().UserType.Value = "Administrator";
+                User2.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>().UserType.Value = "Pion";
 
                 User1.PersistToDatabase();
                 Assert.Throws(typeof(GuidMismatchException), () => { User2.PersistToDatabase(); });
 
                 User2.Load();
-                Assert.Equal("CEO", User2.EffectiveRecord.GetFirstEntityOrDefault<JobEntity>().JobTitle.Value);
+                Assert.Equal("Administrator", User2.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>().UserType.Value);
             }
         }
 
@@ -615,13 +615,43 @@ namespace EffectFramework.Test
             }
         }
 
+        [Fact]
+        public void EnsurePushingToModelWithNoEffectiveDateUsesNow()
+        {
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                User User = Kernel.Get<User>(new ConstructorArgument("UserID", TempItems.First().ItemID));
+
+                DateTime Today = DateTime.Now.Date;
+
+                GeneralInfoForm GeneralInfo = new GeneralInfoForm();
+                GeneralInfo.BindTo(User);
+                GeneralInfo.First_Name = "Johann";
+                GeneralInfo.PushValuesToModel();
+
+                User.PersistToDatabase();
+
+                User.Load();
+                User.EffectiveDate = DateTime.Now;
+
+                GeneralInfoEntity Entity = User.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
+                Assert.Equal("Johann", Entity.First_Name.Value);
+                Assert.Equal(Today, Entity.EffectiveDate.Date);
+
+                User.EffectiveDate = new DateTime(2015, 1, 1);
+                Entity = User.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
+
+                Assert.Equal("John", Entity.First_Name.Value);
+            }
+        }
+
         public void Dispose()
         {
             TearDownEF7DatabaseIfRequired();
         }
     }
 
-#region Entities And Fields And Forms
+#region Entities, Fields And Forms
     [Bind(typeof(User), typeof(GeneralInfoEntity), "GeneralInfoID")]
     public class GeneralInfoForm : Form
     {
@@ -636,7 +666,7 @@ namespace EffectFramework.Test
     }
     public class TestEntityType : EntityType
     {
-        public static readonly TestEntityType User_Role = new TestEntityType(Strings.Job, 1, typeof(JobEntity));
+        public static readonly TestEntityType User_Role = new TestEntityType(Strings.Job, 1, typeof(UserTypeEntity));
         public static readonly TestEntityType Address = new TestEntityType(Strings.Address, 2, typeof(AddressEntity));
         public static readonly TestEntityType General_Info = new TestEntityType(Strings.General_Info, 3, typeof(GeneralInfoEntity));
 
@@ -735,7 +765,7 @@ namespace EffectFramework.Test
         public FieldString Last_Name { get; private set; }
     }
 
-    public class JobEntity : EntityBase
+    public class UserTypeEntity : EntityBase
     {
 
         public override EntityType Type
@@ -746,9 +776,9 @@ namespace EffectFramework.Test
             }
         }
 
-        public JobEntity() : base() { }
+        public UserTypeEntity() : base() { }
 
-        public JobEntity(IPersistenceService PersistenceService)
+        public UserTypeEntity(IPersistenceService PersistenceService)
             : base(PersistenceService)
         {
 
@@ -756,11 +786,11 @@ namespace EffectFramework.Test
 
         protected override void WireUpFields()
         {
-            JobTitle = new FieldString(TestFieldType.User_Type, PersistenceService);
+            UserType = new FieldString(TestFieldType.User_Type, PersistenceService);
             JobStartDate = new FieldDate(TestFieldType.Job_Start_Date, PersistenceService);
         }
 
-        public FieldString JobTitle { get; private set; }
+        public FieldString UserType { get; private set; }
         public FieldDate JobStartDate { get; private set; }
     }
 #endregion

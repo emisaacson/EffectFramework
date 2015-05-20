@@ -323,7 +323,7 @@ namespace EffectFramework.Core.Forms
 
                             if (Direction == Direction.Push)
                             {
-                                Entity.EffectiveDate = (DateTime)GetValueFrom(Member);
+                                Entity.EffectiveDate = EffectiveDate;
                             }
                             else if (Direction == Direction.Pull)
                             {
@@ -335,7 +335,7 @@ namespace EffectFramework.Core.Forms
 
                             if (Direction == Direction.Push)
                             {
-                                Entity.EndEffectiveDate = (DateTime?)GetValueFrom(Member);
+                                Entity.EndEffectiveDate = EndEffectiveDate;
                             }
                             else if (Direction == Direction.Pull)
                             {
