@@ -39,7 +39,7 @@ SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[DataTypes](
 	[DataTypeID] [int] NOT NULL,
-	[Name] [varchar](1024) NOT NULL,
+	[Name] [nvarchar](1024) NOT NULL,
  CONSTRAINT [PK_DataTypes] PRIMARY KEY CLUSTERED 
 (
 	[DataTypeID] ASC
@@ -78,7 +78,7 @@ SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[EntityTypes](
 	[EntityTypeID] [int] NOT NULL,
-	[Name] [varchar](1024) NOT NULL,
+	[Name] [nvarchar](1024) NOT NULL,
  CONSTRAINT [PK_EntityTypes] PRIMARY KEY CLUSTERED 
 (
 	[EntityTypeID] ASC
@@ -99,7 +99,7 @@ CREATE TABLE [dbo].[Fields](
 	[FieldID] [int] IDENTITY(1,1) NOT NULL,
 	[FieldTypeID] [int] NOT NULL,
 	[EntityID] [int] NOT NULL,
-	[ValueText] [varchar](max) NULL,
+	[ValueText] [nvarchar](max) NULL,
 	[ValueDate] [datetime] NULL,
 	[ValueDecimal] [decimal](18, 4) NULL,
 	[ValueBoolean] [bit] NULL,
@@ -125,7 +125,7 @@ SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[FieldTypes](
 	[FieldTypeID] [int] NOT NULL,
-	[Name] [varchar](1024) NOT NULL,
+	[Name] [nvarchar](1024) NOT NULL,
 	[DataTypeID] [int] NOT NULL,
  CONSTRAINT [PK_FieldTypes] PRIMARY KEY CLUSTERED 
 (
@@ -162,7 +162,7 @@ SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[ItemTypes](
 	[ItemTypeID] [int] NOT NULL,
-	[Name] [varchar](1024) NOT NULL,
+	[Name] [nvarchar](1024) NOT NULL,
  CONSTRAINT [PK_ItemTypes] PRIMARY KEY CLUSTERED 
 (
 	[ItemTypeID] ASC
