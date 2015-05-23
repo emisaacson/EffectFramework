@@ -466,7 +466,7 @@ namespace EffectFramework.Test
             }
 
             User.EffectiveDate = new DateTime(2015, 3, 1);
-            GeneralInfoEntity Entity = User.EffectiveRecord.CreateEntityAndEndDateAllPrevious<GeneralInfoEntity>(CopyValuesFromPrevious: true);
+            GeneralInfoEntity Entity = User.EffectiveRecord.CreateEntityAndAdjustNeighbors<GeneralInfoEntity>(CopyValuesFromPrevious: true);
             Entity.First_Name.Value = "Bobby";
             User.PersistToDatabase();
 
@@ -593,25 +593,25 @@ namespace EffectFramework.Test
         {
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                User User1 = Kernel.Get<User>(new ConstructorArgument("UserID", TempItems.First().ItemID));
+                User User = Kernel.Get<User>(new ConstructorArgument("UserID", TempItems.First().ItemID));
 
-                User1.EffectiveRecord.CreateEntityAndEndDateAllPrevious<GeneralInfoEntity>(true);
+                User.EffectiveRecord.CreateEntityAndAdjustNeighbors<GeneralInfoEntity>(true);
 
-                User1.PersistToDatabase();
+                User.PersistToDatabase();
 
-                Assert.Equal(1, User1.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
-                User1.Load();
+                Assert.Equal(1, User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+                User.Load();
 
-                Assert.Equal(1, User1.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+                Assert.Equal(1, User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
 
-                User1.EffectiveRecord.CreateEntityAndEndDateAllPrevious<GeneralInfoEntity>(true, new DateTime(2015,9,1));
-                User1.PersistToDatabase();
+                User.EffectiveRecord.CreateEntityAndAdjustNeighbors<GeneralInfoEntity>(true, new DateTime(2015,9,1));
+                User.PersistToDatabase();
 
-                Assert.Equal(1, User1.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
-                User1.Load();
+                Assert.Equal(1, User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+                User.Load();
 
-                Assert.Equal(1, User1.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
-                Assert.Equal(new DateTime(2015, 9, 1), User1.AllEntities.Where(e => e.Type == TestEntityType.General_Info).First().EndEffectiveDate);
+                Assert.Equal(1, User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+                Assert.Equal(new DateTime(2015, 9, 1), User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).First().EndEffectiveDate);
             }
         }
 
@@ -632,7 +632,7 @@ namespace EffectFramework.Test
                 User.PersistToDatabase();
 
                 User.Load();
-                User.EffectiveDate = DateTime.Now;
+                User.EffectiveDate = DateTime.Now.Date;
 
                 GeneralInfoEntity Entity = User.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
                 Assert.Equal("Johann", Entity.First_Name.Value);
@@ -647,7 +647,7 @@ namespace EffectFramework.Test
 
         public void Dispose()
         {
-            //TearDownEF7DatabaseIfRequired();
+            TearDownEF7DatabaseIfRequired();
         }
     }
 

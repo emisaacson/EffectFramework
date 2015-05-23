@@ -12,7 +12,7 @@ namespace EffectFramework.Core.Models
         {
             get
             {
-                return _AllEntities.Where(e => !e.FlagForRemoval.HasValue || !e.FlagForRemoval.Value);
+                return _AllEntities.Where(e => !e.FlagForRemoval);
             }
         }
         private List<EntityBase> _AllEntities = new List<EntityBase>();
@@ -31,7 +31,7 @@ namespace EffectFramework.Core.Models
             }
         }
 
-        protected DateTime _EffectiveDate = DateTime.Now;
+        protected DateTime _EffectiveDate = DateTime.Now.Date;
         public DateTime EffectiveDate {
             get
             {
@@ -88,13 +88,13 @@ namespace EffectFramework.Core.Models
                     db = ctx;
                 }
 
-                var Identity = PersistenceService.SaveSingleItem(this, ctx);
+                var Identity = PersistenceService.SaveSingleItem(this, db);
                 this.ItemID = Identity.ObjectID;
                 this.Guid = Identity.ObjectGuid;
 
                 foreach (var Entity in _AllEntities)
                 {
-                    Entity.PersistToDatabase(this, ctx);
+                    Entity.PersistToDatabase(this, db);
                 }
                 RemoveDeadEntities();
 
@@ -156,7 +156,7 @@ namespace EffectFramework.Core.Models
 
         internal void RemoveDeadEntities()
         {
-            _AllEntities.RemoveAll(x => x.FlagForRemoval.HasValue && x.FlagForRemoval.Value);
+            _AllEntities.RemoveAll(x => x.FlagForRemoval);
         }
     }
 }

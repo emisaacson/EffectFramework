@@ -15,7 +15,7 @@ namespace EffectFramework.Core.Models.Entities
         public Guid Guid { get; protected set; }
         public bool Dirty { get; protected set; }
         public Item Item { get; internal set; }
-        internal bool? FlagForRemoval { get; set; }
+        internal bool FlagForRemoval { get; set; }
 
         private DateTime _EffectiveDate;
         public DateTime EffectiveDate {
@@ -73,12 +73,14 @@ namespace EffectFramework.Core.Models.Entities
         public EntityBase()
         {
             this.Dirty = true;
+            this.FlagForRemoval = false;
         }
 
         public EntityBase(IPersistenceService PersistenceService)
         {
             this._PersistenceService = PersistenceService;
             this.Dirty = true;
+            this.FlagForRemoval = false;
             WireUpFields();
         }
 
@@ -102,7 +104,7 @@ namespace EffectFramework.Core.Models.Entities
 
         private void Seppuku(Db.IDbContext ctx = null)
         {
-            if (this.EntityID.HasValue)
+            if (this.EntityID.HasValue && !this.FlagForRemoval)
             {
                 PersistenceService.SaveAndDeleteSingleEntity(this, ctx);
             }
@@ -157,7 +159,13 @@ namespace EffectFramework.Core.Models.Entities
             var PossiblePreviousEntity = Item.AllEntities
                 .Where(e => e.Type == this.Type &&
                             e.EndEffectiveDate.HasValue &&
-                            e.EndEffectiveDate.Value == this.EffectiveDate).SingleOrDefault();
+                            e.EndEffectiveDate.Value == this.EffectiveDate &&
+                            // This check is necessary to prevent two entities from each
+                            // being possible previous entities of each other, which would
+                            // cause infinite recursion.
+                            (!this.EndEffectiveDate.HasValue || this.EndEffectiveDate.Value != e.EffectiveDate) &&
+                            // Exclude the current entity
+                            e != this).SingleOrDefault();
 
             var FieldObjects = GetAllEntityFieldProperties();
 

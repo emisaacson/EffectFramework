@@ -95,9 +95,22 @@ namespace EffectFramework.Core.Models.Fields
 
         public void PersistToDatabase(EntityBase Entity, Db.IDbContext ctx = null)
         {
+            if (Entity == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             var Identity = PersistenceService.SaveSingleField(Entity, this, ctx);
-            this.FieldID = Identity.ObjectID;
-            this.Guid = Identity.ObjectGuid;
+            if (Identity != null)
+            {
+                this.FieldID = Identity.ObjectID;
+                this.Guid = Identity.ObjectGuid;
+            }
+            else
+            {
+                this.FieldID = null;
+                this.Guid = default(Guid);
+            }
             this.Dirty = false;
         }
     }

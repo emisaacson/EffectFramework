@@ -62,14 +62,7 @@ namespace EffectFramework.Core.Models
         {
             EntityT Instance = new EntityT();
 
-            var Entity = AllEntities.Where(e => e.Type == Instance.Type).OrderBy(e => e.EffectiveDate).FirstOrDefault();
-
-            if (Entity == null)
-            {
-                return default(EntityT);
-            }
-
-            return (EntityT)Entity;
+            return (EntityT)GetFirstEntityOrDefault(Instance.Type);
         }
 
         /// <summary>
@@ -82,9 +75,7 @@ namespace EffectFramework.Core.Models
         {
             EntityT Instance = new EntityT();
 
-            var Entities = AllEntities.Where(e => e.Type == Instance.Type).OrderBy(e => e.EffectiveDate).Cast<EntityT>();
-
-            return Entities;
+            return GetAllEntitiesOfType(Instance.Type).Cast<EntityT>();
         }
 
 
@@ -123,13 +114,7 @@ namespace EffectFramework.Core.Models
         {
             EntityT Entity = new EntityT();
 
-            Entity.EffectiveDate = EffectiveDate;
-            Entity.EndEffectiveDate = EndEffectiveDate;
-            Entity.PersistenceService = PersistenceService;
-
-            Item.AddEntity(Entity);
-
-            return Entity;
+            return (EntityT)CreateEntity(Entity.Type, EndEffectiveDate);
         }
 
         /// <summary>
@@ -155,42 +140,15 @@ namespace EffectFramework.Core.Models
             return Entity;
         }
 
-        public EntityT CreateEntityAndEndDateAllPrevious<EntityT>(bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null) where EntityT : EntityBase, new()
+        public EntityT CreateEntityAndAdjustNeighbors<EntityT>(bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null) where EntityT : EntityBase, new()
         {
-            var ExistingEntities = GetAllEntitiesOfType<EntityT>();
-            var MostRecent = ExistingEntities.LastOrDefault();
-
-            foreach (var ExistingEntity in ExistingEntities)
-            {
-                ExistingEntity.EndEffectiveDate = EffectiveDate;
-            }
 
             EntityT Entity = new EntityT();
 
-            Entity.EffectiveDate = EffectiveDate;
-            Entity.EndEffectiveDate = EndEffectiveDate;
-            Entity.PersistenceService = PersistenceService;
-
-            if (CopyValuesFromPrevious && MostRecent != null)
-            {
-                var Properties = typeof(EntityT).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                foreach (var Property in Properties)
-                {
-                    if (typeof(IField).IsAssignableFrom(Property.PropertyType))
-                    {
-                        IField PreviousField = (IField)Property.GetValue(MostRecent);
-                        IField NewField = (IField)Property.GetValue(Entity);
-                        NewField.Value = PreviousField.Value;
-                    }
-                }
-            }
-
-            Item.AddEntity(Entity);
-
-            return Entity;
+            return (EntityT)CreateEntityAndAdjustNeighbors(Entity.Type, CopyValuesFromPrevious, EndEffectiveDate);
         }
 
-        public EntityBase CreateEntityAndEndDateAllPrevious(EntityType EntityType, bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null)
+        public EntityBase CreateEntityAndAdjustNeighbors(EntityType EntityType, bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null)
         {
             var ExistingEntities = GetAllEntitiesOfType(EntityType);
             var MostRecent = ExistingEntities.LastOrDefault();
@@ -228,19 +186,7 @@ namespace EffectFramework.Core.Models
         {
             EntityT Instance = new EntityT();
 
-            var Entity = GetFirstEntityOrDefault<EntityT>();
-
-            if (Entity == null)
-            {
-                Entity = Instance;
-                Entity.EffectiveDate = EffectiveDate;
-                Entity.EndEffectiveDate = EndEffectiveDate;
-                Entity.PersistenceService = PersistenceService;
-
-                Item.AddEntity(Entity);
-            }
-
-            return Entity;
+            return (EntityT)GetOrCreateEntity(Instance.Type, EndEffectiveDate);
         }
 
         public EntityBase GetOrCreateEntity(EntityType EntityType, DateTime? EndEffectiveDate = null)
@@ -264,17 +210,7 @@ namespace EffectFramework.Core.Models
         {
             EntityT Instance = new EntityT();
 
-            var Entity = GetFirstEntityOrDefault<EntityT>();
-
-            if (Entity == null)
-            {
-                Entity = Instance;
-                Entity.EffectiveDate = EffectiveDate;
-                Entity.EndEffectiveDate = EndEffectiveDate;
-                Entity.PersistenceService = PersistenceService;
-            }
-
-            return Entity;
+            return (EntityT)GetOrCreateEntityButDontSave(Instance.Type, EndEffectiveDate);
         }
 
         internal EntityBase GetOrCreateEntityButDontSave(EntityType EntityType, DateTime? EndEffectiveDate = null)

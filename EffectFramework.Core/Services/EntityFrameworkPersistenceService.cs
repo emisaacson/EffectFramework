@@ -44,6 +44,11 @@ namespace EffectFramework.Core.Services
                         throw new ArgumentException("Must persist the entity to the database before the field.");
                     }
 
+                    if (((IField)Field).Value == null)
+                    {
+                        return null;
+                    }
+
                     DbField = new Field()
                     {
                         IsDeleted = false,
@@ -87,11 +92,7 @@ namespace EffectFramework.Core.Services
                     DbField.IsDeleted = true;
                     DbField.Guid = Guid.NewGuid();
                     db.SaveChanges();
-                    return new ObjectIdentity()
-                    {
-                        ObjectID = DbField.FieldID,
-                        ObjectGuid = DbField.Guid
-                    };
+                    return null;
                 }
 
                 DbField.ValueBoolean = null;
@@ -186,11 +187,7 @@ namespace EffectFramework.Core.Services
                     DbField.IsDeleted = true;
                     DbField.Guid = Guid.NewGuid();
                     db.SaveChanges();
-                    return new ObjectIdentity()
-                    {
-                        ObjectID = DbField.FieldID,
-                        ObjectGuid = DbField.Guid
-                    };
+                    return null;
                 }
 
                 DbField.ValueBoolean = null;

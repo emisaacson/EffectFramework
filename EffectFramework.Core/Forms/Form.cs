@@ -70,7 +70,7 @@ namespace EffectFramework.Core.Forms
 
             Dictionary<EntityType, EntityBase> EntityCache = new Dictionary<EntityType, EntityBase>();
 
-            DateTime Now = DateTime.Now;
+            DateTime Now = DateTime.Now.Date;
 
             var TypeOfForm = this.GetType();
 
@@ -303,7 +303,7 @@ namespace EffectFramework.Core.Forms
                                 }
                                 else if (Direction == Direction.Push)
                                 {
-                                    Entity = EffectiveRecord.CreateEntityAndEndDateAllPrevious(Instance.Type);
+                                    Entity = EffectiveRecord.CreateEntityAndAdjustNeighbors(Instance.Type);
                                 }
                                 EntityCache[Instance.Type] = Entity;
                                 if (Direction == Direction.Pull)
