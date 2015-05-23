@@ -165,16 +165,7 @@ namespace EffectFramework.Core.Models
 
             if (CopyValuesFromPrevious && MostRecent != null)
             {
-                var Properties = EntityType.Type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                foreach (var Property in Properties)
-                {
-                    if (typeof(IField).IsAssignableFrom(Property.PropertyType))
-                    {
-                        IField PreviousField = (IField)Property.GetValue(MostRecent);
-                        IField NewField = (IField)Property.GetValue(Entity);
-                        NewField.Value = PreviousField.Value;
-                    }
-                }
+                Entity.CopyValuesFrom(MostRecent);
             }
 
             Item.AddEntity(Entity);

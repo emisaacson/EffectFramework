@@ -308,6 +308,7 @@ namespace EffectFramework.Core.Services
 
                 DbEntity.EffectiveDate = Entity.EffectiveDate;
                 DbEntity.EndEffectiveDate = Entity.EndEffectiveDate;
+                DbEntity.IsDeleted = Entity.IsDeleted;
                 DbEntity.Guid = Guid.NewGuid();
 
                 db.SaveChanges();
@@ -379,6 +380,7 @@ namespace EffectFramework.Core.Services
 
                 DbEntity.EffectiveDate = Entity.EffectiveDate;
                 DbEntity.EndEffectiveDate = Entity.EndEffectiveDate;
+                DbEntity.IsDeleted = Entity.IsDeleted;
                 DbEntity.Guid = Guid.NewGuid();
 
                 db.SaveChanges();

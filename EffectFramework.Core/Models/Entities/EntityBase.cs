@@ -16,6 +16,7 @@ namespace EffectFramework.Core.Models.Entities
         public bool Dirty { get; protected set; }
         public Item Item { get; internal set; }
         internal bool FlagForRemoval { get; set; }
+        public bool IsDeleted { get; protected set; }
 
         private DateTime _EffectiveDate;
         public DateTime EffectiveDate {
@@ -73,6 +74,7 @@ namespace EffectFramework.Core.Models.Entities
         public EntityBase()
         {
             this.Dirty = true;
+            this.IsDeleted = false;
             this.FlagForRemoval = false;
         }
 
@@ -80,6 +82,7 @@ namespace EffectFramework.Core.Models.Entities
         {
             this._PersistenceService = PersistenceService;
             this.Dirty = true;
+            this.IsDeleted = true;
             this.FlagForRemoval = false;
             WireUpFields();
         }
@@ -102,6 +105,28 @@ namespace EffectFramework.Core.Models.Entities
             this.Dirty = false;
         }
 
+        public void CopyValuesFrom(EntityBase OtherEntity)
+        {
+            if (OtherEntity == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (OtherEntity.Type != this.Type)
+            {
+                throw new InvalidOperationException("Must copy values from an entity of the same type.");
+            }
+            var Properties = OtherEntity.Type.Type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            foreach (var Property in Properties)
+            {
+                if (Property.PropertyType is IField)
+                {
+                    IField OtherEntityField = (IField)Property.GetValue(OtherEntity);
+                    IField ThisEntityField = (IField)Property.GetValue(this);
+                    ThisEntityField.Value = OtherEntityField.Value;
+                }
+            }
+        }
+
         private void Seppuku(Db.IDbContext ctx = null)
         {
             if (this.EntityID.HasValue && !this.FlagForRemoval)
@@ -109,6 +134,11 @@ namespace EffectFramework.Core.Models.Entities
                 PersistenceService.SaveAndDeleteSingleEntity(this, ctx);
             }
             this.FlagForRemoval = true;
+        }
+
+        public void Delete()
+        {
+            this.IsDeleted = true;
         }
 
         private List<FieldBase> GetAllEntityFieldProperties()
@@ -143,6 +173,10 @@ namespace EffectFramework.Core.Models.Entities
             }
 
             this.Dirty = false;
+            if (this.IsDeleted)
+            {
+                this.FlagForRemoval = true;
+            }
         }
 
         public void PersistToDatabase(Item Item, Db.IDbContext ctx = null)

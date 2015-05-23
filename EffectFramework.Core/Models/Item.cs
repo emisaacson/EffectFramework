@@ -12,7 +12,7 @@ namespace EffectFramework.Core.Models
         {
             get
             {
-                return _AllEntities.Where(e => !e.FlagForRemoval);
+                return _AllEntities.Where(e => !e.FlagForRemoval && !e.IsDeleted);
             }
         }
         private List<EntityBase> _AllEntities = new List<EntityBase>();
