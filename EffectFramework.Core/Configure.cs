@@ -11,6 +11,8 @@ namespace EffectFramework.Core
     public class Configure : NinjectModule
     {
         public static string ConnectionString;
+        private static Type PersistenceServiceType = typeof(EntityFrameworkPersistenceService);
+        private static Type LoggingProvider = typeof(NullLoggingProvider);
 
         public Configure()
         {
@@ -27,8 +29,23 @@ namespace EffectFramework.Core
                 throw new InvalidOperationException("Must set connection string.");
             }
             Kernel.Bind<IPersistenceService>()
-                    .To<EntityFrameworkPersistenceService>()
+                    .To(PersistenceServiceType)
                     .WithConstructorArgument("ConnectionString", ConnectionString);
+
+            Kernel.Bind<ILoggingProvider>()
+                    .To(LoggingProvider);
+        }
+
+        public static void RegisterPersistenceService<PersistenceServiceT>()
+            where PersistenceServiceT : IPersistenceService
+        {
+            PersistenceServiceType = typeof(PersistenceServiceT);
+        }
+
+        public static void RegisterLoggingProvider<LoggingProviderT>()
+            where LoggingProviderT : ILoggingProvider
+        {
+            LoggingProvider = typeof(LoggingProviderT);
         }
 
         public static void RegisterTypeClasses<TItemType, TEntityType, TFieldType>()
