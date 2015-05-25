@@ -14,6 +14,7 @@ namespace EffectFramework.Core.Models
         };
 
         private readonly IUpdateStrategy DefaultStrategy = new ReplaceStrategy();
+        private readonly IUpdateStrategy DefaultStrategyForDuplicateDates = new ReplaceStrategy();
 
         public override IEnumerable<IUpdateStrategy> GetAvailableStrategies()
         {
@@ -25,5 +26,9 @@ namespace EffectFramework.Core.Models
             return DefaultStrategy;
         }
 
+        public override IUpdateStrategy GetDefaultStrategyForDuplicateDates()
+        {
+            return DefaultStrategyForDuplicateDates;
+        }
     }
 }

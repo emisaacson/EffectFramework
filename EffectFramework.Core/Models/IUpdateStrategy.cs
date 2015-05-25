@@ -8,6 +8,6 @@ namespace EffectFramework.Core.Models
 {
     public interface IUpdateStrategy
     {
-        void PerformUpdate(EntityCollection EntityCollection, EntityBase Entity);
+        void PerformUpdate(EntityBase CandidateEntity, EntityBase UpdatedEntity);
     }
 }

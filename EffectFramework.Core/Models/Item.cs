@@ -142,6 +142,13 @@ namespace EffectFramework.Core.Models
 
             _AllEntities.Add(Entity);
             Entity.Item = this;
+
+            PerformUpdate(Entity);
+        }
+
+        internal void PerformUpdate(EntityBase Entity)
+        {
+            Entity.GetUpdatePolicy().PerformUpdate(this, Entity);
         }
 
         internal void RemoveEntity(EntityBase Entity)

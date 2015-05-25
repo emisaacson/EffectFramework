@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Services;
+using EffectFramework.Core.Models.Annotations;
 
 namespace EffectFramework.Core.Models.Entities
 {
@@ -29,6 +30,10 @@ namespace EffectFramework.Core.Models.Entities
                 {
                     this.Dirty = true;
                     this._EffectiveDate = value;
+                    if (Item != null)
+                    {
+                        Item.PerformUpdate(this);
+                    }
                 }
             }
         }
@@ -45,6 +50,10 @@ namespace EffectFramework.Core.Models.Entities
                 {
                     this.Dirty = true;
                     this._EndEffectiveDate = value;
+                    if (Item != null)
+                    {
+                        Item.PerformUpdate(this);
+                    }
                 }
             }
         }
@@ -67,6 +76,62 @@ namespace EffectFramework.Core.Models.Entities
                     throw new InvalidOperationException("Cannot set the persistence service more than once.");
                 }
             }
+        }
+
+        public UpdatePolicy GetUpdatePolicy()
+        {
+            var PolicyAttribute = this.GetType().GetCustomAttribute<ApplyPolicyAttribute>();
+
+            if (PolicyAttribute == null)
+            {
+                return new NoOverlapPolicy();
+            }
+
+            return PolicyAttribute.Policy;
+        }
+
+        public IUpdateStrategy GetUpdateStrategy()
+        {
+            var DefaultStrategyAttribute = this.GetType().GetCustomAttribute<DefaultStrategyAttribute>();
+
+            var UpdatePolicy = GetUpdatePolicy();
+            IUpdateStrategy Strategy = null;
+
+            if (DefaultStrategyAttribute == null)
+            {
+                return UpdatePolicy.GetDefaultStrategy();
+            }
+
+            Strategy = DefaultStrategyAttribute.Strategy;
+
+            if (!UpdatePolicy.GetAvailableStrategies().Any(e => e.GetType() == Strategy.GetType()))
+            {
+                throw new InvalidOperationException("The specified strategy is not available for this Entity's policy.");
+            }
+
+            return Strategy;
+        }
+
+        public IUpdateStrategy GetUpdateStrategyForDuplicateDates()
+        {
+            var DefaultStrategyForDuplicateDatesAttribute = this.GetType().GetCustomAttribute<DefaultStrategyForDuplicateDatesAttribute>();
+
+            var UpdatePolicy = GetUpdatePolicy();
+            IUpdateStrategy Strategy = null;
+
+            if (DefaultStrategyForDuplicateDatesAttribute == null)
+            {
+                return UpdatePolicy.GetDefaultStrategyForDuplicateDates();
+            }
+
+            Strategy = DefaultStrategyForDuplicateDatesAttribute.Strategy;
+
+            if (!UpdatePolicy.GetAvailableStrategies().Any(e => e.GetType() == Strategy.GetType()))
+            {
+                throw new InvalidOperationException("The specified strategy is not available for this Entity's policy.");
+            }
+
+            return Strategy;
         }
 
         protected abstract void WireUpFields();
@@ -118,7 +183,7 @@ namespace EffectFramework.Core.Models.Entities
             var Properties = OtherEntity.Type.Type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             foreach (var Property in Properties)
             {
-                if (Property.PropertyType is IField)
+                if (typeof(IField).IsAssignableFrom(Property.PropertyType))
                 {
                     IField OtherEntityField = (IField)Property.GetValue(OtherEntity);
                     IField ThisEntityField = (IField)Property.GetValue(this);

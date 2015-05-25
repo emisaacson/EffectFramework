@@ -1,7 +1,9 @@
 ﻿using EffectFramework.Core;
+using Microsoft.Framework.ConfigurationModel;
 using Ninject;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -12,9 +14,26 @@ namespace EffectFramework.Test
     /// </summary>
     public class LoggerTests : IDisposable
     {
+        private string _BasePath = null;
+        private string BasePath
+        {
+            get
+            {
+                if (_BasePath == null)
+                {
+                    _BasePath = Directory.GetCurrentDirectory();
+                }
+                return _BasePath;
+            }
+        }
+
         public LoggerTests()
         {
             Configure.RegisterLoggingProvider<MemoryLoggingProvider>();
+            var configuration = new Configuration(BasePath)
+                .AddJsonFile("config.json");
+
+            Configure.ConnectionString = configuration["Data:DefaultConnection:ConnectionString"];
         }
 
         [Fact]

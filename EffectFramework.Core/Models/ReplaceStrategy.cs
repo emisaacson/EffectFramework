@@ -12,18 +12,21 @@ namespace EffectFramework.Core.Models
     /// </summary>
     public class ReplaceStrategy : IUpdateStrategy
     {
-        public void PerformUpdate(EntityCollection EntityCollection, EntityBase Entity)
+        public void PerformUpdate(EntityBase CandidateEntity, EntityBase UpdatedEntity)
         {
-            var OtherEntities = EntityCollection.AllEntities.Where(e => e.Type == Entity.Type && e != Entity);
-
-            if (OtherEntities.Count() > 0)
+            if (CandidateEntity == UpdatedEntity)
             {
-                foreach (var OtherEntity in OtherEntities)
-                {
-                    OtherEntity.CopyValuesFrom(Entity);
-                }
-                Entity.Delete();
+                return;
             }
+
+            if (CandidateEntity.Type != UpdatedEntity.Type)
+            {
+                return;
+            }
+
+            CandidateEntity.CopyValuesFrom(UpdatedEntity);
+            UpdatedEntity.Delete();
+
         }
     }
 }
