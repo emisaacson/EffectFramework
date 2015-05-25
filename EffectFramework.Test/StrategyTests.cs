@@ -10,35 +10,35 @@ using Xunit;
 
 namespace EffectFramework.Test
 {
-    public partial class EffectFrameworkTests
+
+    public class StrategyTests : IDisposable
     {
-        public class StrategyTests : IDisposable
+        public EffectFrameworkTestsContext ef { get; set; }
+        public StrategyTests()
         {
+            ef = new EffectFrameworkTestsContext();
 
-            public StrategyTests()
+            var configuration = new Configuration(ef.BasePath)
+                .AddJsonFile("config.json");
+            ef.Configuration = configuration;
+
+            Configure.ConnectionString = ef.Configuration["Data:DefaultConnection:ConnectionString"];
+
+            ef.PrepareEF7Database();
+        }
+
+        [Fact]
+        public void Test()
+        {
+            using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                var configuration = new Configuration(BasePath)
-                    .AddJsonFile("config.json");
-                Configuration = configuration;
 
-                Configure.ConnectionString = configuration["Data:DefaultConnection:ConnectionString"];
-
-                PrepareEF7Database();
             }
+        }
 
-            [Fact]
-            public void Test()
-            {
-                using (IKernel Kernel = new StandardKernel(new Configure()))
-                {
-
-                }
-            }
-
-            public void Dispose()
-            {
-                TearDownEF7Database();
-            }
+        public void Dispose()
+        {
+            ef.TearDownEF7Database();
         }
     }
 }

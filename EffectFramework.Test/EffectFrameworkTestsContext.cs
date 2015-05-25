@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace EffectFramework.Test
 {
-    public partial class EffectFrameworkTests
+    public class EffectFrameworkTestsContext
     {
-        public static string _BasePath = null;
-        public static string BasePath
+        public string _BasePath = null;
+        public string BasePath
         {
             get
             {
@@ -24,13 +24,13 @@ namespace EffectFramework.Test
             }
         }
 
-        public static List<Core.Models.Db.Item> TempItems = new List<Core.Models.Db.Item>();
-        public static List<Entity> TempEntity = new List<Entity>();
-        public static List<Field> TempField = new List<Field>();
+        public List<Item> TempItems = new List<Item>();
+        public List<Entity> TempEntity = new List<Entity>();
+        public List<Field> TempField = new List<Field>();
 
-        public static IConfiguration Configuration { get; set; }
+        public IConfiguration Configuration { get; set; }
 
-        public static void PrepareEF7Database()
+        public void PrepareEF7Database()
         {
             TempItems.Clear();
             TempEntity.Clear();
@@ -143,13 +143,13 @@ namespace EffectFramework.Test
             }
         }
 
-        public static void TearDownEF7Database()
+        public void TearDownEF7Database()
         {
 
             using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
             using (db.Database.AsRelational().Connection.BeginTransaction())
             {
-                var AllEntities = db.Entities.Where(e => e.ItemID == TempItems.First().ItemID).ToList();
+                var AllEntities = db.Entities.Where(e => TempItems.Select(i => i.ItemID).Contains(e.ItemID)).ToList();
                 var AllFields = db.Fields.Where(f => AllEntities.Select(e => e.EntityID).Contains(f.EntityID)).ToList();
 
                 foreach (var Field in AllFields)
@@ -174,6 +174,11 @@ namespace EffectFramework.Test
                     var OtherEntities = db.Entities.Where(e => e.ItemID == Item.ItemID);
                     foreach (var Entity in OtherEntities)
                     {
+                        var OtherFields = db.Fields.Where(f => f.EntityID == Entity.EntityID);
+                        foreach (var Field in OtherFields)
+                        {
+                            db.Fields.Remove(Field);
+                        }
                         db.Entities.Remove(Entity);
                     }
                     db.Items.Remove(Item);

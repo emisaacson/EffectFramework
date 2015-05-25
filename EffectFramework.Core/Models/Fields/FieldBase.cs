@@ -21,9 +21,9 @@ namespace EffectFramework.Core.Models.Fields
 
         protected void LoadUpValues(FieldBase Base)
         {
+            this.Dirty = false;
             if (Base == null)
             {
-                this.Dirty        = true;
                 this.FieldID      = null;
                 this.ValueString  = null;
                 this.ValueDate    = null;
@@ -34,7 +34,6 @@ namespace EffectFramework.Core.Models.Fields
             }
             else
             {
-                this.Dirty        = false;
                 this.FieldID      = Base.FieldID;
                 this.ValueString  = Base.ValueString;
                 this.ValueDate    = Base.ValueDate;
@@ -48,13 +47,13 @@ namespace EffectFramework.Core.Models.Fields
 
         public FieldBase(IPersistenceService PersistenceService)
         {
-            this.Dirty = true;
+            this.Dirty = false;
             this.PersistenceService = PersistenceService;
         }
 
         public FieldBase(Db.Field Field)
         {
-            this.Dirty        = true;
+            this.Dirty        = false;
             this.FieldID      = Field.FieldID;
             this.ValueString  = Field.ValueText;
             this.ValueDate    = Field.ValueDate;
