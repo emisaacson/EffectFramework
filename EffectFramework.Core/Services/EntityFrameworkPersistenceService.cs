@@ -44,7 +44,8 @@ namespace EffectFramework.Core.Services
                         throw new ArgumentException("Must persist the entity to the database before the field.");
                     }
 
-                    if (((IField)Field).Value == null)
+                    if (((IField)Field).Value == null ||
+                        (Field.Type.DataType == DataType.Date && (DateTime)((IField)Field).Value == default(DateTime)))
                     {
                         return null;
                     }
@@ -87,7 +88,8 @@ namespace EffectFramework.Core.Services
                     };
                 }
 
-                if (((IField)Field).Value == null)
+                if (((IField)Field).Value == null ||
+                        (Field.Type.DataType == DataType.Date && (DateTime)((IField)Field).Value == default(DateTime)))
                 {
                     DbField.IsDeleted = true;
                     DbField.Guid = Guid.NewGuid();

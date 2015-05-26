@@ -7,19 +7,26 @@ namespace EffectFramework.Core.Models
 {
     public class AllowOverlapPolicy : UpdatePolicy
     {
+        private readonly IEnumerable<IUpdateStrategy> AvailableStrategies = new IUpdateStrategy[]
+        {
+            new AllowOverlapStrategy(),
+        };
+        private readonly IUpdateStrategy DefaultStrategy = new AllowOverlapStrategy();
+        private readonly IUpdateStrategy DefaultStrategyForDuplicateDates = new AllowOverlapStrategy();
+
         public override IEnumerable<IUpdateStrategy> GetAvailableStrategies()
         {
-            throw new NotImplementedException();
+            return AvailableStrategies;
         }
 
         public override IUpdateStrategy GetDefaultStrategy()
         {
-            throw new NotImplementedException();
+            return DefaultStrategy;
         }
 
         public override IUpdateStrategy GetDefaultStrategyForDuplicateDates()
         {
-            throw new NotImplementedException();
+            return DefaultStrategyForDuplicateDates;
         }
     }
 }

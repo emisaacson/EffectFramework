@@ -92,6 +92,15 @@ namespace EffectFramework.Core.Models
                 this.ItemID = Identity.ObjectID;
                 this.Guid = Identity.ObjectGuid;
 
+                var __AllEntities = _AllEntities.ToArray();
+                for (int i = 0; i < __AllEntities.Count(); i++)
+                {
+                    if (__AllEntities[i].Dirty)
+                    {
+                        PerformUpdate(__AllEntities[i]);
+                    }
+                }
+
                 foreach (var Entity in _AllEntities)
                 {
                     Entity.PersistToDatabase(this, db);
@@ -143,7 +152,7 @@ namespace EffectFramework.Core.Models
             _AllEntities.Add(Entity);
             Entity.Item = this;
 
-            PerformUpdate(Entity);
+            //PerformUpdate(Entity);
         }
 
         internal void PerformUpdate(EntityBase Entity)

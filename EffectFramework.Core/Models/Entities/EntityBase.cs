@@ -30,10 +30,10 @@ namespace EffectFramework.Core.Models.Entities
                 {
                     this.Dirty = true;
                     this._EffectiveDate = value;
-                    if (Item != null)
-                    {
-                        Item.PerformUpdate(this);
-                    }
+                    //if (Item != null)
+                    //{
+                    //    Item.PerformUpdate(this);
+                    //}
                 }
             }
         }
@@ -50,10 +50,10 @@ namespace EffectFramework.Core.Models.Entities
                 {
                     this.Dirty = true;
                     this._EndEffectiveDate = value;
-                    if (Item != null)
-                    {
-                        Item.PerformUpdate(this);
-                    }
+                    //if (Item != null)
+                    //{
+                    //    Item.PerformUpdate(this);
+                    //}
                 }
             }
         }
@@ -255,7 +255,7 @@ namespace EffectFramework.Core.Models.Entities
             this.Guid = Identity.ObjectGuid;
             this.EntityID = Identity.ObjectID;
 
-            var PossiblePreviousEntity = Item.AllEntities
+            var PossiblePreviousEntities = Item.AllEntities
                 .Where(e => e.Type == this.Type &&
                             e.EndEffectiveDate.HasValue &&
                             e.EndEffectiveDate.Value == this.EffectiveDate &&
@@ -264,7 +264,7 @@ namespace EffectFramework.Core.Models.Entities
                             // cause infinite recursion.
                             (!this.EndEffectiveDate.HasValue || this.EndEffectiveDate.Value != e.EffectiveDate) &&
                             // Exclude the current entity
-                            e != this).SingleOrDefault();
+                            e != this);
 
             var FieldObjects = GetAllEntityFieldProperties();
 
@@ -274,28 +274,30 @@ namespace EffectFramework.Core.Models.Entities
             }
 
             this.Dirty = false;
-
-            if (PossiblePreviousEntity != null)
+            foreach (var PossiblePreviousEntity in PossiblePreviousEntities)
             {
-                var PreviousEntityFieldObjects = PossiblePreviousEntity.GetAllEntityFieldProperties();
-                bool AreIdentical = true;
-                foreach (var PreviousEntityField in PreviousEntityFieldObjects)
+                if (PossiblePreviousEntity != null)
                 {
-                    var CurrentEntityField = FieldObjects.Where(f => f.Type == PreviousEntityField.Type).Single();
-                    if (!(((IField)CurrentEntityField).Value == null && ((IField)PreviousEntityField).Value == null) && // If both null, they are identical. stop
-                        ((((IField)CurrentEntityField).Value == null && ((IField)PreviousEntityField).Value != null) || // If a is null and b is not, not identical
-                         (((IField)PreviousEntityField).Value == null && ((IField)CurrentEntityField).Value != null) || // If b is null and a is not, not identical
-                         !((IField)CurrentEntityField).Value.Equals(((IField)PreviousEntityField).Value)))              // Neither are null, use the default comparer
+                    var PreviousEntityFieldObjects = PossiblePreviousEntity.GetAllEntityFieldProperties();
+                    bool AreIdentical = true;
+                    foreach (var PreviousEntityField in PreviousEntityFieldObjects)
                     {
-                        AreIdentical = false;
-                        break;
+                        var CurrentEntityField = FieldObjects.Where(f => f.Type == PreviousEntityField.Type).Single();
+                        if (!(((IField)CurrentEntityField).Value == null && ((IField)PreviousEntityField).Value == null) && // If both null, they are identical. stop
+                            ((((IField)CurrentEntityField).Value == null && ((IField)PreviousEntityField).Value != null) || // If a is null and b is not, not identical
+                             (((IField)PreviousEntityField).Value == null && ((IField)CurrentEntityField).Value != null) || // If b is null and a is not, not identical
+                             !((IField)CurrentEntityField).Value.Equals(((IField)PreviousEntityField).Value)))              // Neither are null, use the default comparer
+                        {
+                            AreIdentical = false;
+                            break;
+                        }
                     }
-                }
-                if (AreIdentical)
-                {
-                    PossiblePreviousEntity.EndEffectiveDate = this.EndEffectiveDate;
-                    PossiblePreviousEntity.PersistToDatabase(Item, ctx);
-                    this.Seppuku(ctx);
+                    if (AreIdentical)
+                    {
+                        PossiblePreviousEntity.EndEffectiveDate = this.EndEffectiveDate;
+                        PossiblePreviousEntity.PersistToDatabase(Item, ctx);
+                        this.Seppuku(ctx);
+                    }
                 }
             }
 

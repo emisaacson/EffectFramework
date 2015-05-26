@@ -303,7 +303,7 @@ namespace EffectFramework.Core.Forms
                                 }
                                 else if (Direction == Direction.Push)
                                 {
-                                    Entity = EffectiveRecord.CreateEntityAndAdjustNeighbors(Instance.Type);
+                                    Entity = EffectiveRecord.CreateEntityAndMaybeAdjustNeighbors(Instance.Type);
                                 }
                                 EntityCache[Instance.Type] = Entity;
                                 if (Direction == Direction.Pull)

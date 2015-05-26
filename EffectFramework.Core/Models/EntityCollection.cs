@@ -145,20 +145,23 @@ namespace EffectFramework.Core.Models
 
             EntityT Entity = new EntityT();
 
-            return (EntityT)CreateEntityAndAdjustNeighbors(Entity.Type, CopyValuesFromPrevious, EndEffectiveDate);
+            return (EntityT)CreateEntityAndMaybeAdjustNeighbors(Entity.Type, CopyValuesFromPrevious, EndEffectiveDate);
         }
 
-        public EntityBase CreateEntityAndAdjustNeighbors(EntityType EntityType, bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null)
+        public EntityBase CreateEntityAndMaybeAdjustNeighbors(EntityType EntityType, bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null)
         {
             var ExistingEntities = GetAllEntitiesOfType(EntityType);
             var MostRecent = ExistingEntities.LastOrDefault();
+            var Entity = (EntityBase)Activator.CreateInstance(EntityType.Type);
 
-            foreach (var ExistingEntity in ExistingEntities)
+            if (Entity.GetUpdatePolicy().GetType() != typeof(SingletonPolicy))
             {
-                ExistingEntity.EndEffectiveDate = EffectiveDate;
+                foreach (var ExistingEntity in ExistingEntities)
+                {
+                    ExistingEntity.EndEffectiveDate = EffectiveDate;
+                }
             }
 
-            var Entity = (EntityBase)Activator.CreateInstance(EntityType.Type);
             Entity.EffectiveDate = EffectiveDate;
             Entity.EndEffectiveDate = EndEffectiveDate;
             Entity.PersistenceService = PersistenceService;
