@@ -11,11 +11,13 @@ namespace EffectFramework.Core.Models.Db
         public DateTime? ValueDate { get; set; }
         public Decimal? ValueDecimal { get; set; }
         public bool? ValueBoolean { get; set; }
-        public int? ValueUser { get; set; }
+        public int? ValueLookup { get; set; }
+        public int? ValueReference { get; set; }
         public byte[] ValueBinary { get; set; }
         public bool IsDeleted { get; set; }
         public Guid Guid { get; set; }
 
         public Entity Entity { get; set; }
+        public Lookup Lookup { get; set; }
     }
 }

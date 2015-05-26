@@ -15,7 +15,7 @@ namespace EffectFramework.Core.Models.Fields
         protected DateTime? ValueDate { get; set; }
         protected decimal? ValueDecimal { get; set; }
         protected bool? ValueBool { get; set; }
-        protected int? ValuePerson { get; set; }
+        protected int? ValueLookup { get; set; }
         protected byte[] ValueBinary { get; set; }
         protected readonly IPersistenceService PersistenceService;
 
@@ -29,7 +29,7 @@ namespace EffectFramework.Core.Models.Fields
                 this.ValueDate    = null;
                 this.ValueDecimal = null;
                 this.ValueBool    = null;
-                this.ValuePerson  = null;
+                this.ValueLookup  = null;
                 this.ValueBinary  = null;
             }
             else
@@ -39,7 +39,7 @@ namespace EffectFramework.Core.Models.Fields
                 this.ValueDate    = Base.ValueDate;
                 this.ValueDecimal = Base.ValueDecimal;
                 this.ValueBool    = Base.ValueBool;
-                this.ValuePerson  = Base.ValuePerson;
+                this.ValueLookup  = Base.ValueLookup;
                 this.ValueBinary  = Base.ValueBinary;
                 this.Guid         = Base.Guid;
             }
@@ -59,7 +59,7 @@ namespace EffectFramework.Core.Models.Fields
             this.ValueDate    = Field.ValueDate;
             this.ValueDecimal = Field.ValueDecimal;
             this.ValueBool    = Field.ValueBoolean;
-            this.ValuePerson  = Field.ValueUser;
+            this.ValueLookup  = Field.ValueLookup;
             this.ValueBinary  = Field.ValueBinary;
             this.Guid         = Field.Guid;
         }

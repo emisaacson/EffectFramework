@@ -6,19 +6,19 @@ using EffectFramework.Core.Services;
 
 namespace EffectFramework.Core.Models.Fields
 {
-    public class FieldPerson : FieldBase, IField
+    public class FieldLookup : FieldBase, IField
     {
         public string Name { get; private set; }
         public int? Value
         {
             get
             {
-                return this.ValuePerson;
+                return this.ValueLookup;
             }
             set
             {
                 this.Dirty = true;
-                this.ValuePerson = value;
+                this.ValueLookup = value;
             }
         }
 
@@ -26,7 +26,7 @@ namespace EffectFramework.Core.Models.Fields
         {
             get
             {
-                return this.ValuePerson;
+                return this.ValueLookup;
             }
 
             set
@@ -39,28 +39,28 @@ namespace EffectFramework.Core.Models.Fields
                 {
                     if (value != null && !typeof(int?).IsAssignableFrom(value.GetType()))
                     {
-                        throw new InvalidCastException("Must assign a int key to a person field.");
+                        throw new InvalidCastException("Must assign a int key to a lookup field.");
                     }
-                    if (!this.ValuePerson.Equals((int?)value))
+                    if (!this.ValueLookup.Equals((int?)value))
                     {
                         this.Dirty = true;
-                        this.ValuePerson = (int?)value;
+                        this.ValueLookup = (int?)value;
                     }
                 }
             }
         }
 
-        public FieldPerson(IPersistenceService PersistenceService)
+        public FieldLookup(IPersistenceService PersistenceService)
             : base(PersistenceService)
         { }
 
-        public FieldPerson(FieldType Type, IPersistenceService PersistenceService)
+        public FieldLookup(FieldType Type, IPersistenceService PersistenceService)
             : this(Type, null, PersistenceService)
         {
 
         }
 
-        public FieldPerson(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
+        public FieldLookup(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
             : base(PersistenceService)
         {
             if (Type.DataType != DataType.Person)

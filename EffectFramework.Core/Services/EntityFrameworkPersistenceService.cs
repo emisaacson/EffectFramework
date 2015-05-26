@@ -99,7 +99,7 @@ namespace EffectFramework.Core.Services
                 DbField.ValueDate = null;
                 DbField.ValueDecimal = null;
                 DbField.ValueText = null;
-                DbField.ValueUser = null;
+                DbField.ValueLookup = null;
                 DbField.Guid = Guid.NewGuid();
 
                 if (Field.Type.DataType == DataType.Boolean)
@@ -116,7 +116,7 @@ namespace EffectFramework.Core.Services
                 }
                 else if (Field.Type.DataType == DataType.Person)
                 {
-                    DbField.ValueUser = (int)((IField)Field).Value;
+                    DbField.ValueLookup = (int)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Text)
                 {
@@ -194,7 +194,7 @@ namespace EffectFramework.Core.Services
                 DbField.ValueDate = null;
                 DbField.ValueDecimal = null;
                 DbField.ValueText = null;
-                DbField.ValueUser = null;
+                DbField.ValueLookup = null;
                 DbField.Guid = Guid.NewGuid();
 
                 if (Field.Type.DataType == DataType.Boolean)
@@ -211,7 +211,7 @@ namespace EffectFramework.Core.Services
                 }
                 else if (Field.Type.DataType == DataType.Person)
                 {
-                    DbField.ValueUser = (int)((IField)Field).Value;
+                    DbField.ValueLookup = (int)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Text)
                 {

@@ -49,6 +49,16 @@ namespace EffectFramework.Core.Models.Db
                     .ForeignKey(en => en.ItemID);
             });
 
+            builder.Entity<Lookup>(l =>
+            {
+                l.Table("Lookups");
+
+                l.Key(e => e.LookupID);
+
+                l.Property(e => e.LookupID).ForSqlServer().UseIdentity();
+
+                l.Reference<Field>().InverseReference(e => e.Lookup).ForeignKey<Field>(e => e.ValueLookup);
+            });
 
             builder.Entity<Entity>(e =>
             {

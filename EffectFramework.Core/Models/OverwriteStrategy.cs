@@ -6,11 +6,26 @@ using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models
 {
+    /// <summary>
+    /// This strategy will delete the other entity to replace it
+    /// with the new one
+    /// </summary>
     public class OverwriteStrategy : IUpdateStrategy
     {
         public void PerformUpdate(EntityBase CandidateEntity, EntityBase UpdatedEntity)
         {
-            throw new NotImplementedException();
+            if (CandidateEntity == UpdatedEntity)
+            {
+                return;
+            }
+
+            if (CandidateEntity.Type != UpdatedEntity.Type)
+            {
+                return;
+            }
+
+            CandidateEntity.Delete();
+
         }
     }
 }
