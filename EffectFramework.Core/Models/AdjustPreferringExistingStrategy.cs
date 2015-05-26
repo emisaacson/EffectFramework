@@ -10,7 +10,7 @@ namespace EffectFramework.Core.Models
     {
         public void PerformUpdate(EntityBase CandidateEntity, EntityBase UpdatedEntity)
         {
-
+            throw new NotImplementedException();
         }
     }
 }
