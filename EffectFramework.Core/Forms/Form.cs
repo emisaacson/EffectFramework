@@ -261,6 +261,10 @@ namespace EffectFramework.Core.Forms
                     if (BoundItem.GetType() == PropertyItemType)
                     {
                         int? EntityIDFromForm = (int?)this.GetType().GetProperty(PropertyIDPropertyName).GetValue(this);
+                        if (EntityIDFromForm.HasValue && EntityIDFromForm.Value == default(int))
+                        {
+                            EntityIDFromForm = null;
+                        }
                         EntityBase Entity = null;
 
                         EntityCollection EffectiveRecord = BoundItem.GetEntityCollectionForDate(EffectiveDate);

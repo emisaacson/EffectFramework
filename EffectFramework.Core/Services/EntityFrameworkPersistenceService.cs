@@ -62,7 +62,7 @@ namespace EffectFramework.Core.Services
                     CreatedAnew = true;
                 }
                 else {
-                    DbField = db.Fields.Where(ef => ef.FieldID == Field.FieldID.Value && ef.IsDeleted == false).FirstOrDefault();
+                    DbField = db.Fields.Where(ef => ef.FieldID == Field.FieldID.Value).FirstOrDefault();
                 }
 
                 if (DbField == null)
@@ -159,7 +159,7 @@ namespace EffectFramework.Core.Services
                     throw new InvalidOperationException("Must create a new field in the context of an entity.");
                 }
 
-                Field DbField = db.Fields.Where(ef => ef.FieldID == Field.FieldID.Value && ef.IsDeleted == false).FirstOrDefault();
+                Field DbField = db.Fields.Where(ef => ef.FieldID == Field.FieldID.Value).FirstOrDefault();
                 if (DbField == null)
                 {
                     throw new ArgumentException("The passed field ID is not valid.");
@@ -279,7 +279,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value && e.IsDeleted == false).FirstOrDefault();
+                    DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value).FirstOrDefault();
                 }
 
 
@@ -351,7 +351,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value && e.IsDeleted == false).FirstOrDefault();
+                    DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value).FirstOrDefault();
                 }
 
 
@@ -433,7 +433,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbItem = db.Items.Where(i => i.ItemID == Item.ItemID.Value && i.IsDeleted == false).FirstOrDefault();
+                    DbItem = db.Items.Where(i => i.ItemID == Item.ItemID.Value).FirstOrDefault();
                 }
 
 
@@ -613,7 +613,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value && e.IsDeleted == false).FirstOrDefault();
+                    DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value).FirstOrDefault();
                 }
 
                 if (DbEntity == null)
