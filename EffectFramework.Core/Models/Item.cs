@@ -155,9 +155,9 @@ namespace EffectFramework.Core.Models
             //PerformUpdate(Entity);
         }
 
-        internal void PerformUpdate(EntityBase Entity)
+        internal void PerformUpdate(EntityBase Entity, IUpdateStrategy PreferredUpdateStrategy = null, IUpdateStrategy PreferredUpdateStrategyForDuplicateDates = null)
         {
-            Entity.GetUpdatePolicy().PerformUpdate(this, Entity);
+            Entity.GetUpdatePolicy().PerformUpdate(this, Entity, PreferredUpdateStrategy, PreferredUpdateStrategyForDuplicateDates);
         }
 
         internal void RemoveEntity(EntityBase Entity)

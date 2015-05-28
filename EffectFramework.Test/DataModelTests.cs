@@ -37,7 +37,7 @@ namespace EffectFramework.Test
         [Fact]
         public void CreateEF7DBContext()
         {
-            using (var db = new ItemDb7Context(ef.Configuration["Data:DefaultConnection:ConnectionString"]))
+            using (var db = new EntityFramework7DBContext(ef.Configuration["Data:DefaultConnection:ConnectionString"]))
             {
 
             }
@@ -236,7 +236,7 @@ namespace EffectFramework.Test
 
                 Assert.False(UserType.Dirty);
 
-                using (var db = new ItemDb7Context(ef.Configuration["Data:DefaultConnection:ConnectionString"]))
+                using (var db = new EntityFramework7DBContext(ef.Configuration["Data:DefaultConnection:ConnectionString"]))
                 {
                     Field Field = db.Fields.Where(ef => ef.FieldID == UserType.FieldID.Value).Single();
 
@@ -271,7 +271,7 @@ namespace EffectFramework.Test
 
                 Job.PersistToDatabase();
 
-                using (var db = new ItemDb7Context(ef.Configuration["Data:DefaultConnection:ConnectionString"]))
+                using (var db = new EntityFramework7DBContext(ef.Configuration["Data:DefaultConnection:ConnectionString"]))
                 {
                     ef.TempField.Add(db.Fields.Where(f => f.FieldID == Job.JobStartDate.FieldID.Value).Single());
                 }

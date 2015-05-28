@@ -415,11 +415,11 @@ namespace EffectFramework.Core.Forms
                             {
                                 if (Direction == Direction.Pull)
                                 {
-                                    Entity = EffectiveRecord.GetOrCreateEntityButDontSave(Instance.Type);
+                                    Entity = EffectiveRecord.GetOrCreateEntityButDontSave(Instance.Type, EndEffectiveDate);
                                 }
                                 else if (Direction == Direction.Push)
                                 {
-                                    Entity = EffectiveRecord.CreateEntityAndMaybeAdjustNeighbors(Instance.Type);
+                                    Entity = EffectiveRecord.CreateEntityAndApplyPolicy(Instance.Type, EndEffectiveDate);
                                 }
                                 EntityCache[Instance.Type] = Entity;
                                 if (Direction == Direction.Pull)

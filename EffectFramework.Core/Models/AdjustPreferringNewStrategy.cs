@@ -44,7 +44,9 @@ namespace EffectFramework.Core.Models
                 // Candidate is partially before and partially during the updated entity.
                 // Adjust the end date.
                 if (CandidateEntity.EffectiveDate < UpdatedEntity.EffectiveDate &&
-                    CandidateEntity.EndEffectiveDate.HasValue && CandidateEntity.EndEffectiveDate.Value <= UpdatedEntity.EndEffectiveDate.Value)
+                    CandidateEntity.EndEffectiveDate.HasValue &&
+                    CandidateEntity.EndEffectiveDate.Value > UpdatedEntity.EffectiveDate &&
+                    CandidateEntity.EndEffectiveDate.Value <= UpdatedEntity.EndEffectiveDate.Value)
                 {
                     CandidateEntity.EndEffectiveDate = UpdatedEntity.EffectiveDate;
                 }

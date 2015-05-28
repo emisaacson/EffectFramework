@@ -3,12 +3,13 @@ using Microsoft.Data.Entity;
 
 namespace EffectFramework.Core.Models.Db
 {
-    public class ItemDb7Context : DbContext, IDbContext
+    public class EntityFramework7DBContext : DbContext, IDbContext
     {
         public DbSet<Item> Items { get; set; }
         public DbSet<Entity> Entities { get; set; }
         public DbSet<Field> Fields { get; set; }
         public DbSet<Lookup> Lookups { get; set; }
+        public DbSet<LookupType> LookupTypes { get; set; }
         private string ConnectionString { get; set; }
 
         public void usp_DeleteEntireDatabase(bool ForReal = false)
@@ -21,12 +22,12 @@ namespace EffectFramework.Core.Models.Db
             }
         }
 
-        public ItemDb7Context(string ConnectionString)
+        public EntityFramework7DBContext(string ConnectionString)
         {
             this.ConnectionString = ConnectionString;
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(this.ConnectionString);
         }
@@ -59,6 +60,16 @@ namespace EffectFramework.Core.Models.Db
                 l.Property(e => e.LookupID).ForSqlServer().UseIdentity();
 
                 l.Reference<Field>().InverseReference(e => e.Lookup).ForeignKey<Field>(e => e.ValueLookup);
+            });
+
+            builder.Entity<LookupType>(lt =>
+            {
+                lt.Table("LookupTypes");
+
+                lt.Key(e => e.LookupTypeID);
+
+                lt.Property(l => l.LookupTypeID).ForSqlServer().UseIdentity();
+
             });
 
             builder.Entity<Entity>(e =>

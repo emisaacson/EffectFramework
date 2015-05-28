@@ -36,7 +36,7 @@ namespace EffectFramework.Test
             TempEntity.Clear();
             TempField.Clear();
 
-            using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
+            using (var db = new EntityFramework7DBContext(Configuration["Data:DefaultConnection:ConnectionString"]))
             using (db.BeginTransaction())
             {
                 Core.Models.Db.Item NewItem = new Core.Models.Db.Item()
@@ -146,7 +146,7 @@ namespace EffectFramework.Test
         public void TearDownEF7Database()
         {
 
-            using (var db = new ItemDb7Context(Configuration["Data:DefaultConnection:ConnectionString"]))
+            using (var db = new EntityFramework7DBContext(Configuration["Data:DefaultConnection:ConnectionString"]))
             using (db.Database.AsRelational().Connection.BeginTransaction())
             {
                 var AllEntities = db.Entities.Where(e => TempItems.Select(i => i.ItemID).Contains(e.ItemID)).ToList();

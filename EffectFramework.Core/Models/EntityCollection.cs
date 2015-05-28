@@ -140,6 +140,23 @@ namespace EffectFramework.Core.Models
             return Entity;
         }
 
+        public EntityBase CreateEntityAndApplyPolicy(EntityType EntityType, DateTime? EndEffectiveDate = null, bool CopyValuesFromPrevious = false, IUpdateStrategy PreferredStrategy = null, IUpdateStrategy PreferredStrategyForDuplicateDates = null)
+        {
+            var ExistingEntities = GetAllEntitiesOfType(EntityType);
+            var MostRecent = ExistingEntities.LastOrDefault();
+            var NewEntity = CreateEntity(EntityType, EndEffectiveDate);
+
+            if (CopyValuesFromPrevious && MostRecent != null)
+            {
+                NewEntity.CopyValuesFrom(MostRecent);
+            }
+
+            NewEntity.Item.PerformUpdate(NewEntity, PreferredStrategy, PreferredStrategyForDuplicateDates);
+
+            return NewEntity;
+        }
+
+        [Obsolete]
         public EntityT CreateEntityAndAdjustNeighbors<EntityT>(bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null) where EntityT : EntityBase, new()
         {
 
@@ -148,6 +165,7 @@ namespace EffectFramework.Core.Models
             return (EntityT)CreateEntityAndMaybeAdjustNeighbors(Entity.Type, CopyValuesFromPrevious, EndEffectiveDate);
         }
 
+        [Obsolete]
         public EntityBase CreateEntityAndMaybeAdjustNeighbors(EntityType EntityType, bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null)
         {
             var ExistingEntities = GetAllEntitiesOfType(EntityType);

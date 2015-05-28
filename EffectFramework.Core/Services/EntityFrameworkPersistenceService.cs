@@ -18,16 +18,16 @@ namespace EffectFramework.Core.Services
         }
         public ObjectIdentity SaveSingleField(EntityBase Entity, FieldBase Field, IDbContext ctx = null)
         {
-            ItemDb7Context db = null;
+            EntityFramework7DBContext db = null;
             try
             {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context(ConnectionString);
+                    db = new EntityFramework7DBContext(ConnectionString);
                 }
                 else
                 {
-                    db = (ItemDb7Context)ctx;
+                    db = (EntityFramework7DBContext)ctx;
                 }
 
                 if (Entity == null)
@@ -143,15 +143,15 @@ namespace EffectFramework.Core.Services
         }
         public ObjectIdentity SaveSingleField(FieldBase Field, IDbContext ctx = null)
         {
-            ItemDb7Context db = null;
+            EntityFramework7DBContext db = null;
             try {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context(ConnectionString);
+                    db = new EntityFramework7DBContext(ConnectionString);
                 }
                 else
                 {
-                    db = (ItemDb7Context)ctx;
+                    db = (EntityFramework7DBContext)ctx;
                 }
 
                 if (!Field.FieldID.HasValue)
@@ -239,16 +239,16 @@ namespace EffectFramework.Core.Services
 
         public ObjectIdentity SaveSingleEntity(Models.Item Item, EntityBase Entity, IDbContext ctx = null)
         {
-            ItemDb7Context db = null;
+            EntityFramework7DBContext db = null;
             try
             {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context(ConnectionString);
+                    db = new EntityFramework7DBContext(ConnectionString);
                 }
                 else
                 {
-                    db = (ItemDb7Context)ctx;
+                    db = (EntityFramework7DBContext)ctx;
                 }
 
                 if (Item == null)
@@ -332,16 +332,16 @@ namespace EffectFramework.Core.Services
 
         public ObjectIdentity SaveSingleEntity(EntityBase Entity, IDbContext ctx = null)
         {
-            ItemDb7Context db = null;
+            EntityFramework7DBContext db = null;
             try
             {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context(ConnectionString);
+                    db = new EntityFramework7DBContext(ConnectionString);
                 }
                 else
                 {
-                    db = (ItemDb7Context)ctx;
+                    db = (EntityFramework7DBContext)ctx;
                 }
 
                 Entity DbEntity = null;
@@ -404,16 +404,16 @@ namespace EffectFramework.Core.Services
 
         public ObjectIdentity SaveSingleItem(Models.Item Item, IDbContext ctx = null)
         {
-            ItemDb7Context db = null;
+            EntityFramework7DBContext db = null;
             try
             {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context(ConnectionString);
+                    db = new EntityFramework7DBContext(ConnectionString);
                 }
                 else
                 {
-                    db = (ItemDb7Context)ctx;
+                    db = (EntityFramework7DBContext)ctx;
                 }
 
                 Models.Db.Item DbItem = null;
@@ -499,7 +499,7 @@ namespace EffectFramework.Core.Services
                 throw new ArgumentException("Cannot retrieve a field without an EntityID");
             }
 
-            using (var db = new ItemDb7Context(ConnectionString))
+            using (var db = new EntityFramework7DBContext(ConnectionString))
             {
                 var DbField = db.Fields.Where(f => f.EntityID == Entity.EntityID.Value &&
                                               f.FieldTypeID == FieldTypeID &&
@@ -519,7 +519,7 @@ namespace EffectFramework.Core.Services
         public FieldBase RetreiveSingleFieldOrDefault(int FieldID)
         {
 
-            using (var db = new ItemDb7Context(ConnectionString))
+            using (var db = new EntityFramework7DBContext(ConnectionString))
             {
                 var DbField = db.Fields.Where(f => f.FieldID == FieldID &&
                                               !f.IsDeleted).FirstOrDefault();
@@ -559,7 +559,7 @@ namespace EffectFramework.Core.Services
             EntityT Instance = new EntityT();
             Instance.PersistenceService = this;
 
-            using (var db = new ItemDb7Context(ConnectionString))
+            using (var db = new EntityFramework7DBContext(ConnectionString))
             using (db.Database.AsRelational().Connection.BeginTransaction())
             {
 
@@ -589,16 +589,16 @@ namespace EffectFramework.Core.Services
         }
         public void SaveAndDeleteSingleEntity(EntityBase Entity, IDbContext ctx = null)
         {
-            ItemDb7Context db = null;
+            EntityFramework7DBContext db = null;
             try
             {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context(ConnectionString);
+                    db = new EntityFramework7DBContext(ConnectionString);
                 }
                 else
                 {
-                    db = (ItemDb7Context)ctx;
+                    db = (EntityFramework7DBContext)ctx;
                 }
 
                 if (Entity == null)
@@ -658,7 +658,7 @@ namespace EffectFramework.Core.Services
                 throw new ArgumentException("Record must have an ID.");
             }
 
-            using (var db = new ItemDb7Context(ConnectionString))
+            using (var db = new EntityFramework7DBContext(ConnectionString))
             using (db.Database.AsRelational().Connection.BeginTransaction())
             {
                 var DbEntityPossibilities = db.Entities
@@ -689,7 +689,7 @@ namespace EffectFramework.Core.Services
 
         public Guid RetreiveGuidForItem(Models.Item Item)
         {
-            using (var db = new ItemDb7Context(ConnectionString))
+            using (var db = new EntityFramework7DBContext(ConnectionString))
             {
                 var DbItemRecord = db.Items
                     .Where(e =>
@@ -709,24 +709,29 @@ namespace EffectFramework.Core.Services
 
         public IDbContext GetDbContext()
         {
-            return new ItemDb7Context(ConnectionString);
+            return new EntityFramework7DBContext(ConnectionString);
         }
 
         public IEnumerable<LookupEntry> GetChoicesForLookupField(FieldLookup Field, IDbContext ctx = null)
         {
-            ItemDb7Context db = null;
+            EntityFramework7DBContext db = null;
             try
             {
                 if (ctx == null)
                 {
-                    db = new ItemDb7Context(ConnectionString);
+                    db = new EntityFramework7DBContext(ConnectionString);
                 }
                 else
                 {
-                    db = (ItemDb7Context)ctx;
+                    db = (EntityFramework7DBContext)ctx;
                 }
 
-                var Lookups = db.Lookups.Where(l => l.FieldTypeID == (int)Field.Type);
+                if (!Field.Type.LookupTypeID.HasValue)
+                {
+                    return new LookupEntry[0];
+                }
+
+                var Lookups = db.Lookups.Where(l => l.LookupTypeID == (int)Field.Type.LookupTypeID.Value);
 
                 List<LookupEntry> Output = new List<LookupEntry>();
                 foreach (var Lookup in Lookups)
