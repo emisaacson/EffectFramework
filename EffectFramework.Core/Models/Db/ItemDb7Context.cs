@@ -8,6 +8,7 @@ namespace EffectFramework.Core.Models.Db
         public DbSet<Item> Items { get; set; }
         public DbSet<Entity> Entities { get; set; }
         public DbSet<Field> Fields { get; set; }
+        public DbSet<Lookup> Lookups { get; set; }
         private string ConnectionString { get; set; }
 
         public void usp_DeleteEntireDatabase(bool ForReal = false)

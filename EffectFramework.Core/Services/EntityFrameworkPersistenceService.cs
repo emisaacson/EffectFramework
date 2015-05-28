@@ -116,7 +116,7 @@ namespace EffectFramework.Core.Services
                 {
                     DbField.ValueDecimal = (decimal)((IField)Field).Value;
                 }
-                else if (Field.Type.DataType == DataType.Person)
+                else if (Field.Type.DataType == DataType.Lookup)
                 {
                     DbField.ValueLookup = (int)((IField)Field).Value;
                 }
@@ -211,7 +211,7 @@ namespace EffectFramework.Core.Services
                 {
                     DbField.ValueDecimal = (decimal)((IField)Field).Value;
                 }
-                else if (Field.Type.DataType == DataType.Person)
+                else if (Field.Type.DataType == DataType.Lookup)
                 {
                     DbField.ValueLookup = (int)((IField)Field).Value;
                 }
@@ -710,6 +710,39 @@ namespace EffectFramework.Core.Services
         public IDbContext GetDbContext()
         {
             return new ItemDb7Context(ConnectionString);
+        }
+
+        public IEnumerable<LookupEntry> GetChoicesForLookupField(FieldLookup Field, IDbContext ctx = null)
+        {
+            ItemDb7Context db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new ItemDb7Context(ConnectionString);
+                }
+                else
+                {
+                    db = (ItemDb7Context)ctx;
+                }
+
+                var Lookups = db.Lookups.Where(l => l.FieldTypeID == (int)Field.Type);
+
+                List<LookupEntry> Output = new List<LookupEntry>();
+                foreach (var Lookup in Lookups)
+                {
+                    Output.Add(new LookupEntry(Lookup.LookupID, Lookup.Value));
+                }
+
+                return Output;
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ namespace EffectFramework.Core.Services
     {
         Models.Db.ObjectIdentity SaveSingleField(EntityBase Entity, FieldBase Field, Models.Db.IDbContext ctx = null);
         Models.Db.ObjectIdentity SaveSingleField(FieldBase Field, Models.Db.IDbContext ctx = null);
+        IEnumerable<LookupEntry> GetChoicesForLookupField(FieldLookup Field, Models.Db.IDbContext ctx = null);
 
         Models.Db.ObjectIdentity SaveSingleEntity(Item Item, EntityBase Entity, Models.Db.IDbContext ctx = null);
         Models.Db.ObjectIdentity SaveSingleEntity(EntityBase Entity, Models.Db.IDbContext ctx = null);

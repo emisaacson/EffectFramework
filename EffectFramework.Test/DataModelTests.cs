@@ -88,7 +88,7 @@ namespace EffectFramework.Test
                 GeneralInfoEntity GeneralEntity = NewUser.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
 
                 Assert.NotNull(GeneralEntity);
-                Assert.Equal(new DateTime(2015, 1, 1), GeneralEntity.HireDate.Value);
+                Assert.Equal(new DateTime(2015, 1, 1), GeneralEntity.Start_Date.Value);
 
                 UserTypeEntity FirstJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>();
 
@@ -163,12 +163,12 @@ namespace EffectFramework.Test
                 GeneralInfoEntity GeneralEntity = NewUser.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
 
                 Assert.NotNull(GeneralEntity);
-                Assert.NotNull(GeneralEntity.HireDate);
-                Assert.NotNull(GeneralEntity.HireDate.FieldID);
-                Assert.NotEqual(Guid.Empty, GeneralEntity.HireDate.Guid);
-                Assert.False(GeneralEntity.HireDate.Dirty);
-                Assert.Equal(Strings.Hire_Date, GeneralEntity.HireDate.Type.Name);
-                Assert.Equal(Strings.Hire_Date, GeneralEntity.HireDate.Name);
+                Assert.NotNull(GeneralEntity.Start_Date);
+                Assert.NotNull(GeneralEntity.Start_Date.FieldID);
+                Assert.NotEqual(Guid.Empty, GeneralEntity.Start_Date.Guid);
+                Assert.False(GeneralEntity.Start_Date.Dirty);
+                Assert.Equal(Strings.Start_Date, GeneralEntity.Start_Date.Type.Name);
+                Assert.Equal(Strings.Start_Date, GeneralEntity.Start_Date.Name);
 
                 UserTypeEntity FirstJob = NewUser.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>();
 
@@ -476,7 +476,7 @@ namespace EffectFramework.Test
 
         public void Dispose()
         {
-            ef.TearDownEF7Database();
+            //ef.TearDownEF7Database();
         }
     }
 
@@ -509,7 +509,7 @@ namespace EffectFramework.Test
 
         public static readonly TestFieldType User_Type = new TestFieldType(Strings.Job_Title, 1, DataType.Text);
         public static readonly TestFieldType Job_Start_Date = new TestFieldType(Strings.Job_Start_Date, 2, DataType.Date);
-        public static readonly TestFieldType User_Start_Date = new TestFieldType(Strings.Hire_Date, 3, DataType.Date);
+        public static readonly TestFieldType User_Start_Date = new TestFieldType(Strings.Start_Date, 3, DataType.Date);
         public static readonly TestFieldType First_Name = new TestFieldType(Strings.First_Name, 4, DataType.Text);
         public static readonly TestFieldType Last_Name = new TestFieldType(Strings.Last_Name, 5, DataType.Text);
 
@@ -586,12 +586,12 @@ namespace EffectFramework.Test
 
         protected override void WireUpFields()
         {
-            HireDate = new FieldDate(TestFieldType.User_Start_Date, PersistenceService);
+            Start_Date = new FieldDate(TestFieldType.User_Start_Date, PersistenceService);
             First_Name = new FieldString(TestFieldType.First_Name, PersistenceService);
             Last_Name = new FieldString(TestFieldType.Last_Name, PersistenceService);
         }
 
-        public FieldDate HireDate { get; private set; }
+        public FieldDate Start_Date { get; private set; }
         public FieldString First_Name { get; private set; }
         public FieldString Last_Name { get; private set; }
     }

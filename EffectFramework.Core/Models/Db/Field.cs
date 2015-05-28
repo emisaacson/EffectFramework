@@ -12,7 +12,8 @@ namespace EffectFramework.Core.Models.Db
         public Decimal? ValueDecimal { get; set; }
         public bool? ValueBoolean { get; set; }
         public int? ValueLookup { get; set; }
-        public int? ValueReference { get; set; }
+        public int? ValueItemReference { get; set; }
+        public int? ValueEntityReference { get; set; }
         public byte[] ValueBinary { get; set; }
         public bool IsDeleted { get; set; }
         public Guid Guid { get; set; }

@@ -18,7 +18,15 @@ namespace EffectFramework.Core.Models.Fields
             set
             {
                 this.Dirty = true;
-                this.ValueLookup = value;
+
+                if (value.HasValue && value.Value == default(int))
+                {
+                    this.ValueLookup = null;
+                }
+                else
+                {
+                    this.ValueLookup = value;
+                }
             }
         }
 
@@ -31,19 +39,19 @@ namespace EffectFramework.Core.Models.Fields
 
             set
             {
-                if (value == null)
+                if (value != null && !typeof(int?).IsAssignableFrom(value.GetType()))
                 {
-
+                    throw new InvalidCastException("Must assign a int key to a lookup field.");
                 }
-                else
+                if (!this.ValueLookup.Equals((int?)value))
                 {
-                    if (value != null && !typeof(int?).IsAssignableFrom(value.GetType()))
+                    this.Dirty = true;
+                    if (((int?)value).HasValue && ((int?)value).Value == default(int))
                     {
-                        throw new InvalidCastException("Must assign a int key to a lookup field.");
+                        this.ValueLookup = null;
                     }
-                    if (!this.ValueLookup.Equals((int?)value))
+                    else
                     {
-                        this.Dirty = true;
                         this.ValueLookup = (int?)value;
                     }
                 }
@@ -63,9 +71,9 @@ namespace EffectFramework.Core.Models.Fields
         public FieldLookup(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
             : base(PersistenceService)
         {
-            if (Type.DataType != DataType.Person)
+            if (Type.DataType != DataType.Lookup)
             {
-                throw new ArgumentOutOfRangeException("Cannot create a person field from a non-person type.");
+                throw new ArgumentOutOfRangeException("Cannot create a lookup field from a non-lookup type.");
             }
             this.Type = Type;
             this.Name = Type.Name;
@@ -73,6 +81,20 @@ namespace EffectFramework.Core.Models.Fields
             if (Base != null)
             {
                 LoadUpValues(Base);
+            }
+        }
+
+        private IEnumerable<LookupEntry> _Choices = null;
+
+        public IEnumerable<LookupEntry> Choices
+        {
+            get
+            {
+                if (_Choices == null)
+                {
+                    _Choices = PersistenceService.GetChoicesForLookupField(this).OrderBy(l => l.Value);
+                }
+                return _Choices;
             }
         }
     }
