@@ -83,6 +83,14 @@ namespace EffectFramework.Core.Forms
 
             TransferValuesFromMembers(AllProperties, Direction, Now, ref EntityCache);
             TransferValuesFromMembers(AllFields, Direction, Now, ref EntityCache);
+
+            if (Direction == Direction.Push)
+            {
+                foreach (var Entity in EntityCache.Values)
+                {
+                    Entity.Item.PerformUpdate(Entity);
+                }
+            }
         }
 
 
@@ -419,7 +427,7 @@ namespace EffectFramework.Core.Forms
                                 }
                                 else if (Direction == Direction.Push)
                                 {
-                                    Entity = EffectiveRecord.CreateEntityAndApplyPolicy(Instance.Type, EndEffectiveDate);
+                                    Entity = EffectiveRecord.CreateEntity(Instance.Type, EndEffectiveDate);
                                 }
                                 EntityCache[Instance.Type] = Entity;
                                 if (Direction == Direction.Pull)

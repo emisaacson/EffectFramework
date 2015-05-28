@@ -204,6 +204,7 @@ namespace EffectFramework.Core.Models.Entities
         public void Delete()
         {
             this.IsDeleted = true;
+            this.Dirty = true;
         }
 
         private List<FieldBase> GetAllEntityFieldProperties()

@@ -14,12 +14,7 @@ namespace EffectFramework.Core.Models
     {
         public void PerformUpdate(EntityBase CandidateEntity, EntityBase UpdatedEntity)
         {
-            if (CandidateEntity == UpdatedEntity)
-            {
-                return;
-            }
-
-            if (CandidateEntity.Type != UpdatedEntity.Type)
+            if (CandidateEntity == UpdatedEntity || CandidateEntity.Type != UpdatedEntity.Type || UpdatedEntity.IsDeleted)
             {
                 return;
             }
