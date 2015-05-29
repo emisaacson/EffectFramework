@@ -10,6 +10,10 @@ namespace EffectFramework.Core
 {
     public class Configure : NinjectModule
     {
+        /// <summary>
+        /// Gets or sets the global connection string used for all instances of the 
+        /// persistence service. This should be set in the startup routine of the app.
+        /// </summary>
         public static string ConnectionString;
         private static Type PersistenceServiceType = typeof(EntityFrameworkPersistenceService);
         private static Type LoggingProvider = typeof(NullLoggingProvider);
@@ -36,18 +40,36 @@ namespace EffectFramework.Core
                     .To(LoggingProvider);
         }
 
+        /// <summary>
+        /// Registers the persistence service. The type should be wired up in the startup routine
+        /// of the app. By default, the Entity Framework 7 persistence service is used.
+        /// </summary>
+        /// <typeparam name="PersistenceServiceT">The type of the persistence service (must implement IPersistenceService).</typeparam>
         public static void RegisterPersistenceService<PersistenceServiceT>()
             where PersistenceServiceT : IPersistenceService
         {
             PersistenceServiceType = typeof(PersistenceServiceT);
         }
 
+        /// <summary>
+        /// Registers the logging provider. The type should be wired up in the startup routine
+        /// of the app. By default, the Null logging provider is used.
+        /// </summary>
+        /// <typeparam name="LoggingProviderT">The type of the Logging provider (must implement IPersistenceService).</typeparam>
         public static void RegisterLoggingProvider<LoggingProviderT>()
             where LoggingProviderT : ILoggingProvider
         {
             LoggingProvider = typeof(LoggingProviderT);
         }
 
+        /// <summary>
+        /// Each application will provide its own Item, Entity and Field types. These are declared on a 
+        /// class as static fields and must be registered so the framework is aware of all the data types
+        /// available. All three classes can be registered with this single call.
+        /// </summary>
+        /// <typeparam name="TItemType">The type of the Item type class.</typeparam>
+        /// <typeparam name="TEntityType">The type of the Entity type class.</typeparam>
+        /// <typeparam name="TFieldType">The type of the Field type class.</typeparam>
         public static void RegisterTypeClasses<TItemType, TEntityType, TFieldType>()
             where TItemType : ItemType
             where TEntityType : EntityType 

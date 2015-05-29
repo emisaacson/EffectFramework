@@ -85,7 +85,6 @@ namespace EffectFramework.Core.Models.Fields
         }
 
         private IEnumerable<LookupEntry> _Choices = null;
-
         public IEnumerable<LookupEntry> Choices
         {
             get

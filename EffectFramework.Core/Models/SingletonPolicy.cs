@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace EffectFramework.Core.Models
 {
+    /// <summary>
+    /// A policy to ensure only one entity of a particular type is ever
+    /// created for an item.
+    /// </summary>
     public class SingletonPolicy : UpdatePolicy
     {
         private readonly IEnumerable<IUpdateStrategy> AvailableStrategies = new IUpdateStrategy[]

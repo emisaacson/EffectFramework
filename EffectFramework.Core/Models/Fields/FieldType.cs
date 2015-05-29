@@ -3,8 +3,17 @@ using System.Collections.Generic;
 
 namespace EffectFramework.Core.Models.Fields
 {
+    /// <summary>
+    /// The base class all fields must inherit from.
+    /// </summary>
     public class FieldType
     {
+        /// <summary>
+        /// Gets or sets the field ID to match the persistence service..
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
         public int Value { get; protected set; }
         public DataType DataType { get; protected set; }
         public string Name { get; protected set; }

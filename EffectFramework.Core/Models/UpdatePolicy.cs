@@ -6,12 +6,31 @@ using System.Threading.Tasks;
 
 namespace EffectFramework.Core.Models
 {
+    /// <summary>
+    /// A base class that all Policies must inherit from.
+    /// </summary>
     public abstract class UpdatePolicy
     {
         public abstract IEnumerable<IUpdateStrategy> GetAvailableStrategies();
         public abstract IUpdateStrategy GetDefaultStrategy();
         public abstract IUpdateStrategy GetDefaultStrategyForDuplicateDates();
 
+        /// <summary>
+        /// Given the provided strategies, manipulate all entities to correct any violations
+        /// of the current policy. If no strategies are provided, the policy's default
+        /// strategies are used. An exception is throws if the provided strategies are not
+        /// valid for the current policy.
+        /// </summary>
+        /// <param name="Item">The item.</param>
+        /// <param name="Entity">The entity.</param>
+        /// <param name="PreferredUpdateStrategy">The preferred update strategy.</param>
+        /// <param name="PreferredUpdateStrategyForDuplicateDates">The preferred update strategy for duplicate dates.</param>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.InvalidOperationException">
+        /// The requested strategy is not available for this policy.
+        /// or
+        /// The requested strategy is not available for this policy.
+        /// </exception>
         public void PerformUpdate(Item Item, EntityBase Entity, IUpdateStrategy PreferredUpdateStrategy = null, IUpdateStrategy PreferredUpdateStrategyForDuplicateDates = null)
         {
             if (Item == null || Entity == null)

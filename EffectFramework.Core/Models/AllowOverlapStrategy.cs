@@ -18,7 +18,7 @@ namespace EffectFramework.Core.Models
         /// <param name="UpdatedEntity">The updated entity.</param>
         public void PerformUpdate(EntityBase CandidateEntity, EntityBase UpdatedEntity)
         {
-
+            // Live and let live.
         }
     }
 }

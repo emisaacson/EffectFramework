@@ -6,6 +6,13 @@ using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models
 {
+    /// <summary>
+    /// A strategy to correct any overlap of entities of the same type, when there is a violation
+    /// the newly created or updated entity always wins and the losing entity is deleted or has
+    /// its effective dates altered to ensure sequential progression. If a losing entity exists
+    /// on both sids of the effective period for the new entity, the losing entity is split into
+    /// two to enclose the winning entity on both sides.
+    /// </summary>
     public class AdjustPreferringNewStrategy : IUpdateStrategy
     {
         public void PerformUpdate(EntityBase CandidateEntity, EntityBase UpdatedEntity)

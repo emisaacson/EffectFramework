@@ -9,6 +9,9 @@ using Microsoft.Data.Entity;
 
 namespace EffectFramework.Core.Services
 {
+    /// <summary>
+    /// Implementation of IPersistenceService for SQL Server and Entity Framework 7.
+    /// </summary>
     public class EntityFrameworkPersistenceService : IPersistenceService
     {
         private string ConnectionString;

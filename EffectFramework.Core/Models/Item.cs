@@ -6,8 +6,17 @@ using EffectFramework.Core.Services;
 
 namespace EffectFramework.Core.Models
 {
+    /// <summary>
+    /// All items must inherit this base class.
+    /// </summary>
     public abstract class Item
     {
+        /// <summary>
+        /// Gets all the non-deleted entityies for this particular item.
+        /// </summary>
+        /// <value>
+        /// All non-deleted entities for this Item.
+        /// </value>
         public IEnumerable<EntityBase> AllEntities
         {
             get
@@ -16,13 +25,45 @@ namespace EffectFramework.Core.Models
             }
         }
         private List<EntityBase> _AllEntities = new List<EntityBase>();
+        /// <summary>
+        /// Gets or sets the item identifier.
+        /// </summary>
+        /// <value>
+        /// The item identifier.
+        /// </value>
         public int? ItemID { get; protected set; }
+        /// <summary>
+        /// Gets or sets the unique identifier.
+        /// </summary>
+        /// <value>
+        /// The unique identifier.
+        /// </value>
         public Guid Guid { get; protected set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="Item"/> is in sync with the data store.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if dirty; otherwise, <c>false</c>.
+        /// </value>
         public bool Dirty { get; protected set; }
+        /// <summary>
+        /// Gets the type of this item.
+        /// </summary>
+        /// <value>
+        /// The ItemType of this item.
+        /// </value>
         public abstract ItemType Type { get; }
 
         protected readonly IPersistenceService PersistenceService;
-        
+
+        /// <summary>
+        /// Gets an entity collection representing all entities overlapping with the current EffectiveDate
+        /// set on this item.
+        /// </summary>
+        /// <value>
+        /// An entity collection representing all entities overlapping with the current EffectiveDate
+        /// set on this item.
+        /// </value>
         public EntityCollection EffectiveRecord
         {
             get
@@ -32,6 +73,12 @@ namespace EffectFramework.Core.Models
         }
 
         protected DateTime _EffectiveDate = DateTime.Now.Date;
+        /// <summary>
+        /// Gets or sets the current effective date of this item.
+        /// </summary>
+        /// <value>
+        /// The effective date.
+        /// </value>
         public DateTime EffectiveDate {
             get
             {
@@ -43,12 +90,24 @@ namespace EffectFramework.Core.Models
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Item"/> class. The item is initially
+        /// dirty and has no item ID. When persisted, an ItemID will be added to the class.
+        /// </summary>
+        /// <param name="PersistenceService">The persistence service (for DI injection).</param>
         public Item(IPersistenceService PersistenceService)
         {
             this.Dirty = true;
             this.PersistenceService = PersistenceService;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Item"/> class.
+        /// </summary>
+        /// <param name="ItemID">The item identifier.</param>
+        /// <param name="PersistenceService">The persistence service.</param>
+        /// <param name="LoadItem">if set to <c>true</c>, retreive all data for this item from the PersistenceService.</param>
+        /// <param name="Sparse">if set to <c>true</c>, only load entities for the current EffectiveRecord (unimplemented at the moment).</param>
         public Item(int ItemID, IPersistenceService PersistenceService, bool LoadItem = true, bool Sparse = false)
         {
             this.ItemID = ItemID;
@@ -59,11 +118,22 @@ namespace EffectFramework.Core.Models
             }
         }
 
+        /// <summary>
+        /// Gets an entity collection for all entities overlapping with the passed Effective Date.
+        /// </summary>
+        /// <param name="EffectiveDate">The effective date.</param>
+        /// <returns>An entity collection for all entities overlapping with the passed Effective Date.</returns>
         public EntityCollection GetEntityCollectionForDate(DateTime EffectiveDate)
         {
             return new EntityCollection(this, EffectiveDate, PersistenceService);
         }
 
+        /// <summary>
+        /// Reload all data from the database, getting a fresh copy. This method will fail if the Item
+        /// has not yet been persisted to the data store.
+        /// </summary>
+        /// <param name="Sparse">if set to <c>true</c>, only load entities overlapping with the current EffectiveDate (unimplemented).</param>
+        /// <exception cref="System.InvalidOperationException">Cannot reload an item with a null ID.</exception>
         public void Load(bool Sparse = false)
         {
             if (!ItemID.HasValue)
@@ -74,6 +144,10 @@ namespace EffectFramework.Core.Models
         }
 
 
+        /// <summary>
+        /// Persist the item and all of its entities to database.
+        /// </summary>
+        /// <param name="ctx">The database context. If one is not provided, a new one will be created with a transaction.</param>
         public void PersistToDatabase(Db.IDbContext ctx = null)
         {
             Db.IDbContext db = null;

@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace EffectFramework.Core
 {
+    /// <summary>
+    /// Universal interface for logging.
+    /// </summary>
     public class Logger
     {
         private ILoggingProvider _Log;

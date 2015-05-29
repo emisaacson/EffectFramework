@@ -7,8 +7,8 @@ using EffectFramework.Core.Models.Entities;
 namespace EffectFramework.Core.Models
 {
     /// <summary>
-    /// This strategy will delete the other entity to replace it
-    /// with the new one
+    /// This strategy will delete the all other entities of the same type
+    /// effectively replacing them with the new or updated entity.
     /// </summary>
     public class OverwriteStrategy : IUpdateStrategy
     {

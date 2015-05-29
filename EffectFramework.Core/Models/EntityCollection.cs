@@ -9,7 +9,7 @@ namespace EffectFramework.Core.Models
 {
     /// <summary>
     /// An EntityCollection contains all Entities for a particular Item that intersect
-    /// with the supplised EffectiveDate. It can be retreived from the Item class via
+    /// with the supplied EffectiveDate. It can be retreived from the Item class via
     /// the EffectiveRecord property or the GetEntityCollectionForDate method.
     /// 
     /// It also has some useful methods for creating and querying entities that intersect
@@ -37,6 +37,12 @@ namespace EffectFramework.Core.Models
 
         private readonly IPersistenceService PersistenceService;
 
+        /// <summary>
+        /// Gets the effective date.
+        /// </summary>
+        /// <value>
+        /// The effective date.
+        /// </value>
         public DateTime EffectiveDate { get; private set; }
 
         /// <summary>
@@ -140,6 +146,16 @@ namespace EffectFramework.Core.Models
             return Entity;
         }
 
+        /// <summary>
+        /// Creates the a new entity of the supplied type and immediately applies the entity's policy,
+        /// using the passed strategies or the policy's default strategy if not provided.
+        /// </summary>
+        /// <param name="EntityType">Type of the entity to create.</param>
+        /// <param name="EndEffectiveDate">An optional end effective date for the entity.</param>
+        /// <param name="CopyValuesFromPrevious">if set to <c>true</c>, try to find the closest entity of the same type going backwards in time and load the new entity with all its values.</param>
+        /// <param name="PreferredStrategy">The preferred strategy.</param>
+        /// <param name="PreferredStrategyForDuplicateDates">The preferred strategy for duplicate dates.</param>
+        /// <returns>The new Entity</returns>
         public EntityBase CreateEntityAndApplyPolicy(EntityType EntityType, DateTime? EndEffectiveDate = null, bool CopyValuesFromPrevious = false, IUpdateStrategy PreferredStrategy = null, IUpdateStrategy PreferredStrategyForDuplicateDates = null)
         {
             var ExistingEntities = GetAllEntitiesOfType(EntityType);
@@ -156,6 +172,13 @@ namespace EffectFramework.Core.Models
             return NewEntity;
         }
 
+        /// <summary>
+        /// Creates the entity and maybe adjust its neighbors. This functionality is now available from Policies and this method should no longer be used.
+        /// </summary>
+        /// <typeparam name="EntityT">Type of the entity..</typeparam>
+        /// <param name="CopyValuesFromPrevious">if set to <c>true</c> [copy values from previous].</param>
+        /// <param name="EndEffectiveDate">The end effective date.</param>
+        /// <returns>The new Entity</returns>
         [Obsolete]
         public EntityT CreateEntityAndAdjustNeighbors<EntityT>(bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null) where EntityT : EntityBase, new()
         {
@@ -165,6 +188,13 @@ namespace EffectFramework.Core.Models
             return (EntityT)CreateEntityAndMaybeAdjustNeighbors(Entity.Type, CopyValuesFromPrevious, EndEffectiveDate);
         }
 
+        /// <summary>
+        /// Creates the entity and maybe adjust its neighbors. This functionality is now available from Policies and this method should no longer be used.
+        /// </summary>
+        /// <param name="EntityType">Type of the entity.</param>
+        /// <param name="CopyValuesFromPrevious">if set to <c>true</c> [copy values from previous].</param>
+        /// <param name="EndEffectiveDate">The end effective date.</param>
+        /// <returns>The new Entity</returns>
         [Obsolete]
         public EntityBase CreateEntityAndMaybeAdjustNeighbors(EntityType EntityType, bool CopyValuesFromPrevious = false, DateTime? EndEffectiveDate = null)
         {
@@ -194,6 +224,12 @@ namespace EffectFramework.Core.Models
             return Entity;
         }
 
+        /// <summary>
+        /// Gets or creates a new Entity.
+        /// </summary>
+        /// <typeparam name="EntityT">The type of the Entity.</typeparam>
+        /// <param name="EndEffectiveDate">An optional end effective date of the new entity.</param>
+        /// <returns></returns>
         public EntityT GetOrCreateEntity<EntityT>(DateTime? EndEffectiveDate = null) where EntityT : EntityBase, new()
         {
             EntityT Instance = new EntityT();

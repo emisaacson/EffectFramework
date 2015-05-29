@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace EffectFramework.Core
 {
+    /// <summary>
+    /// Interface for any adapter used to wire up a logger.
+    /// </summary>
     public interface ILoggingProvider
     {
         void Trace(string Template, params object[] objs);

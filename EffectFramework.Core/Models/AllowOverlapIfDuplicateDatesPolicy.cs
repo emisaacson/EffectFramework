@@ -6,6 +6,10 @@ using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models
 {
+    /// <summary>
+    /// This policy allows overlapping entities only if they share the exact effective and
+    /// end effective dates. Otherwise, make sure the changes are sequential.
+    /// </summary>
     public class AllowOverlapIfDuplicateDatesPolicy : UpdatePolicy
     {
         private readonly IEnumerable<IUpdateStrategy> AvailableStrategies = new IUpdateStrategy[]
