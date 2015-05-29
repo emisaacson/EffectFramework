@@ -48,7 +48,8 @@ namespace EffectFramework.Core.Services
                     }
 
                     if (((IField)Field).Value == null ||
-                        (Field.Type.DataType == DataType.Date && (DateTime)((IField)Field).Value == default(DateTime)))
+                        (Field.Type.DataType == DataType.Date && (DateTime)((IField)Field).Value == default(DateTime)) ||
+                        (Field.Type.DataType == DataType.Lookup && (int)((IField)Field).Value == default(int)))
                     {
                         return null;
                     }
@@ -92,7 +93,8 @@ namespace EffectFramework.Core.Services
                 }
 
                 if (((IField)Field).Value == null ||
-                        (Field.Type.DataType == DataType.Date && (DateTime)((IField)Field).Value == default(DateTime)))
+                        (Field.Type.DataType == DataType.Date && (DateTime)((IField)Field).Value == default(DateTime)) ||
+                        (Field.Type.DataType == DataType.Lookup && (int)((IField)Field).Value == default(int)))
                 {
                     DbField.IsDeleted = true;
                     DbField.Guid = Guid.NewGuid();

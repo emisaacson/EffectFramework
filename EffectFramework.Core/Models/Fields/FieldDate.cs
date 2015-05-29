@@ -15,10 +15,15 @@ namespace EffectFramework.Core.Models.Fields
 
             set
             {
-                if (this.ValueDate != value)
+                DateTime? _Value = (DateTime?)value;
+                if (_Value.HasValue && _Value.Value == default(DateTime))
+                {
+                    _Value = null;
+                }
+                if (!this.ValueDate.HasValue || this.ValueDate.Value != _Value)
                 {
                     this.Dirty = true;
-                    this.ValueDate = value;
+                    this.ValueDate = _Value;
                 }
             }
         }
@@ -27,11 +32,7 @@ namespace EffectFramework.Core.Models.Fields
         {
             get
             {
-                if (this.ValueDate.HasValue)
-                {
-                    return this.ValueDate.Value;
-                }
-                return null;
+                return this.ValueDate;
             }
 
             set
@@ -40,10 +41,15 @@ namespace EffectFramework.Core.Models.Fields
                 {
                     throw new InvalidCastException("Must assign a datetime to a date field.");
                 }
-                if (!this.ValueDate.HasValue || this.ValueDate.Value != (DateTime?)value)
+                DateTime? _Value = (DateTime?)value;
+                if (_Value.HasValue && _Value.Value == default(DateTime))
+                {
+                    _Value = null;
+                }
+                if (!this.ValueDate.HasValue || this.ValueDate.Value != _Value)
                 {
                     this.Dirty = true;
-                    this.ValueDate = (DateTime?)value;
+                    this.ValueDate = _Value;
                 }
             }
         }

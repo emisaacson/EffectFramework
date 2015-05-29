@@ -17,15 +17,15 @@ namespace EffectFramework.Core.Models.Fields
             }
             set
             {
-                this.Dirty = true;
-
-                if (value.HasValue && value.Value == default(int))
+                int? _Value = value;
+                if (_Value.HasValue && _Value.Value == default(int))
                 {
-                    this.ValueLookup = null;
+                    _Value = null;
                 }
-                else
+                if (!this.ValueLookup.Equals(_Value))
                 {
-                    this.ValueLookup = value;
+                    this.Dirty = true;
+                    this.ValueLookup = _Value;
                 }
             }
         }
@@ -43,17 +43,15 @@ namespace EffectFramework.Core.Models.Fields
                 {
                     throw new InvalidCastException("Must assign a int key to a lookup field.");
                 }
-                if (!this.ValueLookup.Equals((int?)value))
+                int? _Value = (int?)value;
+                if (_Value.HasValue && _Value.Value == default(int))
+                {
+                    _Value = null;
+                }
+                if (!this.ValueLookup.Equals(_Value))
                 {
                     this.Dirty = true;
-                    if (((int?)value).HasValue && ((int?)value).Value == default(int))
-                    {
-                        this.ValueLookup = null;
-                    }
-                    else
-                    {
-                        this.ValueLookup = (int?)value;
-                    }
+                    this.ValueLookup = _Value;
                 }
             }
         }
