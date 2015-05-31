@@ -1,5 +1,6 @@
 ﻿using System;
 using EffectFramework.Core.Services;
+using System.Linq;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -14,8 +15,13 @@ namespace EffectFramework.Core.Models.Fields
             }
             set
             {
-                this.Dirty = true;
-                this.ValueBinary = value;
+                if (this.ValueBinary != null && value == null ||
+                    this.ValueBinary == null && value != null ||
+                   (this.ValueBinary != null && !this.ValueBinary.SequenceEqual(value)))
+                {
+                    this.Dirty = true;
+                    this.ValueBinary = value;
+                }
             }
         }
 
@@ -32,7 +38,9 @@ namespace EffectFramework.Core.Models.Fields
                 {
                     throw new InvalidCastException("Must assign a byte array to a binary field.");
                 }
-                if (this.ValueBinary != (byte[])value)
+                if (this.ValueBinary != null && (byte[])value == null ||
+                    this.ValueBinary == null && (byte[])value != null ||
+                    (this.ValueBinary != null && !this.ValueBinary.SequenceEqual((byte[])value)))
                 {
                     this.Dirty = true;
                     this.ValueBinary = (byte[])value;
