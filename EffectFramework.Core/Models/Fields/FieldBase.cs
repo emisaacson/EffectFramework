@@ -92,6 +92,38 @@ namespace EffectFramework.Core.Models.Fields
             this.Dirty = false;
         }
 
+        /// <summary>
+        /// Compares the value of this field to another and return true if they are identical. This
+        /// method may be overridden in subclasses.
+        /// </summary>
+        /// <param name="OtherField">The other field.</param>
+        /// <returns>true if the field values are identical, false otherwise</returns>
+        public virtual bool IsIdenticalTo(FieldBase OtherField)
+        {
+            if (OtherField == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (OtherField.Type.DataType != this.Type.DataType)
+            {
+                throw new InvalidOperationException("Cannot compare two fields of different types.");
+            }
+
+            if (((IField)this).Value == null && ((IField)OtherField).Value == null) // Both are null, identical
+            {
+                return true;
+            }
+
+            if ((((IField)this).Value == null && ((IField)OtherField).Value != null) ||  // If a is null and b is not, not identical
+                 (((IField)this).Value != null && ((IField)OtherField).Value == null))   // If b is null and a is not, not identical
+            {
+                return false;
+            }
+
+            // Both are not null, use the default comparison
+            return ((IField)this).Value.Equals(((IField)OtherField).Value);
+        }
+
         public void PersistToDatabase(EntityBase Entity, Db.IDbContext ctx = null)
         {
             if (Entity == null)

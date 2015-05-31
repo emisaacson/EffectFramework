@@ -245,6 +245,40 @@ namespace EffectFramework.Core.Models.Entities
             }
         }
 
+        /// <summary>
+        /// Returns true if two entities contain the save field values. It does not take
+        /// Effective date fields or ID fields into the decision.
+        /// </summary>
+        /// <param name="OtherEntity">The other entity.</param>
+        /// <returns>True if the entity values are identical, false otherwise.</returns>
+        public bool IsIdenticalTo(EntityBase OtherEntity)
+        {
+            if (OtherEntity == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (OtherEntity.Type != this.Type)
+            {
+                throw new InvalidOperationException("Cannot compare entities of different types.");
+            }
+
+            var OtherEntityFieldObjects = OtherEntity.GetAllEntityFieldProperties();
+            bool AreIdentical = true;
+            var FieldObjects = GetAllEntityFieldProperties();
+
+            foreach (var OtherEntityField in OtherEntityFieldObjects)
+            {
+                var CurrentEntityField = FieldObjects.Where(f => f.Type == OtherEntityField.Type).Single();
+                if (!CurrentEntityField.IsIdenticalTo(OtherEntityField))
+                {
+                    AreIdentical = false;
+                    break;
+                }
+            }
+
+            return AreIdentical;
+        }
+
         public void PersistToDatabase(Item Item, Db.IDbContext ctx = null)
         {
             if (Item == null)
@@ -279,21 +313,7 @@ namespace EffectFramework.Core.Models.Entities
             {
                 if (PossiblePreviousEntity != null)
                 {
-                    var PreviousEntityFieldObjects = PossiblePreviousEntity.GetAllEntityFieldProperties();
-                    bool AreIdentical = true;
-                    foreach (var PreviousEntityField in PreviousEntityFieldObjects)
-                    {
-                        var CurrentEntityField = FieldObjects.Where(f => f.Type == PreviousEntityField.Type).Single();
-                        if (!(((IField)CurrentEntityField).Value == null && ((IField)PreviousEntityField).Value == null) && // If both null, they are identical. stop
-                            ((((IField)CurrentEntityField).Value == null && ((IField)PreviousEntityField).Value != null) || // If a is null and b is not, not identical
-                             (((IField)PreviousEntityField).Value == null && ((IField)CurrentEntityField).Value != null) || // If b is null and a is not, not identical
-                             !((IField)CurrentEntityField).Value.Equals(((IField)PreviousEntityField).Value)))              // Neither are null, use the default comparer
-                        {
-                            AreIdentical = false;
-                            break;
-                        }
-                    }
-                    if (AreIdentical)
+                    if (this.IsIdenticalTo(PossiblePreviousEntity))
                     {
                         PossiblePreviousEntity.EndEffectiveDate = this.EndEffectiveDate;
                         PossiblePreviousEntity.PersistToDatabase(Item, ctx);

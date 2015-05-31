@@ -107,27 +107,42 @@ namespace EffectFramework.Core.Services
                 DbField.ValueDecimal = null;
                 DbField.ValueText = null;
                 DbField.ValueLookup = null;
+                DbField.ValueBinary = null;
+                DbField.ValueEntityReference = null;
+                DbField.ValueItemReference = null;
                 DbField.Guid = Guid.NewGuid();
 
                 if (Field.Type.DataType == DataType.Boolean)
                 {
-                    DbField.ValueBoolean = (bool)((IField)Field).Value;
+                    DbField.ValueBoolean = (bool?)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Date)
                 {
-                    DbField.ValueDate = (DateTime)((IField)Field).Value;
+                    DbField.ValueDate = (DateTime?)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Decimal)
                 {
-                    DbField.ValueDecimal = (decimal)((IField)Field).Value;
+                    DbField.ValueDecimal = (decimal?)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Lookup)
                 {
-                    DbField.ValueLookup = (int)((IField)Field).Value;
+                    DbField.ValueLookup = (int?)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Text)
                 {
                     DbField.ValueText = (string)((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.Binary)
+                {
+                    DbField.ValueBinary = (byte[])((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.EntityReference)
+                {
+                    DbField.ValueEntityReference = (int?)((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.ItemReference)
+                {
+                    DbField.ValueItemReference = (int?)((IField)Field).Value;
                 }
 
                 db.SaveChanges();

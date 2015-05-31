@@ -1,7 +1,7 @@
 ﻿namespace EffectFramework.Core.Models.Fields
 {
     /// <summary>
-    /// A simple interface that all fields must implement.
+    /// An interface that all fields must implement.
     /// </summary>
     public interface IField
     {
