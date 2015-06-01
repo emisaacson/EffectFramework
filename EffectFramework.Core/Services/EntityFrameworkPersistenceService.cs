@@ -564,7 +564,7 @@ namespace EffectFramework.Core.Services
             return RetreiveSingleFieldOrDefault(Entity, FieldTypeID);
         }
 
-
+        /*
         public EntityT RetreiveSingleEntityOrDefault<EntityT>(Models.Item Item, DateTime? EffectiveDate = null) where EntityT : EntityBase, new()
         {
             if (Item == null)
@@ -606,7 +606,8 @@ namespace EffectFramework.Core.Services
 
                 return default(EntityT);
             }
-        }
+        }*/
+
         public void SaveAndDeleteSingleEntity(EntityBase Entity, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;

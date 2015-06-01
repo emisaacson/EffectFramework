@@ -10,6 +10,19 @@ namespace EffectFramework.Core.Models.Entities
 {
     public abstract class EntityBase
     {
+        protected Logger _Log;
+        protected Logger Log
+        {
+            get
+            {
+                if (_Log == null)
+                {
+                    _Log = new Logger(GetType().Name);
+                }
+                return _Log;
+            }
+        }
+
         public abstract EntityType Type { get; }
         public int? EntityID { get; protected set; }
         public int? ItemID { get; protected set; }
@@ -28,12 +41,12 @@ namespace EffectFramework.Core.Models.Entities
             {
                 if (this._EffectiveDate != value)
                 {
+                    Log.Debug("Changing effective date: Old Value: {0}, New Value {1}",
+                        ((object)this._EffectiveDate ?? (object)"null").ToString(),
+                        ((object)value ?? "null").ToString());
+
                     this.Dirty = true;
                     this._EffectiveDate = value;
-                    //if (Item != null)
-                    //{
-                    //    Item.PerformUpdate(this);
-                    //}
                 }
             }
         }
@@ -48,12 +61,12 @@ namespace EffectFramework.Core.Models.Entities
             {
                 if (this._EndEffectiveDate != value)
                 {
+                    Log.Debug("Changing end effective date: Old Value: {0}, New Value {1}",
+                        ((object)this._EndEffectiveDate ?? (object)"null").ToString(),
+                        ((object)value ?? "null").ToString());
+
                     this.Dirty = true;
                     this._EndEffectiveDate = value;
-                    //if (Item != null)
-                    //{
-                    //    Item.PerformUpdate(this);
-                    //}
                 }
             }
         }
@@ -138,6 +151,8 @@ namespace EffectFramework.Core.Models.Entities
 
         public EntityBase()
         {
+            Log.Trace("Creating new EntityBase object. Entity Type: {0}", this.Type.Name);
+
             this.Dirty = true;
             this.IsDeleted = false;
             this.FlagForRemoval = false;
@@ -145,6 +160,8 @@ namespace EffectFramework.Core.Models.Entities
 
         public EntityBase(IPersistenceService PersistenceService)
         {
+            Log.Trace("Creating new EntityBase with PersistenceService. Entity Type: {0}", this.Type.Name);
+
             this._PersistenceService = PersistenceService;
             this.Dirty = true;
             this.IsDeleted = true;
@@ -154,6 +171,8 @@ namespace EffectFramework.Core.Models.Entities
 
         public void LoadUpEntity(Db.Entity DbEntity)
         {
+            Log.Trace("Loading up entity fields from database. EntityID: {0}", DbEntity.EntityID);
+
             this.EntityID = DbEntity.EntityID;
             this.ItemID = DbEntity.ItemID;
             this.Guid = DbEntity.Guid;
@@ -174,12 +193,23 @@ namespace EffectFramework.Core.Models.Entities
         {
             if (OtherEntity == null)
             {
+                Log.Warn("Trying to copy values from a null entity. EntityID: {0}", this.EntityID.HasValue ? this.EntityID.Value.ToString() : "null");
                 throw new ArgumentNullException();
             }
             if (OtherEntity.Type != this.Type)
             {
+                Log.Warn("Trying to copy values from a different entity type. EntityID: {0}, Other Entity ID: {1}, Entity Type: {3}, Other Entity Type: {4}",
+                    this.EntityID.HasValue ? this.EntityID.Value.ToString() : "null",
+                    OtherEntity.EntityID.HasValue ? OtherEntity.EntityID.Value.ToString() : "null",
+                    this.Type.Name, OtherEntity.Type.Name);
+
                 throw new InvalidOperationException("Must copy values from an entity of the same type.");
             }
+
+            Log.Trace("Copying values from another entity. EntityID: {0}, Other Entity ID: {1}",
+                    this.EntityID.HasValue ? this.EntityID.Value.ToString() : "null",
+                    OtherEntity.EntityID.HasValue ? OtherEntity.EntityID.Value.ToString() : "null");
+
             var Properties = OtherEntity.Type.Type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             foreach (var Property in Properties)
             {

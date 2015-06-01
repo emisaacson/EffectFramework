@@ -2,6 +2,9 @@
 
 namespace EffectFramework.Core.Models.Fields
 {
+    /// <summary>
+    /// Each DataType gets an ID and an instance on this class
+    /// </summary>
     public class DataType
     {
         public int Value { get; private set; }

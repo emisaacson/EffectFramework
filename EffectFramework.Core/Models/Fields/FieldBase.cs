@@ -4,8 +4,28 @@ using EffectFramework.Core.Services;
 
 namespace EffectFramework.Core.Models.Fields
 {
+    /// <summary>
+    /// The base class of all Fields
+    /// </summary>
     public class FieldBase
     {
+        protected Logger _Log;
+        protected Logger Log {
+            get
+            {
+                if (_Log == null)
+                {
+                    _Log = new Logger(GetType().Name);
+                }
+                return _Log;
+            }
+        }
+        /// <summary>
+        /// Gets the type of the Field instance
+        /// </summary>
+        /// <value>
+        /// The static FielType of this Field
+        /// </value>
         public FieldType Type { get; protected set; }
         public Guid Guid { get; protected set; }
         public int? FieldID { get; protected set; }
@@ -19,8 +39,36 @@ namespace EffectFramework.Core.Models.Fields
         protected byte[] ValueBinary { get; set; }
         protected readonly IPersistenceService PersistenceService;
 
+        public FieldBase(IPersistenceService PersistenceService)
+        {
+            this.Dirty = false;
+            this.PersistenceService = PersistenceService;
+        }
+
+        public FieldBase(Db.Field Field)
+        {
+            this.Dirty        = false;
+            this.FieldID      = Field.FieldID;
+            this.ValueString  = Field.ValueText;
+            this.ValueDate    = Field.ValueDate;
+            this.ValueDecimal = Field.ValueDecimal;
+            this.ValueBool    = Field.ValueBoolean;
+            this.ValueLookup  = Field.ValueLookup;
+            this.ValueBinary  = Field.ValueBinary;
+            this.Guid         = Field.Guid;
+        }
+
+        public FieldBase(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
+        {
+            this.PersistenceService = PersistenceService;
+            LoadUpValues(Base);
+        }
+
         protected void LoadUpValues(FieldBase Base)
         {
+            Log.Trace("Loading values for Field. FieldID: {0}",
+                Base == null || !Base.FieldID.HasValue ? "null" : Base.FieldID.Value.ToString());
+
             this.Dirty = false;
             if (Base == null)
             {
@@ -45,31 +93,6 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public FieldBase(IPersistenceService PersistenceService)
-        {
-            this.Dirty = false;
-            this.PersistenceService = PersistenceService;
-        }
-
-        public FieldBase(Db.Field Field)
-        {
-            this.Dirty        = false;
-            this.FieldID      = Field.FieldID;
-            this.ValueString  = Field.ValueText;
-            this.ValueDate    = Field.ValueDate;
-            this.ValueDecimal = Field.ValueDecimal;
-            this.ValueBool    = Field.ValueBoolean;
-            this.ValueLookup  = Field.ValueLookup;
-            this.ValueBinary  = Field.ValueBinary;
-            this.Guid         = Field.Guid;
-        }
-
-        public FieldBase(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
-        {
-            this.PersistenceService = PersistenceService;
-            this.Type = Type;
-            LoadUpValues(Base);
-        }
 
         public void FillFromDatabase(EntityBase Entity, FieldBase Field)
         {
@@ -86,6 +109,9 @@ namespace EffectFramework.Core.Models.Fields
 
         public void PersistToDatabase(Db.IDbContext ctx = null)
         {
+            Log.Info("Saving the field to the database. FieldID: {0}",
+                FieldID.HasValue ? FieldID.Value.ToString() : "null");
+
             var Identity = PersistenceService.SaveSingleField(this, ctx);
             this.FieldID = Identity.ObjectID;
             this.Guid = Identity.ObjectGuid;
@@ -102,10 +128,18 @@ namespace EffectFramework.Core.Models.Fields
         {
             if (OtherField == null)
             {
+                Log.Warn("Trying to compare Field to a null Field. FieldID: {0}",
+                    FieldID.HasValue ? FieldID.Value.ToString() : "null");
+
                 throw new ArgumentNullException();
             }
             if (OtherField.Type.DataType != this.Type.DataType)
             {
+                Log.Warn("Trying to compare Field to a Field of a different type. FieldID: {0}, Other FieldID: {1}, Field Type: {2}, Other Field Type: {3}",
+                    FieldID.HasValue ? FieldID.Value.ToString() : "null",
+                    OtherField.FieldID.HasValue ? OtherField.FieldID.Value.ToString() : "null",
+                    Type.Name, OtherField.Type.Name);
+
                 throw new InvalidOperationException("Cannot compare two fields of different types.");
             }
 
@@ -128,8 +162,16 @@ namespace EffectFramework.Core.Models.Fields
         {
             if (Entity == null)
             {
+                Log.Warn("Trying to save a Field to a null Entity. FieldID: {0}, Field Type: {1}",
+                    FieldID.HasValue ? FieldID.Value.ToString() : "null",
+                    Type.Name);
+
                 throw new ArgumentNullException();
             }
+
+            Log.Info("Saving the field to the database. FieldID: {0}, EntityID: {1}",
+                FieldID.HasValue ? FieldID.Value.ToString() : "null",
+                Entity.EntityID.HasValue ? Entity.EntityID.Value.ToString() : "null");
 
             var Identity = PersistenceService.SaveSingleField(Entity, this, ctx);
             if (Identity != null)

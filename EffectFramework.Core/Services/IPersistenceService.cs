@@ -69,13 +69,53 @@ namespace EffectFramework.Core.Services
         /// <returns>The ItemID and GUID of the saved Item.</returns>
         Models.Db.ObjectIdentity SaveSingleItem(Item Item, Models.Db.IDbContext ctx = null);
 
+        /// <summary>
+        /// Retreives a single field from the database of the specified type.
+        /// </summary>
+        /// <param name="Entity">An entity to which the field may belong.</param>
+        /// <param name="FieldType">Type of the field.</param>
+        /// <returns>An instance of the field, or null if one cannot be found.</returns>
         FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, FieldType FieldType);
+
+        /// <summary>
+        /// Retreives a single field from the database of the specified type ID.
+        /// </summary>
+        /// <param name="Entity">The entity.</param>
+        /// <param name="FieldTypeID">The field type identifier.</param>
+        /// <returns>An instance of the field, or null if one cannot be found.</returns>
         FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, int FieldTypeID);
+
+        /// <summary>
+        /// Retreives a single field from the database by field ID.
+        /// </summary>
+        /// <param name="FieldID">The field ID.</param>
+        /// <returns>An instance of the field, or null if it cannot be found.</returns>
         FieldBase RetreiveSingleFieldOrDefault(int FieldID);
 
+        /// <summary>
+        /// Retreives a single field from the database of the specified type.
+        /// </summary>
+        /// <typeparam name="FieldT">The type of the field</typeparam>
+        /// <param name="Entity">An entity to which the field may belong.</param>
+        /// <returns>An instance of the field, or null if one cannot be found.</returns>
         FieldBase RetreiveSingleFieldOrDefault<FieldT>(EntityBase Entity) where FieldT : IField, new();
 
-        EntityT RetreiveSingleEntityOrDefault<EntityT>(Item Item, DateTime? EffectiveDate = null) where EntityT : EntityBase, new();
+        /* Consider removing this
+        /// <summary>
+        /// Retreives the single entity or default.
+        /// </summary>
+        /// <typeparam name="EntityT">The type of the ntity t.</typeparam>
+        /// <param name="Item">The item.</param>
+        /// <param name="EffectiveDate">The effective date.</param>
+        /// <returns></returns>
+        EntityT RetreiveSingleEntityOrDefault<EntityT>(Item Item, DateTime? EffectiveDate = null) where EntityT : EntityBase, new(); */
+
+        /// <summary>
+        /// Saves all fields of the entity and sets the delete flag.
+        /// </summary>
+        /// <param name="Entity">The entity.</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
         void SaveAndDeleteSingleEntity(EntityBase Entity, Models.Db.IDbContext ctx = null);
 
         /// <summary>
@@ -95,6 +135,10 @@ namespace EffectFramework.Core.Services
         /// <returns>A list of all non-deleted entities.</returns>
         List<EntityBase> RetreiveAllEntities(Item Item, DateTime? EffectiveDate = null);
 
+        /// <summary>
+        /// Retreives an instance of the database context.
+        /// </summary>
+        /// <returns>An new database context.</returns>
         Models.Db.IDbContext GetDbContext();
     }
 }

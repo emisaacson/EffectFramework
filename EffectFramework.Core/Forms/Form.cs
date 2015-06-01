@@ -18,6 +18,19 @@ namespace EffectFramework.Core.Forms
     /// </summary>
     public abstract class Form
     {
+        protected Logger _Log;
+        protected Logger Log
+        {
+            get
+            {
+                if (_Log == null)
+                {
+                    _Log = new Logger(GetType().Name);
+                }
+                return _Log;
+            }
+        }
+        protected Dictionary<string, int> FormMembersNotToChange = new Dictionary<string, int>();
         protected Dictionary<Type, Item> BoundItems { get; set; }
 
 
@@ -37,6 +50,7 @@ namespace EffectFramework.Core.Forms
         {
             ParseFormAttributes();
         }
+
 
         /// <summary>
         /// Adds an Item to the list of bound Items for this form. Multiple Items
@@ -73,6 +87,7 @@ namespace EffectFramework.Core.Forms
             }
 
             Dictionary<EntityType, EntityBase> EntityCache = new Dictionary<EntityType, EntityBase>();
+            Dictionary<EntityType, EntityBase> PreviousEntityCache = new Dictionary<EntityType, EntityBase>();
 
             DateTime Now = DateTime.Now.Date;
 
@@ -81,8 +96,8 @@ namespace EffectFramework.Core.Forms
             var AllProperties = TypeOfForm.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name == EffectiveDateMemberName ? 0 : 1);
             var AllFields = TypeOfForm.GetFields(BindingFlags.Public | BindingFlags.Instance).OrderBy(f => f.Name == EffectiveDateMemberName ? 0 : 1);
 
-            TransferValuesFromMembers(AllProperties, Direction, Now, ref EntityCache);
-            TransferValuesFromMembers(AllFields, Direction, Now, ref EntityCache);
+            TransferValuesFromMembers(AllProperties, Direction, Now, ref EntityCache, ref PreviousEntityCache);
+            TransferValuesFromMembers(AllFields, Direction, Now, ref EntityCache, ref PreviousEntityCache);
 
             if (Direction == Direction.Push)
             {
@@ -189,6 +204,7 @@ namespace EffectFramework.Core.Forms
 
                 if (MemberLevelEffectiveDateAttribute != null && MemberLevelEffectiveDateAttribute.FieldName == null && EffectiveDateBinding != null)
                 {
+                    Log.Fatal("Binding is not configured properly, cannot specify more than one Effective Date attribute on a model.");
                     throw new InvalidOperationException("Cannot specify more than one Effective Date attribute on a model.");
                 }
 
@@ -213,10 +229,62 @@ namespace EffectFramework.Core.Forms
         }
 
         /// <summary>
+        /// Gets a new instance of the entity bound to this member on the form.
+        /// </summary>
+        /// <param name="MemberName">Name of the form field or property.</param>
+        /// <returns>A new instance of the bound entity, or null.</returns>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The specified field does not exist.</exception>
+        /// <exception cref="System.InvalidOperationException">Binding is not configured properly.</exception>
+        public EntityBase GetBoundEntity(string MemberName)
+        {
+            if (MemberName == null)
+            {
+                throw new ArgumentNullException();
+            }
+            MemberInfo Member = this.GetType().GetProperty(MemberName);
+            if (Member == null)
+            {
+                Member = this.GetType().GetField(MemberName);
+            }
+            if (Member == null)
+            {
+                throw new ArgumentOutOfRangeException("The specified field does not exist.");
+            }
+            var MemberBinding = Member.GetCustomAttribute<BindAttribute>();
+            var MemberLevelEffectiveDateAttribute = Member.GetCustomAttribute<EffectiveDateAttribute>();
+            var MemberLevelEndEffectiveDateAttribute = Member.GetCustomAttribute<EndEffectiveDateAttribute>();
+
+            if (MemberBinding != null)
+            {
+                var MemberItemType = MemberBinding.ItemType ?? FormItemType;
+                var MemberEntityType = MemberBinding.EntityType ?? FormEntityType;
+                var MemberIDMemberName = MemberBinding.IDPropertyName ?? FormIDMemberName;
+
+                if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
+                {
+                    throw new InvalidOperationException("Binding is not configured properly.");
+                }
+
+                EntityBase Entity;
+                using (IKernel Kernel = new StandardKernel(new Configure()))
+                {
+                    Entity = (EntityBase)Kernel.Get(MemberEntityType);
+                }
+
+                return Entity;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets a new instance of the field bound to this member on the form.
         /// </summary>
         /// <param name="MemberName">Name of the form field or property.</param>
-        /// <returns></returns>
+        /// <returns>A new instance of the bound field, or null.</returns>
         /// <exception cref="System.ArgumentNullException"></exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The specified field does not exist.</exception>
         /// <exception cref="System.InvalidOperationException">Binding is not configured properly.</exception>
@@ -324,6 +392,7 @@ namespace EffectFramework.Core.Forms
         /// <param name="Direction">The direction.</param>
         /// <param name="Now">The time right before this function is called.</param>
         /// <param name="EntityCache">Entity cache object.</param>
+        /// <param name="PreviousEntityCache">Entity cache of previous entities.</param>
         /// <exception cref="System.InvalidOperationException">
         /// Binding is not configured properly.
         /// or
@@ -331,8 +400,10 @@ namespace EffectFramework.Core.Forms
         /// or
         /// Binding is not configured properly.
         /// </exception>
-        private void TransferValuesFromMembers(IEnumerable<MemberInfo> AllMembers, Direction Direction, DateTime Now, ref Dictionary<EntityType, EntityBase> EntityCache)
+        private void TransferValuesFromMembers(IEnumerable<MemberInfo> AllMembers, Direction Direction, DateTime Now, ref Dictionary<EntityType, EntityBase> EntityCache, ref Dictionary<EntityType, EntityBase> PreviousEntityCache)
         {
+            Log.Trace("Entering TransferValuesFromMembers");
+
             foreach (var Member in AllMembers)
             {
                 var MemberBinding = Member.GetCustomAttribute<BindAttribute>();
@@ -396,7 +467,8 @@ namespace EffectFramework.Core.Forms
                             }
                             else
                             {
-                                if (MemberEffectiveDateFieldName == null || (MemberEffectiveDateFieldName != null && (DateTime)this.GetType().GetProperty(MemberEffectiveDateFieldName).GetValue(this) == default(DateTime)))
+                                if (MemberEffectiveDateFieldName == null ||
+                                    (MemberEffectiveDateFieldName != null && (DateTime)this.GetType().GetProperty(MemberEffectiveDateFieldName).GetValue(this) == default(DateTime)))
                                 {
                                     Entity = BoundItem.AllEntities.Where(e => e.EntityID == EntityIDFromForm).FirstOrDefault();
                                 }
@@ -447,7 +519,20 @@ namespace EffectFramework.Core.Forms
 
                             if (Direction == Direction.Push)
                             {
-                                Entity.EffectiveDate = EffectiveDate;
+                                if (!FormMembersNotToChange.ContainsKey(MemberName))
+                                {
+                                    Entity.EffectiveDate = EffectiveDate;
+                                }
+                                else
+                                {
+                                    // If an EntityID was sent to copy from, get it and try to copy the value from it.
+                                    int PreviousEntityID = FormMembersNotToChange[MemberName];
+                                    EntityBase PreviousEntity = BoundItem.AllEntities.Where(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID).FirstOrDefault();
+                                    if (PreviousEntity != null)
+                                    {
+                                        Entity.EffectiveDate = PreviousEntity.EffectiveDate;
+                                    }
+                                }
                             }
                             else if (Direction == Direction.Pull)
                             {
@@ -457,9 +542,21 @@ namespace EffectFramework.Core.Forms
                         else if (MemberName == "EndEffectiveDate") // Special case for this special field
                         {
 
-                            if (Direction == Direction.Push)
-                            {
-                                Entity.EndEffectiveDate = EndEffectiveDate;
+                            if (Direction == Direction.Push) {
+                                if (!FormMembersNotToChange.ContainsKey(MemberName))
+                                {
+                                    Entity.EndEffectiveDate = EndEffectiveDate;
+                                }
+                                else
+                                {
+                                    // If an EntityID was sent to copy from, get it and try to copy the value from it.
+                                    int PreviousEntityID = FormMembersNotToChange[MemberName];
+                                    EntityBase PreviousEntity = BoundItem.AllEntities.Where(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID).FirstOrDefault();
+                                    if (PreviousEntity != null)
+                                    {
+                                        Entity.EndEffectiveDate = PreviousEntity.EndEffectiveDate;
+                                    }
+                                }
                             }
                             else if (Direction == Direction.Pull)
                             {
@@ -478,9 +575,22 @@ namespace EffectFramework.Core.Forms
                                 throw new InvalidOperationException("Binding is not configured properly.");
                             }
 
-                            if (Direction == Direction.Push)
-                            {
-                                EntityProperty.Value = GetValueFrom(Member);
+                            if (Direction == Direction.Push) {
+                                if (!FormMembersNotToChange.ContainsKey(MemberName))
+                                {
+                                    EntityProperty.Value = GetValueFrom(Member);
+                                }
+                                else
+                                {
+                                    // If an EntityID was sent to copy from, get it and try to copy the value from it.
+                                    int PreviousEntityID = FormMembersNotToChange[MemberName];
+                                    EntityBase PreviousEntity = BoundItem.AllEntities.Where(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID).FirstOrDefault();
+                                    if (PreviousEntity != null)
+                                    {
+                                        var PreviousEntityProperty = (IField)(MemberEntityType.GetProperty(MemberName).GetValue(PreviousEntity));
+                                        EntityProperty.Value = PreviousEntityProperty.Value;
+                                    }
+                                }
                             }
                             else if (Direction == Direction.Pull)
                             {

@@ -58,6 +58,23 @@ namespace EffectFramework.Core.Models.Fields
 
         }
 
+        public FieldBinary(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
+            : base(PersistenceService)
+        {
+            if (Type.DataType != DataType.Binary)
+            {
+                throw new ArgumentOutOfRangeException("Cannot create a binary field from a non-binary type.");
+            }
+            this.Type = Type;
+            this.Name = Type.Name;
+
+            if (Base != null)
+            {
+                LoadUpValues(Base);
+            }
+        }
+
+
         /// <summary>
         /// Compares the value of this binary field to another and return true if they are identical, byte for byte.
         /// </summary>
@@ -67,10 +84,18 @@ namespace EffectFramework.Core.Models.Fields
         {
             if (OtherField == null)
             {
+                Log.Warn("Trying to compare Field to a null Field. FieldID: {0}",
+                        FieldID.HasValue ? FieldID.Value.ToString() : "null");
+
                 throw new ArgumentNullException();
             }
             if (OtherField.Type.DataType != this.Type.DataType)
             {
+                Log.Warn("Trying to compare Field to a Field of a different type. FieldID: {0}, Other FieldID: {1}, Field Type: {2}, Other Field Type: {3}",
+                    FieldID.HasValue ? FieldID.Value.ToString() : "null",
+                    OtherField.FieldID.HasValue ? OtherField.FieldID.Value.ToString() : "null",
+                    Type.Name, OtherField.Type.Name);
+
                 throw new InvalidOperationException("Cannot compare two fields of different types.");
             }
 
@@ -88,22 +113,6 @@ namespace EffectFramework.Core.Models.Fields
 
             // Both are not null, use byte-by-byte comparison.
             return this.Value.SequenceEqual(((FieldBinary)OtherField).Value);
-        }
-
-        public FieldBinary(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
-            : base(PersistenceService)
-        {
-            if (Type.DataType != DataType.Binary)
-            {
-                throw new ArgumentOutOfRangeException("Cannot create a binary field from a non-binary type.");
-            }
-            this.Type = Type;
-            this.Name = Type.Name;
-
-            if (Base != null)
-            {
-                LoadUpValues(Base);
-            }
         }
     }
 }

@@ -225,8 +225,6 @@ namespace EffectFramework.Core.Models
 
             _AllEntities.Add(Entity);
             Entity.Item = this;
-
-            //PerformUpdate(Entity);
         }
 
         internal void PerformUpdate(EntityBase Entity, IUpdateStrategy PreferredUpdateStrategy = null, IUpdateStrategy PreferredUpdateStrategyForDuplicateDates = null)
