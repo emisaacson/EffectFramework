@@ -87,7 +87,6 @@ namespace EffectFramework.Core.Forms
             }
 
             Dictionary<EntityType, EntityBase> EntityCache = new Dictionary<EntityType, EntityBase>();
-            Dictionary<EntityType, EntityBase> PreviousEntityCache = new Dictionary<EntityType, EntityBase>();
 
             DateTime Now = DateTime.Now.Date;
 
@@ -96,8 +95,8 @@ namespace EffectFramework.Core.Forms
             var AllProperties = TypeOfForm.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name == EffectiveDateMemberName ? 0 : 1);
             var AllFields = TypeOfForm.GetFields(BindingFlags.Public | BindingFlags.Instance).OrderBy(f => f.Name == EffectiveDateMemberName ? 0 : 1);
 
-            TransferValuesFromMembers(AllProperties, Direction, Now, ref EntityCache, ref PreviousEntityCache);
-            TransferValuesFromMembers(AllFields, Direction, Now, ref EntityCache, ref PreviousEntityCache);
+            TransferValuesFromMembers(AllProperties, Direction, Now, ref EntityCache);
+            TransferValuesFromMembers(AllFields, Direction, Now, ref EntityCache);
 
             if (Direction == Direction.Push)
             {
@@ -392,7 +391,6 @@ namespace EffectFramework.Core.Forms
         /// <param name="Direction">The direction.</param>
         /// <param name="Now">The time right before this function is called.</param>
         /// <param name="EntityCache">Entity cache object.</param>
-        /// <param name="PreviousEntityCache">Entity cache of previous entities.</param>
         /// <exception cref="System.InvalidOperationException">
         /// Binding is not configured properly.
         /// or
@@ -400,7 +398,7 @@ namespace EffectFramework.Core.Forms
         /// or
         /// Binding is not configured properly.
         /// </exception>
-        private void TransferValuesFromMembers(IEnumerable<MemberInfo> AllMembers, Direction Direction, DateTime Now, ref Dictionary<EntityType, EntityBase> EntityCache, ref Dictionary<EntityType, EntityBase> PreviousEntityCache)
+        private void TransferValuesFromMembers(IEnumerable<MemberInfo> AllMembers, Direction Direction, DateTime Now, ref Dictionary<EntityType, EntityBase> EntityCache)
         {
             Log.Trace("Entering TransferValuesFromMembers");
 
