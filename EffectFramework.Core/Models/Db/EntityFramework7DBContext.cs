@@ -16,9 +16,12 @@ namespace EffectFramework.Core.Models.Db
         {
             if (ForReal)
             {
-                var Command = this.Database.AsRelational().Connection.DbConnection.CreateCommand();
-                Command.CommandText = "EXEC dbo.usp_DeleteEntireDatabase;";
-                Command.ExecuteNonQuery();
+                using (var Command = this.Database.AsRelational().Connection.DbConnection.CreateCommand())
+                {
+                    Command.Connection.Open();
+                    Command.CommandText = "EXEC dbo.usp_DeleteEntireDatabase;";
+                    Command.ExecuteNonQuery();
+                }
             }
         }
 
