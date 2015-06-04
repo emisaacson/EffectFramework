@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using EffectFramework.Core.Models.Entities;
-using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Services;
 
 namespace EffectFramework.Core.Models

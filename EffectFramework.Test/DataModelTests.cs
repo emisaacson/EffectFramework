@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using EffectFramework.Core.Models.Db;
 using Xunit;
@@ -13,7 +12,6 @@ using EffectFramework.Core.Models;
 using EffectFramework.Core.Forms;
 using EffectFramework.Core;
 using Microsoft.Framework.ConfigurationModel;
-using System.IO;
 using EffectFramework.Core.Exceptions;
 
 namespace EffectFramework.Test

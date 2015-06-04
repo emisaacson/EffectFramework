@@ -179,7 +179,7 @@ namespace EffectFramework.Core.Models.Entities
             this._EffectiveDate = DbEntity.EffectiveDate;
             this._EndEffectiveDate = DbEntity.EndEffectiveDate;
 
-            var FieldObjects = GetAllEntityFieldProperties();
+            var FieldObjects = GetAllEntityFields();
 
             foreach (var FieldObject in FieldObjects)
             {
@@ -237,7 +237,11 @@ namespace EffectFramework.Core.Models.Entities
             this.Dirty = true;
         }
 
-        private List<FieldBase> GetAllEntityFieldProperties()
+        /// <summary>
+        /// Returns a list of all the field instances associated with this entity.
+        /// </summary>
+        /// <returns>The list of field instances of the entity.</returns>
+        public List<FieldBase> GetAllEntityFields()
         {
             Type EntityType = this.GetType();
 
@@ -255,13 +259,19 @@ namespace EffectFramework.Core.Models.Entities
             return Output;
         }
 
+        /// <summary>
+        /// Persists the entity to the database by saving its own properties
+        /// then each of its fields.
+        /// </summary>
+        /// <param name="ctx">An optional database context. One will
+        /// be created if not provided.</param>
         public void PersistToDatabase(Db.IDbContext ctx = null)
         {
             var Identity = PersistenceService.SaveSingleEntity(this, ctx);
             this.Guid = Identity.ObjectGuid;
             this.EntityID = Identity.ObjectID;
 
-            var FieldObjects = GetAllEntityFieldProperties();
+            var FieldObjects = GetAllEntityFields();
 
             foreach (var FieldObject in FieldObjects)
             {
@@ -292,9 +302,9 @@ namespace EffectFramework.Core.Models.Entities
                 throw new InvalidOperationException("Cannot compare entities of different types.");
             }
 
-            var OtherEntityFieldObjects = OtherEntity.GetAllEntityFieldProperties();
+            var OtherEntityFieldObjects = OtherEntity.GetAllEntityFields();
             bool AreIdentical = true;
-            var FieldObjects = GetAllEntityFieldProperties();
+            var FieldObjects = GetAllEntityFields();
 
             foreach (var OtherEntityField in OtherEntityFieldObjects)
             {
@@ -331,7 +341,7 @@ namespace EffectFramework.Core.Models.Entities
                             // Exclude the current entity
                             e != this);
 
-            var FieldObjects = GetAllEntityFieldProperties();
+            var FieldObjects = GetAllEntityFields();
 
             foreach (var FieldObject in FieldObjects)
             {

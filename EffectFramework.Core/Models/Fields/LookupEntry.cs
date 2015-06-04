@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace EffectFramework.Core.Models.Fields
+﻿namespace EffectFramework.Core.Models.Fields
 {
     /// <summary>
     /// A class representing a single ID/value pair from the lookup

@@ -2,10 +2,6 @@
 using Microsoft.Framework.ConfigurationModel;
 using Ninject;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace EffectFramework.Test
@@ -38,7 +34,7 @@ namespace EffectFramework.Test
 
         public void Dispose()
         {
-            ef.TearDownEF7Database();
+            //ef.TearDownEF7Database();
         }
     }
 }
