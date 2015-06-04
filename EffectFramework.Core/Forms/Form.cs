@@ -11,10 +11,12 @@ namespace EffectFramework.Core.Forms
 {
     /// <summary>
     /// A Form is used to bundle fields coming from some external source and map
-    /// them to one or more EffectFramework entities. Attributes on the form class
+    /// them to one or more EffectFramework entities.
+    /// </summary>
+    /// <remarks>Attributes on the form class
     /// and properties are used to configure the bindings. Forms can be used to
     /// push or pull data from the Item models.
-    /// </summary>
+    /// </remarks>
     public abstract class Form
     {
         protected Logger _Log;
@@ -29,6 +31,17 @@ namespace EffectFramework.Core.Forms
                 return _Log;
             }
         }
+
+        /// <summary>
+        /// This is a hash map of field name to entity ID.
+        /// </summary>
+        /// <remarks>This is to prevent having to
+        /// send large amounts of data in case a binary field is not changing.
+        /// 
+        /// If set for a particular field, the value for the field will be
+        /// done by pulling it from the supplied EntityID instead of from the
+        /// value on the form.
+        /// </remarks>
         protected Dictionary<string, int> FormMembersNotToChange = new Dictionary<string, int>();
         protected Dictionary<Type, Item> BoundItems { get; set; }
 
@@ -91,6 +104,8 @@ namespace EffectFramework.Core.Forms
 
             var TypeOfForm = this.GetType();
 
+            // It's very important to send process the effective date fields first so the other fields can reference them
+            // EITODO: BUG: If there are other effective date fields defined besides form defaults then this will fail.
             var AllProperties = TypeOfForm.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name == EffectiveDateMemberName ? 0 : 1);
             var AllFields = TypeOfForm.GetFields(BindingFlags.Public | BindingFlags.Instance).OrderBy(f => f.Name == EffectiveDateMemberName ? 0 : 1);
 
@@ -202,12 +217,13 @@ namespace EffectFramework.Core.Forms
 
                 if (MemberLevelEffectiveDateAttribute != null && MemberLevelEffectiveDateAttribute.FieldName == null && EffectiveDateBinding != null)
                 {
-                    Log.Fatal("Binding is not configured properly, cannot specify more than one Effective Date attribute on a model.");
+                    Log.Fatal("Binding is not configured properly, cannot specify more than one Effective Date attribute on a model. Member Name: {0}", Member.Name);
                     throw new InvalidOperationException("Cannot specify more than one Effective Date attribute on a model.");
                 }
 
                 if (MemberLevelEndEffectiveDateAttribute != null && MemberLevelEndEffectiveDateAttribute.FieldName == null && EndEffectiveDateBinding != null)
                 {
+                    Log.Fatal("Cannot specify more than one End Effective Date attribute on a model. Member Name: {0}", Member.Name);
                     throw new InvalidOperationException("Cannot specify more than one End Effective Date attribute on a model.");
                 }
 
@@ -238,6 +254,7 @@ namespace EffectFramework.Core.Forms
         {
             if (MemberName == null)
             {
+                Log.Error("A null member name was passed to GetBoundEntity.");
                 throw new ArgumentNullException();
             }
             MemberInfo Member = this.GetType().GetProperty(MemberName);
@@ -247,6 +264,7 @@ namespace EffectFramework.Core.Forms
             }
             if (Member == null)
             {
+                Log.Error("An invalid MemberName was passed to GetBoundEntity. MemberName: {0}", MemberName);
                 throw new ArgumentOutOfRangeException("The specified field does not exist.");
             }
             var MemberBinding = Member.GetCustomAttribute<BindAttribute>();
@@ -261,6 +279,7 @@ namespace EffectFramework.Core.Forms
 
                 if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
                 {
+                    Log.Error("Not able to get bound entity due to improper binding.");
                     throw new InvalidOperationException("Binding is not configured properly.");
                 }
 
@@ -316,6 +335,7 @@ namespace EffectFramework.Core.Forms
 
                 if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
                 {
+                    Log.Error("Not able to get bound field due to improper binding.");
                     throw new InvalidOperationException("Binding is not configured properly.");
                 }
 
@@ -335,6 +355,7 @@ namespace EffectFramework.Core.Forms
                 }
                 if (EntityMemberInfo == null)
                 {
+                    Log.Error("Could not get a binding for MemberName: {0}", _MemberName);
                     throw new InvalidOperationException("Entity schema is not correct.");
                 }
 
@@ -366,7 +387,9 @@ namespace EffectFramework.Core.Forms
 
         /// <summary>
         /// This was factored out of the TransferValues method to avoid code duplication
-        /// between performing these operations on both Fields and Properties. The ref
+        /// between performing these operations on both Fields and Properties.
+        /// </summary>
+        /// <remarks>The ref
         /// parameters are local state from the containing TransferValues method. This
         /// method should not be used in any other context.
         /// The logic below is complicated but here is the general idea:
@@ -385,8 +408,8 @@ namespace EffectFramework.Core.Forms
         /// * Forms can have fields spanning multiple entities across multiple items, but only one Item per
         /// ItemType and one entity per EntityType. Use multiple form objects for multiple Items or Entities
         /// of the same types.
-        /// </summary>
-        /// <param name="AllMembers">Reflected properties or fields of the form.</param>
+        /// </remarks>
+        /// <param name="AllMembers">Reflected properties or fields of the form. They should be ordered so the effective date fields come FIRST.</param>
         /// <param name="Direction">The direction.</param>
         /// <param name="Now">The time right before this function is called.</param>
         /// <param name="EntityCache">Entity cache object.</param>
@@ -403,12 +426,17 @@ namespace EffectFramework.Core.Forms
 
             foreach (var Member in AllMembers)
             {
+                // Get any attribute set on the individual members
                 var MemberBinding = Member.GetCustomAttribute<BindAttribute>();
                 var MemberLevelEffectiveDateAttribute = Member.GetCustomAttribute<EffectiveDateAttribute>();
                 var MemberLevelEndEffectiveDateAttribute = Member.GetCustomAttribute<EndEffectiveDateAttribute>();
 
                 if (MemberBinding != null)
                 {
+                    // Set the ItemType, EntityType, EntityIDMemberName, Effective Date Field Name,
+                    // Effective Date End Field Name, Member Name. These are first taken from any
+                    // binding set directly on the member, but uses the global form defaults if there
+                    // isn't anything set on the member directly.
                     var MemberItemType = MemberBinding.ItemType ?? FormItemType;
                     var MemberEntityType = MemberBinding.EntityType ?? FormEntityType;
                     var MemberIDMemberName = MemberBinding.IDPropertyName ?? FormIDMemberName;
@@ -419,9 +447,12 @@ namespace EffectFramework.Core.Forms
 
                     if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
                     {
+                        Log.Error("Not able to transfer members due to improper binding.");
                         throw new InvalidOperationException("Binding is not configured properly.");
                     }
 
+                    // Effective date and end effective date field name can override the form defaults if set
+                    // directly on the member
                     if (MemberLevelEffectiveDateAttribute != null && MemberLevelEffectiveDateAttribute.FieldName != null)
                     {
                         MemberEffectiveDateFieldName = MemberLevelEffectiveDateAttribute.FieldName;
@@ -431,8 +462,11 @@ namespace EffectFramework.Core.Forms
                         MemberEndEffectiveDateFieldName = MemberLevelEndEffectiveDateAttribute.FieldName;
                     }
 
+                    // If no other information is given, we default the effective date to now.
                     DateTime EffectiveDate = Now;
                     DateTime? EndEffectiveDate = null;
+
+                    // If an effective date field name exists, we get its value from the form.
                     if (MemberEffectiveDateFieldName != null)
                     {
                         EffectiveDate = (DateTime)this.GetType().GetProperty(MemberEffectiveDateFieldName).GetValue(this);
@@ -446,8 +480,10 @@ namespace EffectFramework.Core.Forms
                         EndEffectiveDate = (DateTime?)this.GetType().GetProperty(MemberEndEffectiveDateFieldName).GetValue(this);
                     }
 
+                    // EITODO: won't this always be true?
                     if (BoundItem.GetType() == MemberItemType)
                     {
+                        // Get the entity ID. If 0 is found, assume null.
                         int? EntityIDFromForm = (int?)this.GetType().GetProperty(MemberIDMemberName).GetValue(this);
                         if (EntityIDFromForm.HasValue && EntityIDFromForm.Value == default(int))
                         {
@@ -455,9 +491,12 @@ namespace EffectFramework.Core.Forms
                         }
                         EntityBase Entity = null;
 
+                        // Set the effective record on the Item
                         EntityCollection EffectiveRecord = BoundItem.GetEntityCollectionForDate(EffectiveDate);
                         if (EntityIDFromForm.HasValue)
                         {
+                            // Get the entity from the cache, or the Item if not found. It has an ID
+                            // so it should exist.
                             if (EntityCache.Values.Any(e => e.EntityID.Value == EntityIDFromForm.Value))
                             {
                                 Entity = EntityCache.Values.First(e => e.EntityID.Value == EntityIDFromForm.Value);
@@ -473,9 +512,15 @@ namespace EffectFramework.Core.Forms
                                 {
                                     Entity = EffectiveRecord.AllEntities.Where(e => e.EntityID == EntityIDFromForm).FirstOrDefault();
                                 }
+                                if (Entity == null)
+                                {
+                                    Log.Error("Trying to get an entity with ID {0} failed.", EntityIDFromForm.HasValue ? EntityIDFromForm.Value.ToString() : "null");
+                                    throw new ArgumentOutOfRangeException("The passed EntityID does not exist.");
+                                }
                                 EntityCache[Entity.Type] = Entity;
                                 if (Direction == Direction.Pull)
                                 {
+                                    // Set the ID value on the form if we are pulling
                                     this.GetType().GetProperty(MemberIDMemberName).SetValue(this, Entity.EntityID);
                                 }
                             }
@@ -483,6 +528,8 @@ namespace EffectFramework.Core.Forms
                         }
                         else
                         {
+                            // There's no EntityID set so assume we will create a new one.
+                            // This instance is just to access its Type member.
                             EntityBase Instance = (EntityBase)Activator.CreateInstance(MemberEntityType);
                             if (EntityCache.ContainsKey(Instance.Type))
                             {
@@ -492,15 +539,24 @@ namespace EffectFramework.Core.Forms
                             {
                                 if (Direction == Direction.Pull)
                                 {
+                                    // "create" a new entity so we can pull is default values. It's not going to be created,
+                                    // it's not goint to be attached to the item and it won't get persisted.
                                     Entity = EffectiveRecord.GetOrCreateEntityButDontSave(Instance.Type, EndEffectiveDate);
                                 }
                                 else if (Direction == Direction.Push)
                                 {
+                                    // We are pushing values to the item so we want to create a real entity.
                                     Entity = EffectiveRecord.CreateEntity(Instance.Type, EndEffectiveDate);
+                                }
+                                if (Entity == null)
+                                {
+                                    Log.Error("Trying to create an entity of type {0} failed.", Instance.Type.Name);
+                                    throw new ArgumentOutOfRangeException("Error trying to create an entity.");
                                 }
                                 EntityCache[Instance.Type] = Entity;
                                 if (Direction == Direction.Pull)
                                 {
+                                    // Set the ID value on the form if we are pulling
                                     this.GetType().GetProperty(MemberIDMemberName).SetValue(this, Entity.EntityID);
                                 }
                             }
@@ -508,8 +564,11 @@ namespace EffectFramework.Core.Forms
 
                         if (Entity == null || MemberEntityType != Entity.GetType())
                         {
+                            Log.Error("Error trying to bind to form.");
                             throw new InvalidOperationException("Cannot bind to entity.");
                         }
+
+                        // Now we have enough information to actually push or pull the values.
 
                         if (MemberName == "EffectiveDate") // Special case for this special field
                         {
@@ -528,6 +587,11 @@ namespace EffectFramework.Core.Forms
                                     if (PreviousEntity != null)
                                     {
                                         Entity.EffectiveDate = PreviousEntity.EffectiveDate;
+                                    }
+                                    else
+                                    {
+                                        Log.Error("Unable to get previous value from the supplied EntityID. MemberName: {0}, PreviousEntityID: {1}.", MemberName, PreviousEntityID);
+                                        throw new InvalidOperationException("Unable to pull value from supplied EntityID.");
                                     }
                                 }
                             }
@@ -553,6 +617,11 @@ namespace EffectFramework.Core.Forms
                                     {
                                         Entity.EndEffectiveDate = PreviousEntity.EndEffectiveDate;
                                     }
+                                    else
+                                    {
+                                        Log.Error("Unable to get previous value from the supplied EntityID. MemberName: {0}, PreviousEntityID: {1}.", MemberName, PreviousEntityID);
+                                        throw new InvalidOperationException("Unable to pull value from supplied EntityID.");
+                                    }
                                 }
                             }
                             else if (Direction == Direction.Pull)
@@ -569,10 +638,13 @@ namespace EffectFramework.Core.Forms
                             }
                             catch (NullReferenceException)
                             {
+                                Log.Error("Binding is not configured properly. MemberName: {0}", MemberName);
                                 throw new InvalidOperationException("Binding is not configured properly.");
                             }
 
                             if (Direction == Direction.Push) {
+                                // If the field is not found on this dictionary, it is
+                                // safe to set it from the value on the form.
                                 if (!FormMembersNotToChange.ContainsKey(MemberName))
                                 {
                                     EntityProperty.Value = GetValueFrom(Member);
@@ -586,6 +658,11 @@ namespace EffectFramework.Core.Forms
                                     {
                                         var PreviousEntityProperty = (IField)(MemberEntityType.GetProperty(MemberName).GetValue(PreviousEntity));
                                         EntityProperty.Value = PreviousEntityProperty.Value;
+                                    }
+                                    else
+                                    {
+                                        Log.Error("Unable to get previous value from the supplied EntityID. MemberName: {0}, PreviousEntityID: {1}.", MemberName, PreviousEntityID);
+                                        throw new InvalidOperationException("Unable to pull value from supplied EntityID.");
                                     }
                                 }
                             }
@@ -619,6 +696,7 @@ namespace EffectFramework.Core.Forms
             }
             else
             {
+                Log.Error("An invalid Member was sent to Form.SetValueOn. MemberType: {0}", Member.MemberType.ToString());
                 throw new ArgumentException("Can only set value on a Property or Field.");
             }
         }
@@ -644,6 +722,7 @@ namespace EffectFramework.Core.Forms
                 return ((FieldInfo)Member).GetValue(this);
             }
 
+            Log.Error("An invalid Member was sent to Form.GetValueFrom. MemberType: {0}", Member.MemberType.ToString());
             throw new ArgumentException("Can only set value on a Property or Field.");
         }
     }
