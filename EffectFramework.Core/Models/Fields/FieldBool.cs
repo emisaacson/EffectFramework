@@ -40,6 +40,14 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+        public object DereferencedValue
+        {
+            get
+            {
+                return Value;
+            }
+        }
+
         public FieldBool(IPersistenceService PersistenceService)
             : base(PersistenceService)
         { }

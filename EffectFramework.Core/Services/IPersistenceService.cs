@@ -136,6 +136,15 @@ namespace EffectFramework.Core.Services
         List<EntityBase> RetreiveAllEntities(Item Item, DateTime? EffectiveDate = null);
 
         /// <summary>
+        /// Retreives complete items from the view for the specified ItemIDs
+        /// </summary>
+        /// <param name="ItemIDs">An enumerable of ItemIDs to fetch.</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
+        /// <returns>All matching rows from the CompleteItems view</returns>
+        IEnumerable<Models.Db.CompleteItem> RetreiveCompleteItems(IEnumerable<int> ItemIDs, Models.Db.IDbContext ctx = null);
+
+        /// <summary>
         /// Retreives an instance of the database context.
         /// </summary>
         /// <returns>An new database context.</returns>

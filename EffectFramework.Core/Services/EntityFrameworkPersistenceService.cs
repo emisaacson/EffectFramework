@@ -770,5 +770,32 @@ namespace EffectFramework.Core.Services
                 }
             }
         }
+
+        public IEnumerable<CompleteItem> RetreiveCompleteItems(IEnumerable<int> ItemIDs, IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                CompleteItem[] Items = db.CompleteItems.Where(i => ItemIDs.Contains(i.ItemID)).ToArray();
+
+                return Items;
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
     }
 }

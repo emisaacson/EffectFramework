@@ -47,15 +47,15 @@ namespace EffectFramework.Core.Models.Fields
 
         public FieldBase(Db.Field Field)
         {
-            this.Dirty        = false;
-            this.FieldID      = Field.FieldID;
-            this.ValueString  = Field.ValueText;
-            this.ValueDate    = Field.ValueDate;
+            this.Dirty = false;
+            this.FieldID = Field.FieldID;
+            this.ValueString = Field.ValueText;
+            this.ValueDate = Field.ValueDate;
             this.ValueDecimal = Field.ValueDecimal;
-            this.ValueBool    = Field.ValueBoolean;
-            this.ValueLookup  = Field.ValueLookup;
-            this.ValueBinary  = Field.ValueBinary;
-            this.Guid         = Field.Guid;
+            this.ValueBool = Field.ValueBoolean;
+            this.ValueLookup = Field.ValueLookup;
+            this.ValueBinary = Field.ValueBinary;
+            this.Guid = Field.Guid;
         }
 
         public FieldBase(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
@@ -105,6 +105,19 @@ namespace EffectFramework.Core.Models.Fields
             this.FieldID = FieldID;
             FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(FieldID);
             LoadUpValues(Base);
+        }
+
+        public void FillFromView(Db.CompleteItem View)
+        {
+            this.Dirty        = false;
+            this.FieldID      = View.FieldID;
+            this.ValueString  = View.ValueText;
+            this.ValueDate    = View.ValueDate;
+            this.ValueDecimal = View.ValueDecimal;
+            this.ValueBool    = View.ValueBoolean;
+            this.ValueLookup  = View.ValueLookup;
+            this.ValueBinary  = View.ValueBinary;
+            this.Guid         = View.EntityFieldGuid;
         }
 
         public void PersistToDatabase(Db.IDbContext ctx = null)

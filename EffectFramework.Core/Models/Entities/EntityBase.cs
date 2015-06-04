@@ -164,7 +164,7 @@ namespace EffectFramework.Core.Models.Entities
 
             this._PersistenceService = PersistenceService;
             this.Dirty = true;
-            this.IsDeleted = true;
+            this.IsDeleted = false;
             this.FlagForRemoval = false;
             WireUpFields();
         }
@@ -178,12 +178,41 @@ namespace EffectFramework.Core.Models.Entities
             this.Guid = DbEntity.Guid;
             this._EffectiveDate = DbEntity.EffectiveDate;
             this._EndEffectiveDate = DbEntity.EndEffectiveDate;
+            this.IsDeleted = DbEntity.IsDeleted;
 
             var FieldObjects = GetAllEntityFields();
 
             foreach (var FieldObject in FieldObjects)
             {
                 FieldObject.FillFromDatabase(this, FieldObject);
+            }
+
+            this.Dirty = false;
+        }
+
+        public void LoadUpEntityFromView(IEnumerable<Db.CompleteItem> View)
+        {
+            if (View.Count() > 0)
+            {
+                var First = View.First();
+                Log.Trace("Loading up entity fields from view. EntityID: {0}", First.EntityID);
+
+                this.EntityID         = First.EntityID;
+                this.EffectiveDate    = First.EntityEffectiveDate;
+                this.EndEffectiveDate = First.EntityEndEffectiveDate;
+                this.ItemID           = First.ItemID;
+                this.Guid             = First.EntityGuid;
+                this.IsDeleted        = false;
+
+                var Fields = GetAllEntityFields();
+                foreach (var Row in View)
+                {
+                    var Field = Fields.Where(f => f.Type.Value == Row.FieldTypeID).FirstOrDefault();
+                    if (Field != null)
+                    {
+                        Field.FillFromView(Row);
+                    }
+                }
             }
 
             this.Dirty = false;

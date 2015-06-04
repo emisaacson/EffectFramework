@@ -93,5 +93,22 @@ namespace EffectFramework.Core.Models.Fields
                 return _Choices;
             }
         }
+
+        public object DereferencedValue
+        {
+            get
+            {
+                if (this.Value.HasValue)
+                {
+                    var Deref = Choices.Where(c => c.ID == this.Value.Value).FirstOrDefault();
+                    if (Deref != null)
+                    {
+                        return Deref.Value;
+                    }
+                    return null;
+                }
+                return null;
+            }
+        }
     }
 }

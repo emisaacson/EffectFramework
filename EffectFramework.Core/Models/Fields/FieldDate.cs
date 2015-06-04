@@ -54,6 +54,14 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+        public object DereferencedValue
+        {
+            get
+            {
+                return Value;
+            }
+        }
+
         public FieldDate(IPersistenceService PersistenceService)
             : base(PersistenceService)
         { }

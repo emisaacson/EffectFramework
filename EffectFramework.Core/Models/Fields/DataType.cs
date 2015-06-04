@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EffectFramework.Core.Models.Entities;
+using System;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -8,20 +9,24 @@ namespace EffectFramework.Core.Models.Fields
     public class DataType
     {
         public int Value { get; private set; }
+        public Type ValueType { get; private set; }
+        public Type DereferencedType { get; private set; }
 
-        private DataType(int Value)
+        private DataType(int Value, Type ValueType, Type DereferencedType)
         {
             this.Value = Value;
+            this.ValueType = ValueType;
+            this.DereferencedType = DereferencedType;
         }
 
-        public static readonly DataType Text = new DataType(1);
-        public static readonly DataType Date = new DataType(2);
-        public static readonly DataType Decimal = new DataType(3);
-        public static readonly DataType Boolean = new DataType(4);
-        public static readonly DataType Lookup = new DataType(5);
-        public static readonly DataType Binary = new DataType(6);
-        public static readonly DataType ItemReference = new DataType(7);
-        public static readonly DataType EntityReference = new DataType(8);
+        public static readonly DataType Text = new DataType(1, typeof(string), typeof(string));
+        public static readonly DataType Date = new DataType(2, typeof(DateTime?), typeof(DateTime?));
+        public static readonly DataType Decimal = new DataType(3, typeof(decimal?), typeof(decimal?));
+        public static readonly DataType Boolean = new DataType(4, typeof(bool?), typeof(bool?));
+        public static readonly DataType Lookup = new DataType(5, typeof(int?), typeof(string));
+        public static readonly DataType Binary = new DataType(6, typeof(byte[]), typeof(byte[]));
+        public static readonly DataType ItemReference = new DataType(7, typeof(int?), typeof(Item));
+        public static readonly DataType EntityReference = new DataType(8, typeof(int?), typeof(EntityBase));
 
         public static implicit operator int (DataType dt)
         {

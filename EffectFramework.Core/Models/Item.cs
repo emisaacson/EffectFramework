@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Services;
+using Ninject;
 
 namespace EffectFramework.Core.Models
 {
@@ -39,6 +40,7 @@ namespace EffectFramework.Core.Models
         /// The unique identifier.
         /// </value>
         public Guid Guid { get; protected set; }
+        public bool Sparse { get; protected set; }
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="Item"/> is in sync with the data store.
         /// </summary>
@@ -95,9 +97,10 @@ namespace EffectFramework.Core.Models
         /// dirty and has no item ID. When persisted, an ItemID will be added to the class.
         /// </summary>
         /// <param name="PersistenceService">The persistence service (for DI injection).</param>
-        public Item(IPersistenceService PersistenceService)
+        public Item(IPersistenceService PersistenceService, bool Sparse = false)
         {
             this.Dirty = true;
+            this.Sparse = Sparse;
             this.PersistenceService = PersistenceService;
         }
 
@@ -107,14 +110,15 @@ namespace EffectFramework.Core.Models
         /// <param name="ItemID">The item identifier.</param>
         /// <param name="PersistenceService">The persistence service.</param>
         /// <param name="LoadItem">if set to <c>true</c>, retreive all data for this item from the PersistenceService.</param>
-        /// <param name="Sparse">if set to <c>true</c>, only load entities for the current EffectiveRecord (unimplemented at the moment).</param>
+        /// <param name="Sparse">if set to <c>true</c>, only load entities for the current EffectiveRecord.</param>
         public Item(int ItemID, IPersistenceService PersistenceService, bool LoadItem = true, bool Sparse = false)
         {
             this.ItemID = ItemID;
+            this.Sparse = Sparse;
             this.PersistenceService = PersistenceService;
             if (LoadItem)
             {
-                this.LoadByID(ItemID, Sparse);
+                this.LoadByID(ItemID);
             }
         }
 
@@ -132,15 +136,43 @@ namespace EffectFramework.Core.Models
         /// Reload all data from the database, getting a fresh copy. This method will fail if the Item
         /// has not yet been persisted to the data store.
         /// </summary>
-        /// <param name="Sparse">if set to <c>true</c>, only load entities overlapping with the current EffectiveDate (unimplemented).</param>
         /// <exception cref="System.InvalidOperationException">Cannot reload an item with a null ID.</exception>
-        public void Load(bool Sparse = false)
+        public void Load()
         {
             if (!ItemID.HasValue)
             {
                 throw new InvalidOperationException("Cannot reload an item with a null ID.");
             }
-            LoadByID(ItemID.Value, Sparse);
+            LoadByID(ItemID.Value);
+        }
+
+        public void LoadByView(int ItemID, IEnumerable<Db.CompleteItem> View)
+        {
+            if (this.ItemID.HasValue && this.ItemID.Value != ItemID)
+            {
+                throw new InvalidOperationException("Item IDs do not match");
+            }
+
+            this.ItemID = ItemID;
+
+            _AllEntities.Clear();
+
+            Db.CompleteItem[] Rows = View.Where(v => v.ItemID == ItemID).ToArray();
+            var EntityIDs = View.Select(v => v.EntityID).Distinct();
+
+            foreach (var EntityID in EntityIDs)
+            {
+                var EntityRows = Rows.Where(r => r.EntityID == EntityID);
+                if (EntityRows.Count() > 0) {
+                    var First = EntityRows.First();
+                    using (IKernel Kernel = new StandardKernel(new Configure()))
+                    {
+                        EntityBase Entity = (EntityBase)Kernel.Get(((EntityType)First.EntityTypeID).Type);
+                        Entity.LoadUpEntityFromView(Rows.Where(r => r.EntityID == EntityID));
+                        this.AddEntity(Entity);
+                    }
+                }
+            }
         }
 
 
@@ -196,7 +228,7 @@ namespace EffectFramework.Core.Models
                 }
             }
         }
-        protected void LoadByID(int ItemID, bool Sparse = false)
+        protected void LoadByID(int ItemID)
         {
             if (this.ItemID.HasValue && ItemID != this.ItemID.Value)
             {
@@ -214,6 +246,50 @@ namespace EffectFramework.Core.Models
             }
 
             this.Dirty = false;
+        }
+
+        public static List<Item> GetItemsByID(IEnumerable<int> ItemIDs)
+        {
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                IPersistenceService PersistenceService = Kernel.Get<IPersistenceService>();
+                var ViewResult = PersistenceService.RetreiveCompleteItems(ItemIDs);
+                return GetItemsFromView(ViewResult);
+            }
+        }
+
+        public static List<Item> GetItemsFromView(IEnumerable<Db.CompleteItem> ViewResult)
+        {
+            var ItemIDs = ViewResult.Select(v => v.ItemID).Distinct();
+            List<Item> Output = new List<Item>();
+            foreach (var ItemID in ItemIDs)
+            {
+                Output.Add(Item.GetItemFromView(ItemID, ViewResult));
+            }
+            return Output;
+        }
+
+        public static Item GetItemFromView(int ItemID, IEnumerable<Db.CompleteItem> ViewResult)
+        {
+            if (ViewResult == null)
+            {
+                throw new ArgumentNullException();
+            }
+            var ItemRows = ViewResult.Where(v => v.ItemID == ItemID);
+
+            if (ItemRows.Count() > 0) {
+                var First = ItemRows.First();
+                using (IKernel Kernel = new StandardKernel(new Configure()))
+                {
+                    Item Item = (Item)Kernel.Get(((ItemType)First.ItemTypeID).Type);
+                    Item.LoadByView(ItemID, ItemRows);
+                    return Item;
+                }
+            }
+            else
+            {
+                return null;
+            }
         }
 
         internal void AddEntity(EntityBase Entity)
