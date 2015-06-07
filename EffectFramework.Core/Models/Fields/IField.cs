@@ -7,6 +7,8 @@
     {
         object Value { get; set; }
         object DereferencedValue { get; }
+        object OriginalValue { get; }
+        object OriginalDereferencedValue { get; }
         int? FieldID { get; }
         FieldType Type { get; }
     }

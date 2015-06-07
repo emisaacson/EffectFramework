@@ -145,6 +145,26 @@ namespace EffectFramework.Core.Services
         IEnumerable<Models.Db.CompleteItem> RetreiveCompleteItems(IEnumerable<int> ItemIDs, Models.Db.IDbContext ctx = null);
 
         /// <summary>
+        /// Records the field changes in the audit log
+        /// </summary>
+        /// <param name="Field">The field that is being updated</param>
+        /// <param name="ItemID">An item ID to add as a reference</param>
+        /// <param name="Comment">A comment to save with the audit</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
+        void RecordAudit(FieldBase Field, int? ItemID, string Comment, Models.Db.IDbContext ctx = null);
+
+        /// <summary>
+        /// Records the entity changes in the audit log
+        /// </summary>
+        /// <param name="Entity">The Entity that is being updated</param>
+        /// <param name="ItemID">An item ID to add as a reference</param>
+        /// <param name="Comment">A comment to save with the audit</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
+        void RecordAudit(EntityBase Entity, int? ItemID, string Comment, Models.Db.IDbContext ctx = null);
+
+        /// <summary>
         /// Retreives an instance of the database context.
         /// </summary>
         /// <returns>An new database context.</returns>

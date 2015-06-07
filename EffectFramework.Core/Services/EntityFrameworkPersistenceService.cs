@@ -14,6 +14,7 @@ namespace EffectFramework.Core.Services
     /// </summary>
     public class EntityFrameworkPersistenceService : IPersistenceService
     {
+        private static Logger Log = new Logger("EntityFrameworkPersistenceService");
         private string ConnectionString;
         public EntityFrameworkPersistenceService(string ConnectionString)
         {
@@ -60,6 +61,7 @@ namespace EffectFramework.Core.Services
                         FieldTypeID = Field.Type.Value,
                         EntityID = Entity.EntityID.Value,
                         Guid = Guid.NewGuid(),
+                        CreateDate = DateTime.Now,
                     };
                     db.Fields.Add(DbField);
                     db.SaveChanges();
@@ -98,6 +100,7 @@ namespace EffectFramework.Core.Services
                 {
                     DbField.IsDeleted = true;
                     DbField.Guid = Guid.NewGuid();
+                    DbField.DeleteDate = DateTime.Now;
                     db.SaveChanges();
                     return null;
                 }
@@ -208,6 +211,7 @@ namespace EffectFramework.Core.Services
                 {
                     DbField.IsDeleted = true;
                     DbField.Guid = Guid.NewGuid();
+                    DbField.DeleteDate = DateTime.Now;
                     db.SaveChanges();
                     return null;
                 }
@@ -291,6 +295,7 @@ namespace EffectFramework.Core.Services
                         EffectiveDate = Entity.EffectiveDate,
                         ItemID = Item.ItemID.Value,
                         Guid = Guid.NewGuid(),
+                        CreateDate = DateTime.Now,
                     };
                     db.Entities.Add(DbEntity);
                     db.SaveChanges();
@@ -332,6 +337,11 @@ namespace EffectFramework.Core.Services
                 DbEntity.EndEffectiveDate = Entity.EndEffectiveDate;
                 DbEntity.IsDeleted = Entity.IsDeleted;
                 DbEntity.Guid = Guid.NewGuid();
+
+                if (Entity.IsDeleted)
+                {
+                    DbEntity.DeleteDate = DateTime.Now;
+                }
 
                 db.SaveChanges();
 
@@ -404,6 +414,11 @@ namespace EffectFramework.Core.Services
                 DbEntity.EndEffectiveDate = Entity.EndEffectiveDate;
                 DbEntity.IsDeleted = Entity.IsDeleted;
                 DbEntity.Guid = Guid.NewGuid();
+
+                if (Entity.IsDeleted)
+                {
+                    DbEntity.DeleteDate = DateTime.Now;
+                }
 
                 db.SaveChanges();
 
@@ -656,6 +671,7 @@ namespace EffectFramework.Core.Services
                 DbEntity.EndEffectiveDate = Entity.EndEffectiveDate;
                 DbEntity.Guid = Guid.NewGuid();
                 DbEntity.IsDeleted = true;
+                DbEntity.DeleteDate = DateTime.Now;
 
                 db.SaveChanges();
             }
@@ -788,6 +804,131 @@ namespace EffectFramework.Core.Services
                 CompleteItem[] Items = db.CompleteItems.Where(i => ItemIDs.Contains(i.ItemID)).ToArray();
 
                 return Items;
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+
+        public void RecordAudit(FieldBase Field, int? ItemID, string Comment, IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                if (Field == null)
+                {
+                    throw new ArgumentNullException();
+                }
+
+                if (!Field.FieldID.HasValue || !Field.Dirty)
+                {
+                    // No need to record a new field, just changes
+                    // to existing ones.
+                    return;
+                }
+
+                if (!Field.Entity.EntityID.HasValue || !Field.Entity.ItemID.HasValue)
+                {
+                    Log.Error("Entity or Item not yet persisted for this field. FieldID: {0}", Field.FieldID.Value);
+                    throw new InvalidOperationException("Entity or Item not yet persisted for this field.");
+                }
+
+                AuditLog Audit = new AuditLog()
+                {
+                    ItemID = Field.Entity.ItemID.Value,
+                    EntityID = Field.Entity.EntityID.Value,
+                    FieldID = Field.FieldID.Value,
+                    ValueTextOld = Field is FieldString ? ((FieldString)Field).OriginalValue : null,
+                    ValueTextNew = Field is FieldString ? ((FieldString)Field).Value : null,
+                    ValueDateOld = Field is FieldDate ? ((FieldDate)Field).OriginalValue : null,
+                    ValueDateNew = Field is FieldDate ? ((FieldDate)Field).Value : null,
+                    ValueBooleanOld = Field is FieldBool ? ((FieldBool)Field).OriginalValue : null,
+                    ValueBooleanNew = Field is FieldBool ? ((FieldBool)Field).Value : null,
+                    ValueBinaryOld = Field is FieldBinary ? ((FieldBinary)Field).OriginalValue : null,
+                    ValueBinaryNew = Field is FieldBinary ? ((FieldBinary)Field).Value : null,
+                    ValueLookupOld = Field is FieldLookup ? ((FieldLookup)Field).OriginalValue : null,
+                    ValueLookupNew = Field is FieldLookup ? ((FieldLookup)Field).Value : null,
+                    CreateDate = DateTime.Now,
+                    ItemReference = ItemID,
+                    Comment = Comment,
+                };
+
+                db.AuditLogs.Add(Audit);
+
+                db.SaveChanges();
+
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+
+        public void RecordAudit(EntityBase Entity, int? ItemID, string Comment, IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                if (Entity == null)
+                {
+                    throw new ArgumentNullException();
+                }
+
+                if (!Entity.EntityID.HasValue || !Entity.Dirty)
+                {
+                    // No need to record a new entity, just changes
+                    // to existing ones.
+                    return;
+                }
+
+                if (!Entity.ItemID.HasValue)
+                {
+                    Log.Error("Entity or Item not yet persisted for this entity. EntityID: {0}", Entity.EntityID.Value);
+                    throw new InvalidOperationException("Item not yet persisted for this Entity.");
+                }
+
+                AuditLog Audit = new AuditLog()
+                {
+                    ItemID = Entity.ItemID.Value,
+                    EntityID = Entity.EntityID.Value,
+                    EffectiveDateOld = Entity.OriginalEffectiveDate,
+                    EffectiveDateNew = Entity.EffectiveDate,
+                    EndEffectiveDateOld = Entity.OriginalEndEffectiveDate,
+                    EndEffectiveDateNew = Entity.EndEffectiveDate,
+                    CreateDate = DateTime.Now,
+                    ItemReference = ItemID,
+                    Comment = Comment,
+                };
+
+                db.AuditLogs.Add(Audit);
+
+                db.SaveChanges();
+
             }
             finally
             {

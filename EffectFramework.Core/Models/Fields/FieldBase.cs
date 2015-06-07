@@ -147,9 +147,12 @@ namespace EffectFramework.Core.Models.Fields
             Log.Info("Saving the field to the database. FieldID: {0}",
                 FieldID.HasValue ? FieldID.Value.ToString() : "null");
 
+            PersistenceService.RecordAudit(this, null, null, ctx);
+
             var Identity = PersistenceService.SaveSingleField(this, ctx);
             this.FieldID = Identity.ObjectID;
             this.Guid = Identity.ObjectGuid;
+
             this.Dirty = false;
 
             RefreshOriginalValues();
@@ -210,6 +213,8 @@ namespace EffectFramework.Core.Models.Fields
                 FieldID.HasValue ? FieldID.Value.ToString() : "null",
                 Entity.EntityID.HasValue ? Entity.EntityID.Value.ToString() : "null");
 
+            PersistenceService.RecordAudit(this, null, null, ctx);
+
             var Identity = PersistenceService.SaveSingleField(Entity, this, ctx);
             if (Identity != null)
             {
@@ -221,6 +226,7 @@ namespace EffectFramework.Core.Models.Fields
                 this.FieldID = null;
                 this.Guid = default(Guid);
             }
+
             this.Dirty = false;
 
             RefreshOriginalValues();

@@ -48,6 +48,31 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+        public string OriginalValue
+        {
+            get
+            {
+                return this.OriginalValueString;
+            }
+        }
+
+        object IField.OriginalValue
+        {
+            get
+            {
+                return this.OriginalValueString;
+            }
+        }
+
+        public object OriginalDereferencedValue
+        {
+            get
+            {
+                return this.OriginalValueString;
+            }
+        }
+
+
         public FieldString(IPersistenceService PersistenceService)
             : base(PersistenceService)
         { }

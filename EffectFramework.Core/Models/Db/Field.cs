@@ -17,6 +17,12 @@ namespace EffectFramework.Core.Models.Db
         public byte[] ValueBinary { get; set; }
         public bool IsDeleted { get; set; }
         public Guid Guid { get; set; }
+        public DateTime CreateDate { get; set; }
+        public int? CreateItemReference { get; set; }
+        public string CreateComment { get; set; }
+        public DateTime? DeleteDate { get; set; }
+        public int? DeleteItemReference { get; set; }
+        public string DeleteItemComment { get; set; }
 
         public Entity Entity { get; set; }
         public Lookup Lookup { get; set; }

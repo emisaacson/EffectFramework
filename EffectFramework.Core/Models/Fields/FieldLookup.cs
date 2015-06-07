@@ -56,6 +56,57 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+
+        public object DereferencedValue
+        {
+            get
+            {
+                if (this.Value.HasValue)
+                {
+                    var Deref = Choices.Where(c => c.ID == this.Value.Value).FirstOrDefault();
+                    if (Deref != null)
+                    {
+                        return Deref.Value;
+                    }
+                    return null;
+                }
+                return null;
+            }
+        }
+
+        public int? OriginalValue
+        {
+            get
+            {
+                return this.OriginalValueLookup;
+            }
+        }
+
+        object IField.OriginalValue
+        {
+            get
+            {
+                return this.OriginalValueLookup;
+            }
+        }
+
+        public object OriginalDereferencedValue
+        {
+            get
+            {
+                if (this.OriginalValueLookup.HasValue)
+                {
+                    var Deref = Choices.Where(c => c.ID == this.OriginalValueLookup.Value).FirstOrDefault();
+                    if (Deref != null)
+                    {
+                        return Deref.Value;
+                    }
+                    return null;
+                }
+                return null;
+            }
+        }
+
         public FieldLookup(IPersistenceService PersistenceService)
             : base(PersistenceService)
         { }
@@ -99,23 +150,6 @@ namespace EffectFramework.Core.Models.Fields
                     _Choices = PersistenceService.GetChoicesForLookupField(this).OrderBy(l => l.Value);
                 }
                 return _Choices;
-            }
-        }
-
-        public object DereferencedValue
-        {
-            get
-            {
-                if (this.Value.HasValue)
-                {
-                    var Deref = Choices.Where(c => c.ID == this.Value.Value).FirstOrDefault();
-                    if (Deref != null)
-                    {
-                        return Deref.Value;
-                    }
-                    return null;
-                }
-                return null;
             }
         }
     }

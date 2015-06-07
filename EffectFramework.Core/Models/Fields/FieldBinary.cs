@@ -1,6 +1,7 @@
 ﻿using System;
 using EffectFramework.Core.Services;
 using System.Linq;
+using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -56,17 +57,47 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+        public byte[] OriginalValue
+        {
+            get
+            {
+                return this.OriginalValueBinary;
+            }
+        }
+
+        object IField.OriginalValue
+        {
+            get
+            {
+                return this.OriginalValueBinary;
+            }
+        }
+
+        public object OriginalDereferencedValue
+        {
+            get
+            {
+                return this.OriginalValueBinary;
+            }
+        }
+
         public FieldBinary(IPersistenceService PersistenceService)
             : base(PersistenceService)
         { }
 
-        public FieldBinary(FieldType Type, IPersistenceService PersistenceService)
-            : this(Type, null, PersistenceService)
+        public FieldBinary(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService)
+            : this(Type, null, Entity, PersistenceService)
         {
 
         }
 
-        public FieldBinary(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
+        public FieldBinary(FieldType Type, IPersistenceService PersistenceService)
+            : this(Type, null, null, PersistenceService)
+        {
+
+        }
+
+        public FieldBinary(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService)
             : base(PersistenceService)
         {
             if (Type.DataType != DataType.Binary)
@@ -75,6 +106,7 @@ namespace EffectFramework.Core.Models.Fields
             }
             this.Type = Type;
             this.Name = Type.Name;
+            this.Entity = Entity;
 
             if (Base != null)
             {

@@ -11,7 +11,8 @@ namespace EffectFramework.Core.Models.Db
         public DbSet<Lookup> Lookups { get; set; }
         public DbSet<LookupType> LookupTypes { get; set; }
         public DbSet<CompleteItem> CompleteItems { get; set; }
-        public DbSet<FieldTypeMeta> FieldMetaTypes { get; set; }
+        public DbSet<FieldTypeMeta> FieldTypeMetas { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
         private string ConnectionString { get; set; }
 
         public void usp_DeleteEntireDatabase(bool ForReal = false)
@@ -55,6 +56,17 @@ namespace EffectFramework.Core.Models.Db
                 e.Table("FieldTypeMeta");
 
                 e.Key(i => i.FieldTypeMetaID);
+
+                e.Property(i => i.FieldTypeID).ForSqlServer().UseIdentity();
+            });
+
+            builder.Entity<AuditLog>(e =>
+            {
+                e.Table("AuditLog");
+
+                e.Key(i => i.AuditLogID);
+
+                e.Property(i => i.AuditLogID).ForSqlServer().UseIdentity();
             });
 
             builder.Entity<Item>(e =>

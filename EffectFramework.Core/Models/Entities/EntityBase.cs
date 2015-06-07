@@ -28,9 +28,26 @@ namespace EffectFramework.Core.Models.Entities
         public int? ItemID { get; protected set; }
         public Guid Guid { get; protected set; }
         public bool Dirty { get; protected set; }
-        public Item Item { get; internal set; }
+
+        private Item _Item;
+        public Item Item {
+            get {
+                return _Item;
+            }
+            internal set
+            {
+                _Item = value;
+                if (_Item != null)
+                {
+                    ItemID = _Item.ItemID;
+                }
+            }
+        }
         internal bool FlagForRemoval { get; set; }
         public bool IsDeleted { get; protected set; }
+
+        public DateTime OriginalEffectiveDate { get; protected set; }
+        public DateTime? OriginalEndEffectiveDate { get; protected set; }
 
         private DateTime _EffectiveDate;
         public DateTime EffectiveDate {
@@ -188,6 +205,8 @@ namespace EffectFramework.Core.Models.Entities
             }
 
             this.Dirty = false;
+
+            RefreshOriginalValues();
         }
 
         public void LoadUpEntityFromView(IEnumerable<Db.CompleteItem> View)
@@ -216,6 +235,8 @@ namespace EffectFramework.Core.Models.Entities
             }
 
             this.Dirty = false;
+
+            RefreshOriginalValues();
         }
 
         public void CopyValuesFrom(EntityBase OtherEntity)
@@ -296,6 +317,8 @@ namespace EffectFramework.Core.Models.Entities
         /// be created if not provided.</param>
         public void PersistToDatabase(Db.IDbContext ctx = null)
         {
+            PersistenceService.RecordAudit(this, null, null, ctx);
+
             var Identity = PersistenceService.SaveSingleEntity(this, ctx);
             this.Guid = Identity.ObjectGuid;
             this.EntityID = Identity.ObjectID;
@@ -308,6 +331,8 @@ namespace EffectFramework.Core.Models.Entities
             }
 
             this.Dirty = false;
+            RefreshOriginalValues();
+
             if (this.IsDeleted)
             {
                 this.FlagForRemoval = true;
@@ -355,6 +380,8 @@ namespace EffectFramework.Core.Models.Entities
                 throw new ArgumentNullException();
             }
 
+            PersistenceService.RecordAudit(this, null, null, ctx);
+
             var Identity = PersistenceService.SaveSingleEntity(Item, this, ctx);
             this.Guid = Identity.ObjectGuid;
             this.EntityID = Identity.ObjectID;
@@ -378,6 +405,8 @@ namespace EffectFramework.Core.Models.Entities
             }
 
             this.Dirty = false;
+            RefreshOriginalValues();
+
             foreach (var PossiblePreviousEntity in PossiblePreviousEntities)
             {
                 if (PossiblePreviousEntity != null)
@@ -391,6 +420,18 @@ namespace EffectFramework.Core.Models.Entities
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Sets the OriginalValue cache so long as the value is pure
+        /// </summary>
+        protected void RefreshOriginalValues()
+        {
+            if (!this.Dirty)
+            {
+                this.OriginalEffectiveDate = this.EffectiveDate;
+                this.OriginalEndEffectiveDate = this.EndEffectiveDate;
+            }
         }
     }
 }

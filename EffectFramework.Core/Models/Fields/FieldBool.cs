@@ -49,6 +49,30 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+        public bool? OriginalValue
+        {
+            get
+            {
+                return this.OriginalValueBool;
+            }
+        }
+
+        object IField.OriginalValue
+        {
+            get
+            {
+                return this.OriginalValueBool;
+            }
+        }
+
+        public object OriginalDereferencedValue
+        {
+            get
+            {
+                return this.OriginalValueBool;
+            }
+        }
+
         public FieldBool(IPersistenceService PersistenceService)
             : base(PersistenceService)
         { }

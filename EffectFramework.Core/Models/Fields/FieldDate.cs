@@ -63,6 +63,30 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+        public DateTime? OriginalValue
+        {
+            get
+            {
+                return this.OriginalValueDate;
+            }
+        }
+
+        object IField.OriginalValue
+        {
+            get
+            {
+                return this.OriginalValueDate;
+            }
+        }
+
+        public object OriginalDereferencedValue
+        {
+            get
+            {
+                return this.OriginalValueDate;
+            }
+        }
+
         public FieldDate(IPersistenceService PersistenceService)
             : base(PersistenceService)
         { }
