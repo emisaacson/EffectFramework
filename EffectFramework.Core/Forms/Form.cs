@@ -283,11 +283,7 @@ namespace EffectFramework.Core.Forms
                     throw new InvalidOperationException("Binding is not configured properly.");
                 }
 
-                EntityBase Entity;
-                using (IKernel Kernel = new StandardKernel(new Configure()))
-                {
-                    Entity = (EntityBase)Kernel.Get(MemberEntityType);
-                }
+                EntityBase Entity = EntityBase.GetEntityBySystemType(MemberEntityType);
 
                 return Entity;
             }
@@ -359,12 +355,9 @@ namespace EffectFramework.Core.Forms
                     throw new InvalidOperationException("Entity schema is not correct.");
                 }
 
-                EntityBase Entity = null;
+                EntityBase Entity = EntityBase.GetEntityBySystemType(MemberEntityType);
                 object EntityMember = null;
-                using (IKernel Kernel = new StandardKernel(new Configure()))
-                {
-                    Entity = (EntityBase)Kernel.Get(MemberEntityType);
-                }
+
                 if (EntityMemberInfo.MemberType == MemberTypes.Property)
                 {
                     EntityMember = ((PropertyInfo)EntityMemberInfo).GetValue(Entity);

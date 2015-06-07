@@ -5,6 +5,7 @@ using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Services;
 using Ninject.Modules;
+using Ninject;
 
 namespace EffectFramework.Core
 {
@@ -16,7 +17,8 @@ namespace EffectFramework.Core
         /// </summary>
         public static string ConnectionString;
         private static Type PersistenceServiceType = typeof(EntityFrameworkPersistenceService);
-        private static Type LoggingProvider = typeof(NullLoggingProvider);
+        private static Type CacheServiceType = typeof(NullCacheService);
+        private static Type LoggingProviderType = typeof(NullLoggingProvider);
 
         public Configure()
         {
@@ -33,11 +35,14 @@ namespace EffectFramework.Core
                 throw new InvalidOperationException("Must set connection string.");
             }
             Kernel.Bind<IPersistenceService>()
-                    .To(PersistenceServiceType)
-                    .WithConstructorArgument("ConnectionString", ConnectionString);
+                .To(PersistenceServiceType)
+                .WithConstructorArgument("ConnectionString", ConnectionString);
 
             Kernel.Bind<ILoggingProvider>()
-                    .To(LoggingProvider);
+                .To(LoggingProviderType);
+
+            Kernel.Bind<ICacheService>()
+                .To(CacheServiceType);
         }
 
         /// <summary>
@@ -52,6 +57,17 @@ namespace EffectFramework.Core
         }
 
         /// <summary>
+        /// Registers the cache service. The type should be wired up in the startup routine of the app.
+        /// By default, the Null cache service is used.
+        /// </summary>
+        /// <typeparam name="CacheServiceT">The type of the Cache Service (must implement ICacheService)</typeparam>
+        public static void RegisterCacheService<CacheServiceT>()
+            where CacheServiceT : ICacheService
+        {
+            CacheServiceType = typeof(CacheServiceT);
+        }
+
+        /// <summary>
         /// Registers the logging provider. The type should be wired up in the startup routine
         /// of the app. By default, the Null logging provider is used.
         /// </summary>
@@ -59,7 +75,7 @@ namespace EffectFramework.Core
         public static void RegisterLoggingProvider<LoggingProviderT>()
             where LoggingProviderT : ILoggingProvider
         {
-            LoggingProvider = typeof(LoggingProviderT);
+            LoggingProviderType = typeof(LoggingProviderT);
         }
 
         /// <summary>
@@ -101,6 +117,22 @@ namespace EffectFramework.Core
                 {
                     var RegisteredType = FieldType.GetValue(null);
                 }
+            }
+        }
+
+        public static IPersistenceService GetPersistenceService()
+        {
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                return Kernel.Get<IPersistenceService>();
+            }
+        }
+
+        public static ICacheService GetCacheService()
+        {
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                return Kernel.Get<ICacheService>();
             }
         }
     }

@@ -5,6 +5,7 @@ using System.Reflection;
 using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Services;
 using EffectFramework.Core.Models.Annotations;
+using Ninject;
 
 namespace EffectFramework.Core.Models.Entities
 {
@@ -419,7 +420,32 @@ namespace EffectFramework.Core.Models.Entities
                     }
                 }
             }
+        }
 
+        public static EntityBase GetEntityBySystemType(Type SystemType)
+        {
+            if (SystemType == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (!typeof(EntityBase).IsAssignableFrom(SystemType))
+            {
+                throw new ArgumentOutOfRangeException("Cannot create an entity from a type that isn't a subclass of EntityBase.");
+            }
+
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                return (EntityBase)Kernel.Get(SystemType);
+            }
+        }
+
+        public static EntityBase GetEntityByType(EntityType Type)
+        {
+            if (Type == null)
+            {
+                throw new ArgumentNullException();
+            }
+            return GetEntityBySystemType(Type.Type);
         }
 
         /// <summary>

@@ -531,9 +531,9 @@ namespace EffectFramework.Test
             }
         }
 
-        public User(IPersistenceService PersistenceService) : base(PersistenceService) { }
+        public User(IPersistenceService PersistenceService, ICacheService CacheService) : base(PersistenceService, CacheService) { }
 
-        public User(int UserID, IPersistenceService PersistenceService, bool LoadItem = true) : base(UserID, PersistenceService, LoadItem) { }
+        public User(int UserID, IPersistenceService PersistenceService, ICacheService CacheService, bool LoadItem = true) : base(UserID, PersistenceService, CacheService, LoadItem) { }
     }
 
     public class AddressEntity : EntityBase

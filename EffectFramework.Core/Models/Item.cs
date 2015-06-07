@@ -57,6 +57,7 @@ namespace EffectFramework.Core.Models
         public abstract ItemType Type { get; }
 
         protected readonly IPersistenceService PersistenceService;
+        protected readonly ICacheService CacheService;
 
         /// <summary>
         /// Gets an entity collection representing all entities overlapping with the current EffectiveDate
@@ -97,11 +98,12 @@ namespace EffectFramework.Core.Models
         /// dirty and has no item ID. When persisted, an ItemID will be added to the class.
         /// </summary>
         /// <param name="PersistenceService">The persistence service (for DI injection).</param>
-        public Item(IPersistenceService PersistenceService, bool Sparse = false)
+        public Item(IPersistenceService PersistenceService, ICacheService CacheService, bool Sparse = false)
         {
             this.Dirty = true;
             this.Sparse = Sparse;
             this.PersistenceService = PersistenceService;
+            this.CacheService = CacheService;
         }
 
         /// <summary>
@@ -111,11 +113,13 @@ namespace EffectFramework.Core.Models
         /// <param name="PersistenceService">The persistence service.</param>
         /// <param name="LoadItem">if set to <c>true</c>, retreive all data for this item from the PersistenceService.</param>
         /// <param name="Sparse">if set to <c>true</c>, only load entities for the current EffectiveRecord.</param>
-        public Item(int ItemID, IPersistenceService PersistenceService, bool LoadItem = true, bool Sparse = false)
+        public Item(int ItemID, IPersistenceService PersistenceService, ICacheService CacheService, bool LoadItem = true, bool Sparse = false)
         {
             this.ItemID = ItemID;
             this.Sparse = Sparse;
             this.PersistenceService = PersistenceService;
+            this.CacheService = CacheService;
+
             if (LoadItem)
             {
                 this.LoadByID(ItemID);
@@ -246,6 +250,17 @@ namespace EffectFramework.Core.Models
             }
 
             this.Dirty = false;
+        }
+
+        public static Item GetItemByID(int ItemID)
+        {
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                IPersistenceService PersistenceService = Kernel.Get<IPersistenceService>();
+                var ViewResult = PersistenceService.RetreiveCompleteItems(new int [] { ItemID });
+                var Items = GetItemsFromView(ViewResult);
+                return Items.FirstOrDefault();
+            }
         }
 
         public static List<Item> GetItemsByID(IEnumerable<int> ItemIDs)
