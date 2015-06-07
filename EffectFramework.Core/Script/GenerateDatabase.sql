@@ -1,4 +1,4 @@
-﻿/****** Object:  StoredProcedure [dbo].[usp_DeleteEntireDatabase]    Script Date: 5/28/2015 1:45:16 PM ******/
+﻿/****** Object:  StoredProcedure [dbo].[usp_DeleteEntireDatabase]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -31,7 +31,7 @@ END
 
 
 GO
-/****** Object:  Table [dbo].[DataTypes]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  Table [dbo].[DataTypes]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -46,7 +46,7 @@ CREATE TABLE [dbo].[DataTypes](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[Entities]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  Table [dbo].[Entities]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -66,7 +66,7 @@ CREATE TABLE [dbo].[Entities](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[EntityTypes]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  Table [dbo].[EntityTypes]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -81,7 +81,7 @@ CREATE TABLE [dbo].[EntityTypes](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[Fields]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  Table [dbo].[Fields]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -111,7 +111,46 @@ CREATE TABLE [dbo].[Fields](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  Table [dbo].[FieldTypes]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  Table [dbo].[FieldTypeMeta]    Script Date: 6/6/2015 11:42:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_PADDING ON
+GO
+CREATE TABLE [dbo].[FieldTypeMeta](
+	[FieldTypeMetaID] [int] IDENTITY(1,1) NOT NULL,
+	[ItemTypeID] [int] NOT NULL,
+	[EntityTypeID] [int] NOT NULL,
+	[FieldTypeID] [int] NOT NULL,
+	[IsRequired] [bit] NULL,
+	[IsRequiredQuery] [varchar](max) NULL,
+	[DecimalMin] [decimal](18, 4) NULL,
+	[DecimalMinQuery] [varchar](max) NULL,
+	[DecimalMax] [decimal](18, 4) NULL,
+	[DecimalMaxQuery] [varchar](max) NULL,
+	[DatetimeMin] [datetime] NULL,
+	[DatetimeMinQuery] [varchar](max) NULL,
+	[DatetimeMax] [datetime] NULL,
+	[DatetimeMaxQuery] [varchar](max) NULL,
+	[TextRegex] [varchar](max) NULL,
+	[TextRegexQuery] [varchar](max) NULL,
+ CONSTRAINT [PK_FieldTypeMeta] PRIMARY KEY CLUSTERED 
+(
+	[FieldTypeMetaID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [IX_FieldTypeMeta] UNIQUE NONCLUSTERED 
+(
+	[ItemTypeID] ASC,
+	[EntityTypeID] ASC,
+	[FieldTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+SET ANSI_PADDING OFF
+GO
+/****** Object:  Table [dbo].[FieldTypes]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -128,7 +167,7 @@ CREATE TABLE [dbo].[FieldTypes](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[Items]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  Table [dbo].[Items]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -145,7 +184,7 @@ CREATE TABLE [dbo].[Items](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[ItemTypes]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  Table [dbo].[ItemTypes]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -160,7 +199,7 @@ CREATE TABLE [dbo].[ItemTypes](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[Lookups]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  Table [dbo].[Lookups]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -181,7 +220,7 @@ CREATE TABLE [dbo].[Lookups](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  Table [dbo].[LookupTypes]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  Table [dbo].[LookupTypes]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -201,7 +240,7 @@ CREATE TABLE [dbo].[LookupTypes](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  View [dbo].[CompleteItems]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  View [dbo].[CompleteItems]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -255,7 +294,7 @@ WHERE i.IsDeleted = 0
 
 
 GO
-/****** Object:  View [dbo].[CurrentItems]    Script Date: 5/28/2015 1:45:16 PM ******/
+/****** Object:  View [dbo].[CurrentItems]    Script Date: 6/6/2015 11:42:00 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -348,6 +387,21 @@ REFERENCES [dbo].[Lookups] ([LookupID])
 GO
 ALTER TABLE [dbo].[Fields] CHECK CONSTRAINT [FK_Fields_Lookups]
 GO
+ALTER TABLE [dbo].[FieldTypeMeta]  WITH CHECK ADD  CONSTRAINT [FK_FieldTypeMeta_EntityTypes] FOREIGN KEY([EntityTypeID])
+REFERENCES [dbo].[EntityTypes] ([EntityTypeID])
+GO
+ALTER TABLE [dbo].[FieldTypeMeta] CHECK CONSTRAINT [FK_FieldTypeMeta_EntityTypes]
+GO
+ALTER TABLE [dbo].[FieldTypeMeta]  WITH CHECK ADD  CONSTRAINT [FK_FieldTypeMeta_FieldTypes] FOREIGN KEY([FieldTypeID])
+REFERENCES [dbo].[FieldTypes] ([FieldTypeID])
+GO
+ALTER TABLE [dbo].[FieldTypeMeta] CHECK CONSTRAINT [FK_FieldTypeMeta_FieldTypes]
+GO
+ALTER TABLE [dbo].[FieldTypeMeta]  WITH CHECK ADD  CONSTRAINT [FK_FieldTypeMeta_ItemTypes] FOREIGN KEY([ItemTypeID])
+REFERENCES [dbo].[ItemTypes] ([ItemTypeID])
+GO
+ALTER TABLE [dbo].[FieldTypeMeta] CHECK CONSTRAINT [FK_FieldTypeMeta_ItemTypes]
+GO
 ALTER TABLE [dbo].[FieldTypes]  WITH CHECK ADD  CONSTRAINT [FK_FieldTypes_DataTypes] FOREIGN KEY([DataTypeID])
 REFERENCES [dbo].[DataTypes] ([DataTypeID])
 GO
@@ -368,6 +422,7 @@ REFERENCES [dbo].[LookupTypes] ([LookupTypeID])
 GO
 ALTER TABLE [dbo].[Lookups] CHECK CONSTRAINT [FK_Lookups_LookupTypes]
 GO
+
 
 
 

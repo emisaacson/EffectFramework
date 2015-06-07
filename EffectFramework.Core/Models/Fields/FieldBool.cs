@@ -1,5 +1,6 @@
 ﻿using System;
 using EffectFramework.Core.Services;
+using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -53,12 +54,18 @@ namespace EffectFramework.Core.Models.Fields
         { }
 
         public FieldBool(FieldType Type, IPersistenceService PersistenceService)
-            : this(Type, null, PersistenceService)
+            : this(Type, null, null, PersistenceService)
         {
 
         }
 
-        public FieldBool(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
+        public FieldBool(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService)
+            : this(Type, null, Entity, PersistenceService)
+        {
+
+        }
+
+        public FieldBool(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService)
             : base(PersistenceService)
         {
             if (Type.DataType != DataType.Boolean)
@@ -67,6 +74,7 @@ namespace EffectFramework.Core.Models.Fields
             }
             this.Type = Type;
             this.Name = Type.Name;
+            this.Entity = Entity;
 
             if (Base != null)
             {

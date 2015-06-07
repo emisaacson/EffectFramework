@@ -27,6 +27,7 @@ namespace EffectFramework.Core.Models.Fields
         /// The static FielType of this Field
         /// </value>
         public FieldType Type { get; protected set; }
+        public EntityBase Entity { get; protected set; }
         public Guid Guid { get; protected set; }
         public int? FieldID { get; protected set; }
         public bool Dirty { get; protected set; }
@@ -37,6 +38,14 @@ namespace EffectFramework.Core.Models.Fields
         protected bool? ValueBool { get; set; }
         protected int? ValueLookup { get; set; }
         protected byte[] ValueBinary { get; set; }
+
+        protected string OriginalValueString { get; set; }
+        protected DateTime? OriginalValueDate { get; set; }
+        protected decimal? OriginalValueDecimal { get; set; }
+        protected bool? OriginalValueBool { get; set; }
+        protected int? OriginalValueLookup { get; set; }
+        protected byte[] OriginalValueBinary { get; set; }
+
         protected readonly IPersistenceService PersistenceService;
 
         public FieldBase(IPersistenceService PersistenceService)
@@ -49,13 +58,17 @@ namespace EffectFramework.Core.Models.Fields
         {
             this.Dirty = false;
             this.FieldID = Field.FieldID;
-            this.ValueString = Field.ValueText;
-            this.ValueDate = Field.ValueDate;
+
+            this.ValueString  = Field.ValueText;
+            this.ValueDate    = Field.ValueDate;
             this.ValueDecimal = Field.ValueDecimal;
-            this.ValueBool = Field.ValueBoolean;
-            this.ValueLookup = Field.ValueLookup;
-            this.ValueBinary = Field.ValueBinary;
+            this.ValueBool    = Field.ValueBoolean;
+            this.ValueLookup  = Field.ValueLookup;
+            this.ValueBinary  = Field.ValueBinary;
             this.Guid = Field.Guid;
+
+            RefreshOriginalValues();
+
         }
 
         public FieldBase(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
@@ -73,6 +86,7 @@ namespace EffectFramework.Core.Models.Fields
             if (Base == null)
             {
                 this.FieldID      = null;
+
                 this.ValueString  = null;
                 this.ValueDate    = null;
                 this.ValueDecimal = null;
@@ -83,14 +97,18 @@ namespace EffectFramework.Core.Models.Fields
             else
             {
                 this.FieldID      = Base.FieldID;
+
                 this.ValueString  = Base.ValueString;
                 this.ValueDate    = Base.ValueDate;
                 this.ValueDecimal = Base.ValueDecimal;
                 this.ValueBool    = Base.ValueBool;
                 this.ValueLookup  = Base.ValueLookup;
                 this.ValueBinary  = Base.ValueBinary;
+
                 this.Guid         = Base.Guid;
             }
+
+            RefreshOriginalValues();
         }
 
 
@@ -110,6 +128,7 @@ namespace EffectFramework.Core.Models.Fields
         public void FillFromView(Db.CompleteItem View)
         {
             this.Dirty        = false;
+
             this.FieldID      = View.FieldID;
             this.ValueString  = View.ValueText;
             this.ValueDate    = View.ValueDate;
@@ -117,7 +136,10 @@ namespace EffectFramework.Core.Models.Fields
             this.ValueBool    = View.ValueBoolean;
             this.ValueLookup  = View.ValueLookup;
             this.ValueBinary  = View.ValueBinary;
+
             this.Guid         = View.EntityFieldGuid;
+
+            RefreshOriginalValues();
         }
 
         public void PersistToDatabase(Db.IDbContext ctx = null)
@@ -129,6 +151,8 @@ namespace EffectFramework.Core.Models.Fields
             this.FieldID = Identity.ObjectID;
             this.Guid = Identity.ObjectGuid;
             this.Dirty = false;
+
+            RefreshOriginalValues();
         }
 
         /// <summary>
@@ -198,6 +222,24 @@ namespace EffectFramework.Core.Models.Fields
                 this.Guid = default(Guid);
             }
             this.Dirty = false;
+
+            RefreshOriginalValues();
+        }
+
+        /// <summary>
+        /// Sets the OriginalValue cache so long as the value is pure
+        /// </summary>
+        private void RefreshOriginalValues()
+        {
+            if (!this.Dirty)
+            {
+                this.OriginalValueString  = this.ValueString;
+                this.OriginalValueDate    = this.ValueDate;
+                this.OriginalValueDecimal = this.ValueDecimal;
+                this.OriginalValueBool    = this.ValueBool;
+                this.OriginalValueLookup  = this.ValueLookup;
+                this.OriginalValueBinary  = this.ValueBinary;
+            }
         }
     }
 }
