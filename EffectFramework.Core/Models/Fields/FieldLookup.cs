@@ -107,24 +107,24 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public FieldLookup(IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public FieldLookup(IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         { }
 
-        public FieldLookup(FieldType Type, IPersistenceService PersistenceService)
-            : this(Type, null, null, PersistenceService)
+        public FieldLookup(FieldType Type, IPersistenceService PersistenceService, ICacheService CacheService)
+            : this(Type, null, null, PersistenceService, CacheService)
         {
 
         }
 
-        public FieldLookup(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService)
-            : this(Type, null, Entity, PersistenceService)
+        public FieldLookup(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
+            : this(Type, null, Entity, PersistenceService, CacheService)
         {
 
         }
 
-        public FieldLookup(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public FieldLookup(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         {
             if (Type.DataType != DataType.Lookup)
             {

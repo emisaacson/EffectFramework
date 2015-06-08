@@ -548,8 +548,8 @@ namespace EffectFramework.Test
 
         public AddressEntity() : base() { }
 
-        public AddressEntity(IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public AddressEntity(IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         {
 
         }
@@ -577,16 +577,16 @@ namespace EffectFramework.Test
 
 
 
-        public GeneralInfoEntity(IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public GeneralInfoEntity(IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         {
         }
 
         protected override void WireUpFields()
         {
-            Start_Date = new FieldDate(TestFieldType.User_Start_Date, PersistenceService);
-            First_Name = new FieldString(TestFieldType.First_Name, PersistenceService);
-            Last_Name = new FieldString(TestFieldType.Last_Name, PersistenceService);
+            Start_Date = new FieldDate(TestFieldType.User_Start_Date, PersistenceService, CacheService);
+            First_Name = new FieldString(TestFieldType.First_Name, PersistenceService, CacheService);
+            Last_Name = new FieldString(TestFieldType.Last_Name, PersistenceService, CacheService);
         }
 
         public FieldDate Start_Date { get; private set; }
@@ -607,16 +607,16 @@ namespace EffectFramework.Test
 
         public UserTypeEntity() : base() { }
 
-        public UserTypeEntity(IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public UserTypeEntity(IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         {
 
         }
 
         protected override void WireUpFields()
         {
-            UserType = new FieldString(TestFieldType.User_Type, PersistenceService);
-            JobStartDate = new FieldDate(TestFieldType.Job_Start_Date, PersistenceService);
+            UserType = new FieldString(TestFieldType.User_Type, PersistenceService, CacheService);
+            JobStartDate = new FieldDate(TestFieldType.Job_Start_Date, PersistenceService, CacheService);
         }
 
         public FieldString UserType { get; private set; }

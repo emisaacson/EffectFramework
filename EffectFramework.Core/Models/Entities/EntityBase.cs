@@ -89,9 +89,27 @@ namespace EffectFramework.Core.Models.Entities
             }
         }
 
-        protected IPersistenceService _PersistenceService = null;
+        protected IPersistenceService _PersistenceService;
+        protected ICacheService _CacheService;
+        public ICacheService CacheService {
+            protected get
+            {
+                return _CacheService;
+            }
+            set
+            {
+                if (_CacheService == null)
+                {
+                    _CacheService = value;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Cannot set the cache service more than once.");
+                }
+            }
+        }
         public IPersistenceService PersistenceService {
-            get
+            protected get
             {
                 return _PersistenceService;
             }
@@ -176,11 +194,12 @@ namespace EffectFramework.Core.Models.Entities
             this.FlagForRemoval = false;
         }
 
-        public EntityBase(IPersistenceService PersistenceService)
+        public EntityBase(IPersistenceService PersistenceService, ICacheService CacheService)
         {
             Log.Trace("Creating new EntityBase with PersistenceService. Entity Type: {0}", this.Type.Name);
 
             this._PersistenceService = PersistenceService;
+            this._CacheService = CacheService;
             this.Dirty = true;
             this.IsDeleted = false;
             this.FlagForRemoval = false;

@@ -87,22 +87,22 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public FieldDate(IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public FieldDate(IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         { }
 
-        public FieldDate(FieldType Type, IPersistenceService PersistenceService)
-            : this(Type, null, null, PersistenceService)
+        public FieldDate(FieldType Type, IPersistenceService PersistenceService, ICacheService CacheService)
+            : this(Type, null, null, PersistenceService, CacheService)
         { }
 
-        public FieldDate(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService)
-            : this(Type, null, Entity, PersistenceService)
+        public FieldDate(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
+            : this(Type, null, Entity, PersistenceService, CacheService)
         {
 
         }
 
-        public FieldDate(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public FieldDate(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         {
             if (Type.DataType != DataType.Date)
             {

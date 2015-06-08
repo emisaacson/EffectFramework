@@ -7,12 +7,12 @@ namespace EffectFramework.Core.Services
 {
     public class NullCacheService : ICacheService
     {
-        public object GetObjectByKey(object Key)
+        public object GetObjectByKey(string Key)
         {
             return null;
         }
 
-        public void StoreObject(object Key, object Value)
+        public void StoreObject(string Key, object Value)
         {
             
         }

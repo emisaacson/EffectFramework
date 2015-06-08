@@ -47,11 +47,13 @@ namespace EffectFramework.Core.Models.Fields
         protected byte[] OriginalValueBinary { get; set; }
 
         protected readonly IPersistenceService PersistenceService;
+        protected readonly ICacheService CacheService;
 
-        public FieldBase(IPersistenceService PersistenceService)
+        public FieldBase(IPersistenceService PersistenceService, ICacheService CacheService)
         {
             this.Dirty = false;
             this.PersistenceService = PersistenceService;
+            this.CacheService = CacheService;
         }
 
         public FieldBase(Db.Field Field)
@@ -71,9 +73,10 @@ namespace EffectFramework.Core.Models.Fields
 
         }
 
-        public FieldBase(FieldType Type, FieldBase Base, IPersistenceService PersistenceService)
+        public FieldBase(FieldType Type, FieldBase Base, IPersistenceService PersistenceService, ICacheService CacheService)
         {
             this.PersistenceService = PersistenceService;
+            this.CacheService = CacheService;
             LoadUpValues(Base);
         }
 

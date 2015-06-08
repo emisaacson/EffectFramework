@@ -73,24 +73,24 @@ namespace EffectFramework.Core.Models.Fields
         }
 
 
-        public FieldString(IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public FieldString(IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         { }
 
-        public FieldString(FieldType Type, IPersistenceService PersistenceService)
-            : this(Type, null, null, PersistenceService)
+        public FieldString(FieldType Type, IPersistenceService PersistenceService, ICacheService CacheService)
+            : this(Type, null, null, PersistenceService, CacheService)
         {
 
         }
 
-        public FieldString(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService)
-            : this(Type, null, Entity, PersistenceService)
+        public FieldString(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
+            : this(Type, null, Entity, PersistenceService, CacheService)
         {
 
         }
 
-        public FieldString(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public FieldString(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         {
             if (Type.DataType != DataType.Text)
             {

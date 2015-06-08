@@ -81,24 +81,24 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public FieldBinary(IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public FieldBinary(IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         { }
 
-        public FieldBinary(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService)
-            : this(Type, null, Entity, PersistenceService)
+        public FieldBinary(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
+            : this(Type, null, Entity, PersistenceService, CacheService)
         {
 
         }
 
-        public FieldBinary(FieldType Type, IPersistenceService PersistenceService)
-            : this(Type, null, null, PersistenceService)
+        public FieldBinary(FieldType Type, IPersistenceService PersistenceService, ICacheService CacheService)
+            : this(Type, null, null, PersistenceService, CacheService)
         {
 
         }
 
-        public FieldBinary(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService)
-            : base(PersistenceService)
+        public FieldBinary(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
+            : base(PersistenceService, CacheService)
         {
             if (Type.DataType != DataType.Binary)
             {
