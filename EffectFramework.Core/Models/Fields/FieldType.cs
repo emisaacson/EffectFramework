@@ -6,6 +6,7 @@ namespace EffectFramework.Core.Models.Fields
     /// <summary>
     /// The base class all fields must inherit from.
     /// </summary>
+    [Serializable]
     public class FieldType
     {
         /// <summary>
@@ -50,6 +51,34 @@ namespace EffectFramework.Core.Models.Fields
                 throw new InvalidOperationException("Cannot register the same Field Type twice.");
             }
             TypeRegistry[Type.Value] = Type;
+        }
+
+        public static bool operator ==(FieldType Ft1, FieldType Ft2)
+        {
+            if ((object)Ft1 == null && (object)Ft2 == null)
+            {
+                return true;
+            }
+            if ((object)Ft1 == null || (object)Ft2 == null)
+            {
+                return false;
+            }
+
+            return Ft1.Value == Ft2.Value;
+        }
+
+        public static bool operator !=(FieldType Ft1, FieldType Ft2)
+        {
+            if ((object)Ft1 == null && (object)Ft2 == null)
+            {
+                return false;
+            }
+            if ((object)Ft1 == null || (object)Ft2 == null)
+            {
+                return true;
+            }
+
+            return Ft1.Value != Ft2.Value;
         }
     }
 }

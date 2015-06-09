@@ -6,11 +6,15 @@ using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Services;
 using EffectFramework.Core.Models.Annotations;
 using Ninject;
+using Ninject.Parameters;
+using EffectFramework.Core.Models.Db;
 
 namespace EffectFramework.Core.Models.Entities
 {
+    [Serializable]
     public abstract class EntityBase
     {
+        [NonSerialized]
         protected Logger _Log;
         protected Logger Log
         {
@@ -89,41 +93,30 @@ namespace EffectFramework.Core.Models.Entities
             }
         }
 
+        [NonSerialized]
         protected IPersistenceService _PersistenceService;
-        protected ICacheService _CacheService;
-        public ICacheService CacheService {
-            protected get
-            {
-                return _CacheService;
-            }
-            set
-            {
-                if (_CacheService == null)
-                {
-                    _CacheService = value;
-                }
-                else
-                {
-                    throw new InvalidOperationException("Cannot set the cache service more than once.");
-                }
-            }
-        }
-        public IPersistenceService PersistenceService {
-            protected get
-            {
-                return _PersistenceService;
-            }
-            set
+        protected IPersistenceService PersistenceService
+        {
+            get
             {
                 if (_PersistenceService == null)
                 {
-                    _PersistenceService = value;
-                    WireUpFields();
+                    _PersistenceService = Configure.GetPersistenceService();
                 }
-                else
+                return _PersistenceService;
+            }
+        }
+        [NonSerialized]
+        protected ICacheService _CacheService;
+        protected ICacheService CacheService
+        {
+            get
+            {
+                if (_CacheService == null)
                 {
-                    throw new InvalidOperationException("Cannot set the persistence service more than once.");
+                    _CacheService = Configure.GetCacheService();
                 }
+                return _CacheService;
             }
         }
 
@@ -185,28 +178,23 @@ namespace EffectFramework.Core.Models.Entities
 
         protected abstract void WireUpFields();
 
-        public EntityBase()
+        public EntityBase(Item Item, Db.Entity DbEntity)
         {
-            Log.Trace("Creating new EntityBase object. Entity Type: {0}", this.Type.Name);
+            Log.Trace("Creating new EntityBase with PersistenceService and CacheService. Entity Type: {0}", this.Type.Name);
 
-            this.Dirty = true;
-            this.IsDeleted = false;
-            this.FlagForRemoval = false;
-        }
-
-        public EntityBase(IPersistenceService PersistenceService, ICacheService CacheService)
-        {
-            Log.Trace("Creating new EntityBase with PersistenceService. Entity Type: {0}", this.Type.Name);
-
-            this._PersistenceService = PersistenceService;
-            this._CacheService = CacheService;
+            this.Item = Item;
             this.Dirty = true;
             this.IsDeleted = false;
             this.FlagForRemoval = false;
             WireUpFields();
+
+            if (DbEntity != null)
+            {
+                LoadUpEntity(DbEntity);
+            }
         }
 
-        public void LoadUpEntity(Db.Entity DbEntity)
+        protected void LoadUpEntity(Db.Entity DbEntity)
         {
             Log.Trace("Loading up entity fields from database. EntityID: {0}", DbEntity.EntityID);
 
@@ -330,36 +318,6 @@ namespace EffectFramework.Core.Models.Entities
         }
 
         /// <summary>
-        /// Persists the entity to the database by saving its own properties
-        /// then each of its fields.
-        /// </summary>
-        /// <param name="ctx">An optional database context. One will
-        /// be created if not provided.</param>
-        public void PersistToDatabase(Db.IDbContext ctx = null)
-        {
-            PersistenceService.RecordAudit(this, null, null, ctx);
-
-            var Identity = PersistenceService.SaveSingleEntity(this, ctx);
-            this.Guid = Identity.ObjectGuid;
-            this.EntityID = Identity.ObjectID;
-
-            var FieldObjects = GetAllEntityFields();
-
-            foreach (var FieldObject in FieldObjects)
-            {
-                FieldObject.PersistToDatabase(this, ctx);
-            }
-
-            this.Dirty = false;
-            RefreshOriginalValues();
-
-            if (this.IsDeleted)
-            {
-                this.FlagForRemoval = true;
-            }
-        }
-
-        /// <summary>
         /// Returns true if two entities contain the save field values. It does not take
         /// Effective date fields or ID fields into the decision.
         /// </summary>
@@ -393,55 +351,80 @@ namespace EffectFramework.Core.Models.Entities
             return AreIdentical;
         }
 
-        public void PersistToDatabase(Item Item, Db.IDbContext ctx = null)
+        /// <summary>
+        /// Persist the entity to the database and all of its fields.
+        /// </summary>
+        /// <param name="ctx">An optional database context. One will be created if null.</param>
+        /// <returns>true if the Entity or any of its fields were changed in the database.</returns>
+        public bool PersistToDatabase(Db.IDbContext ctx = null)
         {
-            if (Item == null)
-            {
-                throw new ArgumentNullException();
-            }
-
             PersistenceService.RecordAudit(this, null, null, ctx);
 
-            var Identity = PersistenceService.SaveSingleEntity(Item, this, ctx);
+            ObjectIdentity Identity;
+            if (this.Item != null) {
+                Identity = PersistenceService.SaveSingleEntity(Item, this, ctx);
+            }
+            else
+            {
+                Identity = PersistenceService.SaveSingleEntity(this, ctx);
+            }
             this.Guid = Identity.ObjectGuid;
             this.EntityID = Identity.ObjectID;
 
-            var PossiblePreviousEntities = Item.AllEntities
-                .Where(e => e.Type == this.Type &&
-                            e.EndEffectiveDate.HasValue &&
-                            e.EndEffectiveDate.Value == this.EffectiveDate &&
-                            // This check is necessary to prevent two entities from each
-                            // being possible previous entities of each other, which would
-                            // cause infinite recursion.
-                            (!this.EndEffectiveDate.HasValue || this.EndEffectiveDate.Value != e.EffectiveDate) &&
-                            // Exclude the current entity
-                            e != this);
 
             var FieldObjects = GetAllEntityFields();
-
+            List<bool> Results = new List<bool>();
             foreach (var FieldObject in FieldObjects)
             {
-                FieldObject.PersistToDatabase(this, ctx);
+                Results.Add(FieldObject.PersistToDatabase(ctx));
             }
 
             this.Dirty = false;
+
+            bool ThisDidUpdate = Identity.DidUpdate || Results.Any(r => r == true);
+
+            if (ThisDidUpdate)
+            {
+                CacheService.DeleteObject(string.Format("Entity:{0}", EntityID));
+            }
+
             RefreshOriginalValues();
 
-            foreach (var PossiblePreviousEntity in PossiblePreviousEntities)
+            if (this.IsDeleted)
             {
-                if (PossiblePreviousEntity != null)
+                this.FlagForRemoval = true;
+            }
+            else if (this.Item != null)
+            {
+                var PossiblePreviousEntities = Item.AllEntities
+                    .Where(e => e.Type == this.Type &&
+                                e.EndEffectiveDate.HasValue &&
+                                e.EndEffectiveDate.Value == this.EffectiveDate &&
+                                // This check is necessary to prevent two entities from each
+                                // being possible previous entities of each other, which would
+                                // cause infinite recursion.
+                                (!this.EndEffectiveDate.HasValue || this.EndEffectiveDate.Value != e.EffectiveDate) &&
+                                // Exclude the current entity
+                                e != this);
+
+                foreach (var PossiblePreviousEntity in PossiblePreviousEntities)
                 {
-                    if (this.IsIdenticalTo(PossiblePreviousEntity))
+                    if (PossiblePreviousEntity != null)
                     {
-                        PossiblePreviousEntity.EndEffectiveDate = this.EndEffectiveDate;
-                        PossiblePreviousEntity.PersistToDatabase(Item, ctx);
-                        this.Seppuku(ctx);
+                        if (this.IsIdenticalTo(PossiblePreviousEntity))
+                        {
+                            PossiblePreviousEntity.EndEffectiveDate = this.EndEffectiveDate;
+                            PossiblePreviousEntity.PersistToDatabase(ctx);
+                            this.Seppuku(ctx);
+                        }
                     }
                 }
             }
+
+            return ThisDidUpdate;
         }
 
-        public static EntityBase GetEntityBySystemType(Type SystemType)
+        public static EntityBase GetEntityBySystemType(Type SystemType, Item Item = null)
         {
             if (SystemType == null)
             {
@@ -452,19 +435,65 @@ namespace EffectFramework.Core.Models.Entities
                 throw new ArgumentOutOfRangeException("Cannot create an entity from a type that isn't a subclass of EntityBase.");
             }
 
-            using (IKernel Kernel = new StandardKernel(new Configure()))
-            {
-                return (EntityBase)Kernel.Get(SystemType);
-            }
+            return (EntityBase)Activator.CreateInstance(SystemType, new object[] { Item, (object)null });
         }
 
-        public static EntityBase GetEntityByType(EntityType Type)
+        /// <summary>
+        /// Generates an entity from database object.
+        /// </summary>
+        /// <typeparam name="EntityT">The type of the Entity.</typeparam>
+        /// <param name="DbEntity">The entity database object.</param>
+        /// <param name="Item">An optional parent Item.</param>
+        /// <returns>The generated Entity object.</returns>
+        public static EntityT GenerateEntityFromDbObject<EntityT>(Db.Entity DbEntity, Item Item = null) where EntityT : EntityBase
+        {
+            if (DbEntity == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            int EntityTypeID = DbEntity.EntityTypeID;
+            EntityType EntityType = (EntityType)EntityTypeID;
+
+            if (typeof(EntityT) != EntityType.Type)
+            {
+                throw new InvalidOperationException("The entity type from the database object does not match the type parameter.");
+            }
+
+            return (EntityT)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity });
+        }
+
+        /// <summary>
+        /// Generates an entity from database object.
+        /// </summary>
+        /// <param name="DbEntity">The entity from the database. Can be null.</param>
+        /// <param name="Item">An optional parent Item.</param>
+        /// <returns>The generated Entity object.</returns>
+        public static EntityBase GenerateEntityFromDbObject(Db.Entity DbEntity, Item Item = null)
+        {
+            if (DbEntity == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            int EntityTypeID = DbEntity.EntityTypeID;
+            EntityType EntityType = (EntityType)EntityTypeID;
+
+            if (!typeof(EntityBase).IsAssignableFrom(EntityType.Type))
+            {
+                throw new InvalidOperationException("Cannot create entity from this type.");
+            }
+
+            return (EntityBase)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity });
+        }
+
+        public static EntityBase GetEntityByType(EntityType Type, Item Item = null)
         {
             if (Type == null)
             {
                 throw new ArgumentNullException();
             }
-            return GetEntityBySystemType(Type.Type);
+            return GetEntityBySystemType(Type.Type, Item);
         }
 
         /// <summary>

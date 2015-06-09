@@ -1,5 +1,5 @@
 ﻿using EffectFramework.Core;
-using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.Configuration;
 using Ninject;
 using System;
 using System.Collections.Generic;
@@ -28,10 +28,11 @@ namespace EffectFramework.Test
         public LoggerTests()
         {
             Configure.RegisterLoggingProvider<MemoryLoggingProvider>();
-            var configuration = new Configuration(BasePath)
-                .AddJsonFile("config.json");
+            var configuration = new ConfigurationBuilder(BasePath)
+                .AddJsonFile("config.json")
+                .Build();
 
-            Configure.ConnectionString = configuration["Data:DefaultConnection:ConnectionString"];
+            Configure.PersistenceConnectionString = configuration["Data:DefaultConnection:ConnectionString"];
         }
 
         [Fact]

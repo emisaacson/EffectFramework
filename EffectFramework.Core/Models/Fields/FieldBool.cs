@@ -4,9 +4,9 @@ using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models.Fields
 {
+    [Serializable]
     public class FieldBool : FieldBase, IField
     {
-        public string Name { get; private set; }
         public bool? Value
         {
             get
@@ -31,6 +31,7 @@ namespace EffectFramework.Core.Models.Fields
             {
                 if (value != null && !typeof(bool?).IsAssignableFrom(value.GetType()))
                 {
+                    Log.Error("Must assign a boolean to a boolean field. Value type: {0}, FieldID: {1}", value.GetType().Name, FieldID);
                     throw new InvalidCastException("Must assign a boolean to a boolean field.");
                 }
                 if (this.ValueBool != (bool?)value)
@@ -38,6 +39,31 @@ namespace EffectFramework.Core.Models.Fields
                     this.Dirty = true;
                     this.ValueBool = (bool?)value;
                 }
+            }
+        }
+
+        private FieldTypeMetaBasic _Meta = new FieldTypeMetaBasic(false);
+        public FieldTypeMetaBasic MetaBool
+        {
+            get
+            {
+                return _Meta;
+            }
+        }
+        public override IFieldTypeMeta Meta
+        {
+            get
+            {
+                return _Meta;
+            }
+            protected set
+            {
+                if (!(value is FieldTypeMetaBasic))
+                {
+                    Log.Error("Must assign a FieldTypeMetaBasic to a boolean field. Value type: {0}, Field ID: {1}", value.GetType().Name, FieldID);
+                    throw new InvalidCastException("Must assign a FieldTypeMetaBasic to a boolean field.");
+                }
+                _Meta = (FieldTypeMetaBasic)value;
             }
         }
 
@@ -73,36 +99,28 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public FieldBool(IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public FieldBool()
+            : base()
         { }
 
-        public FieldBool(FieldType Type, IPersistenceService PersistenceService, ICacheService CacheService)
-            : this(Type, null, null, PersistenceService, CacheService)
+        public FieldBool(FieldType Type)
+            : this(Type, null, null)
         {
 
         }
 
-        public FieldBool(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
-            : this(Type, null, Entity, PersistenceService, CacheService)
+        public FieldBool(FieldType Type, EntityBase Entity)
+            : this(Type, null, Entity)
         {
 
         }
 
-        public FieldBool(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public FieldBool(FieldType Type, FieldBase Base, EntityBase Entity)
+            : base(Type, Base, Entity)
         {
             if (Type.DataType != DataType.Boolean)
             {
                 throw new ArgumentOutOfRangeException("Cannot create a boolean field from a non-boolean type.");
-            }
-            this.Type = Type;
-            this.Name = Type.Name;
-            this.Entity = Entity;
-
-            if (Base != null)
-            {
-                LoadUpValues(Base);
             }
         }
     }

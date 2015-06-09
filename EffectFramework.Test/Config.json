@@ -1,7 +1,10 @@
 ﻿{
 	"Data": {
-		"DefaultConnection": {
-			"ConnectionString": "Server=EMIKEKDC02;Database=HRMS;Trusted_Connection=True;MultipleActiveResultSets=true"
+        "DefaultConnection": {
+            "ConnectionString": "Server=EMIKEKDC02;Database=HRMS;Trusted_Connection=True;MultipleActiveResultSets=true"
+        },
+        "DefaultCacheConnection": {
+			"ConnectionString": "emikek01,allowAdmin=true"
 		}
 	}
 }

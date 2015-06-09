@@ -60,6 +60,9 @@ namespace EffectFramework.Core.Services
         /// <returns>The EntityID and GUID of the saved entity.</returns>
         Models.Db.ObjectIdentity SaveSingleEntity(EntityBase Entity, Models.Db.IDbContext ctx = null);
 
+        IFieldTypeMeta GetFieldTypeMeta(int ItemTypeID, int EntityTypeID, int FieldTypeID, Models.Db.IDbContext ctx = null);
+
+
         /// <summary>
         /// Persists a single item to the database.
         /// </summary>

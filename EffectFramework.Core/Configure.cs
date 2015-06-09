@@ -15,34 +15,39 @@ namespace EffectFramework.Core
         /// Gets or sets the global connection string used for all instances of the 
         /// persistence service. This should be set in the startup routine of the app.
         /// </summary>
-        public static string ConnectionString;
+        public static string PersistenceConnectionString;
+        public static string CacheConnectionString;
         private static Type PersistenceServiceType = typeof(EntityFrameworkPersistenceService);
         private static Type CacheServiceType = typeof(NullCacheService);
         private static Type LoggingProviderType = typeof(NullLoggingProvider);
+
+        private static IPersistenceService _PersistenceService;
+        private static ICacheService _CacheService;
 
         public Configure()
         {
 
         }
-        public Configure(string ConnectionString)
+        public Configure(string PersistenceConnectionString, string CacheConnectionString = null)
         {
-            Configure.ConnectionString = ConnectionString;
+            Configure.PersistenceConnectionString = PersistenceConnectionString;
+            Configure.CacheConnectionString = CacheConnectionString;
         }
         public override void Load()
         {
-            if (ConnectionString == null)
-            {
-                throw new InvalidOperationException("Must set connection string.");
-            }
+
             Kernel.Bind<IPersistenceService>()
                 .To(PersistenceServiceType)
-                .WithConstructorArgument("ConnectionString", ConnectionString);
+                .InSingletonScope()
+                .WithConstructorArgument("ConnectionString", PersistenceConnectionString);
 
             Kernel.Bind<ILoggingProvider>()
                 .To(LoggingProviderType);
 
             Kernel.Bind<ICacheService>()
-                .To(CacheServiceType);
+                .To(CacheServiceType)
+                .InSingletonScope()
+                .WithPropertyValue("ConnectionString", CacheConnectionString);
         }
 
         /// <summary>
@@ -122,18 +127,26 @@ namespace EffectFramework.Core
 
         public static IPersistenceService GetPersistenceService()
         {
-            using (IKernel Kernel = new StandardKernel(new Configure()))
+            if (_PersistenceService == null)
             {
-                return Kernel.Get<IPersistenceService>();
+                using (IKernel Kernel = new StandardKernel(new Configure()))
+                {
+                    _PersistenceService = Kernel.Get<IPersistenceService>();
+                }
             }
+            return _PersistenceService;
         }
 
         public static ICacheService GetCacheService()
         {
-            using (IKernel Kernel = new StandardKernel(new Configure()))
+            if (_CacheService == null)
             {
-                return Kernel.Get<ICacheService>();
+                using (IKernel Kernel = new StandardKernel(new Configure()))
+                {
+                    _CacheService = Kernel.Get<ICacheService>();
+                }
             }
+            return _CacheService;
         }
     }
 }

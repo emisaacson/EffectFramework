@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace EffectFramework.Core.Models.Entities
 {
+    [Serializable]
     public abstract class EntityType
     {
         public int Value { get; protected set; }
@@ -38,6 +39,34 @@ namespace EffectFramework.Core.Models.Entities
                 throw new InvalidOperationException("Cannot register the same Entity Type twice.");
             }
             TypeRegistry[Type.Value] = Type;
+        }
+
+        public static bool operator ==(EntityType Et1, EntityType Et2)
+        {
+            if ((object)Et1 == null && (object)Et2 == null)
+            {
+                return true;
+            }
+            if ((object)Et1 == null || (object)Et2 == null)
+            {
+                return false;
+            }
+
+            return Et1.Value == Et2.Value;
+        }
+
+        public static bool operator !=(EntityType Et1, EntityType Et2)
+        {
+            if ((object)Et1 == null && (object)Et2 == null)
+            {
+                return false;
+            }
+            if ((object)Et1 == null || (object)Et2 == null)
+            {
+                return true;
+            }
+
+            return Et1.Value != Et2.Value;
         }
     }
 }

@@ -4,9 +4,9 @@ using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models.Fields
 {
+    [Serializable]
     public class FieldDate : FieldBase, IField
     {
-        public string Name { get; private set; }
         public DateTime? Value
         {
             get
@@ -40,6 +40,7 @@ namespace EffectFramework.Core.Models.Fields
             {
                 if (value != null && !typeof(DateTime?).IsAssignableFrom(value.GetType()))
                 {
+                    Log.Error("Must assign a datetime to a date field. Value type: {0}, FieldID: {1}", value.GetType().Name, FieldID);
                     throw new InvalidCastException("Must assign a datetime to a date field.");
                 }
                 DateTime? _Value = (DateTime?)value;
@@ -52,6 +53,40 @@ namespace EffectFramework.Core.Models.Fields
                     this.Dirty = true;
                     this.ValueDate = _Value;
                 }
+            }
+        }
+
+        private FieldTypeMetaDate _Meta;
+        private FieldTypeMetaDate _DefaultMeta = new FieldTypeMetaDate(false, null, null);
+        public FieldTypeMetaDate MetaDate
+        {
+            get
+            {
+                if (_Meta == null)
+                {
+                    TryLoadFieldMeta();
+                }
+                if (_Meta /*still*/ == null)
+                {
+                    return _DefaultMeta;
+                }
+                return _Meta;
+            }
+        }
+        public override IFieldTypeMeta Meta
+        {
+            get
+            {
+                return MetaDate;
+            }
+            protected set
+            {
+                if (!(value is FieldTypeMetaDate))
+                {
+                    Log.Error("Must assign a FieldTypeMetaDate to a date field. Value type: {0}, Field ID: {1}", value.GetType().Name, FieldID);
+                    throw new InvalidCastException("Must assign a FieldTypeMetaDate to a date field.");
+                }
+                _Meta = (FieldTypeMetaDate)value;
             }
         }
 
@@ -87,34 +122,26 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public FieldDate(IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public FieldDate()
+            : base()
         { }
 
-        public FieldDate(FieldType Type, IPersistenceService PersistenceService, ICacheService CacheService)
-            : this(Type, null, null, PersistenceService, CacheService)
+        public FieldDate(FieldType Type)
+            : this(Type, null, null)
         { }
 
-        public FieldDate(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
-            : this(Type, null, Entity, PersistenceService, CacheService)
+        public FieldDate(FieldType Type, EntityBase Entity)
+            : this(Type, null, Entity)
         {
 
         }
 
-        public FieldDate(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public FieldDate(FieldType Type, FieldBase Base, EntityBase Entity)
+            : base(Type, Base, Entity)
         {
             if (Type.DataType != DataType.Date)
             {
                 throw new ArgumentOutOfRangeException("Cannot create a date field from a non-date type.");
-            }
-            this.Type = Type;
-            this.Name = Type.Name;
-            this.Entity = Entity;
-
-            if (Base != null)
-            {
-                LoadUpValues(Base);
             }
         }
     }

@@ -7,7 +7,14 @@ namespace EffectFramework.Core.Services
 {
     public interface ICacheService
     {
-        object GetObjectByKey(string Key);
+        object GetObject(string Key);
+        byte[] GetObjectAsByteArray(string Key);
+        int? GetObjectAsInt(string Key);
+        bool? GetObjectAsBool(string Key);
+        long? GetObjectAsLong(string Key);
+        double? GetObjectAsDouble(string Key);
+        string GetObjectAsString(string Key);
         void StoreObject(string Key, object Value);
+        void DeleteObject(string Key);
     }
 }

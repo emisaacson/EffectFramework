@@ -4,14 +4,30 @@ using System.Collections.Generic;
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Services;
 using Ninject;
+using Ninject.Parameters;
 
 namespace EffectFramework.Core.Models
 {
     /// <summary>
     /// All items must inherit this base class.
     /// </summary>
+    [Serializable]
     public abstract class Item
     {
+        [NonSerialized]
+        protected Logger _Log;
+        protected Logger Log
+        {
+            get
+            {
+                if (_Log == null)
+                {
+                    _Log = new Logger(GetType().Name);
+                }
+                return _Log;
+            }
+        }
+
         /// <summary>
         /// Gets all the non-deleted entityies for this particular item.
         /// </summary>
@@ -56,8 +72,32 @@ namespace EffectFramework.Core.Models
         /// </value>
         public abstract ItemType Type { get; }
 
-        protected readonly IPersistenceService PersistenceService;
-        protected readonly ICacheService CacheService;
+        [NonSerialized]
+        protected IPersistenceService _PersistenceService;
+        protected IPersistenceService PersistenceService
+        {
+            get
+            {
+                if (_PersistenceService == null)
+                {
+                    _PersistenceService = Configure.GetPersistenceService();
+                }
+                return _PersistenceService;
+            }
+        }
+        [NonSerialized]
+        protected ICacheService _CacheService;
+        protected ICacheService CacheService
+        {
+            get
+            {
+                if (_CacheService == null)
+                {
+                    _CacheService = Configure.GetCacheService();
+                }
+                return _CacheService;
+            }
+        }
 
         /// <summary>
         /// Gets an entity collection representing all entities overlapping with the current EffectiveDate
@@ -97,13 +137,11 @@ namespace EffectFramework.Core.Models
         /// Initializes a new instance of the <see cref="Item"/> class. The item is initially
         /// dirty and has no item ID. When persisted, an ItemID will be added to the class.
         /// </summary>
-        /// <param name="PersistenceService">The persistence service (for DI injection).</param>
-        public Item(IPersistenceService PersistenceService, ICacheService CacheService, bool Sparse = false)
+        /// <param name="Sparse">If set to <c>true</c>, only load entities for the current EffectiveRecord.</param>
+        public Item(bool Sparse = false)
         {
             this.Dirty = true;
             this.Sparse = Sparse;
-            this.PersistenceService = PersistenceService;
-            this.CacheService = CacheService;
         }
 
         /// <summary>
@@ -111,14 +149,12 @@ namespace EffectFramework.Core.Models
         /// </summary>
         /// <param name="ItemID">The item identifier.</param>
         /// <param name="PersistenceService">The persistence service.</param>
-        /// <param name="LoadItem">if set to <c>true</c>, retreive all data for this item from the PersistenceService.</param>
-        /// <param name="Sparse">if set to <c>true</c>, only load entities for the current EffectiveRecord.</param>
-        public Item(int ItemID, IPersistenceService PersistenceService, ICacheService CacheService, bool LoadItem = true, bool Sparse = false)
+        /// <param name="LoadItem">If set to <c>true</c>, retreive all data for this item from the PersistenceService.</param>
+        /// <param name="Sparse">If set to <c>true</c>, only load entities for the current EffectiveRecord.</param>
+        public Item(int ItemID, bool LoadItem = true, bool Sparse = false)
         {
             this.ItemID = ItemID;
             this.Sparse = Sparse;
-            this.PersistenceService = PersistenceService;
-            this.CacheService = CacheService;
 
             if (LoadItem)
             {
@@ -133,7 +169,7 @@ namespace EffectFramework.Core.Models
         /// <returns>An entity collection for all entities overlapping with the passed Effective Date.</returns>
         public EntityCollection GetEntityCollectionForDate(DateTime EffectiveDate)
         {
-            return new EntityCollection(this, EffectiveDate, PersistenceService);
+            return new EntityCollection(this, EffectiveDate);
         }
 
         /// <summary>
@@ -169,14 +205,13 @@ namespace EffectFramework.Core.Models
                 var EntityRows = Rows.Where(r => r.EntityID == EntityID);
                 if (EntityRows.Count() > 0) {
                     var First = EntityRows.First();
-                    using (IKernel Kernel = new StandardKernel(new Configure()))
-                    {
-                        EntityBase Entity = (EntityBase)Kernel.Get(((EntityType)First.EntityTypeID).Type);
-                        Entity.LoadUpEntityFromView(Rows.Where(r => r.EntityID == EntityID));
-                        this.AddEntity(Entity);
-                    }
+
+                    EntityBase Entity = EntityBase.GetEntityByType((EntityType)First.EntityTypeID, this);
+                    Entity.LoadUpEntityFromView(Rows.Where(r => r.EntityID == EntityID));
+                    this.AddEntity(Entity);
                 }
             }
+            this.Dirty = false;
         }
 
 
@@ -184,7 +219,8 @@ namespace EffectFramework.Core.Models
         /// Persist the item and all of its entities to database.
         /// </summary>
         /// <param name="ctx">The database context. If one is not provided, a new one will be created with a transaction.</param>
-        public void PersistToDatabase(Db.IDbContext ctx = null)
+        /// <returns>True if the Item or any of its entites were changed.</returns>
+        public bool PersistToDatabase(Db.IDbContext ctx = null)
         {
             Db.IDbContext db = null;
             try {
@@ -211,10 +247,13 @@ namespace EffectFramework.Core.Models
                     }
                 }
 
+                List<bool> Results = new List<bool>();
                 foreach (var Entity in _AllEntities)
                 {
-                    Entity.PersistToDatabase(this, db);
+                    Results.Add(Entity.PersistToDatabase(db));
                 }
+                bool ThisDidChange = Identity.DidUpdate || Results.Any(r => r == true);
+
                 RemoveDeadEntities();
 
                 this.Dirty = false;
@@ -223,6 +262,13 @@ namespace EffectFramework.Core.Models
                 {
                     db.Commit();
                 }
+
+                if (ThisDidChange)
+                {
+                    CacheService.DeleteObject(string.Format("Item:{0}", ItemID));
+                }
+
+                return ThisDidChange;
             }
             finally
             {
@@ -244,44 +290,96 @@ namespace EffectFramework.Core.Models
             DateTime? DateToSend = EffectiveDate;
 
             _AllEntities = PersistenceService.RetreiveAllEntities(this, Sparse ? DateToSend : null);
-            foreach (var Entity in _AllEntities)
-            {
-                Entity.Item = this;
-            }
 
             this.Dirty = false;
         }
 
         public static Item GetItemByID(int ItemID)
         {
-            using (IKernel Kernel = new StandardKernel(new Configure()))
-            {
-                IPersistenceService PersistenceService = Kernel.Get<IPersistenceService>();
-                var ViewResult = PersistenceService.RetreiveCompleteItems(new int [] { ItemID });
-                var Items = GetItemsFromView(ViewResult);
-                return Items.FirstOrDefault();
-            }
+            IPersistenceService PersistenceService = Configure.GetPersistenceService();
+            var ViewResult = PersistenceService.RetreiveCompleteItems(new int [] { ItemID });
+            var Items = GetItemsFromView(ViewResult);
+            return Items.FirstOrDefault();
         }
 
         public static List<Item> GetItemsByID(IEnumerable<int> ItemIDs)
         {
-            using (IKernel Kernel = new StandardKernel(new Configure()))
+
+            ICacheService CacheService = Configure.GetCacheService();
+            IPersistenceService PersistenceService = Configure.GetPersistenceService();
+
+            List<int> MissingItemIDs = new List<int>();
+            List<Item> CachedItems = new List<Item>();
+            List<Item> NotCachedItems = new List<Item>();
+            foreach (var ItemID in ItemIDs)
             {
-                IPersistenceService PersistenceService = Kernel.Get<IPersistenceService>();
-                var ViewResult = PersistenceService.RetreiveCompleteItems(ItemIDs);
-                return GetItemsFromView(ViewResult);
+                string Key = string.Format("Item:{0}", ItemID);
+                var MaybeCompleteItem = (Item)CacheService.GetObject(Key);
+
+                if (MaybeCompleteItem != null)
+                {
+                    CachedItems.Add(MaybeCompleteItem);
+                }
+                else
+                {
+                    MissingItemIDs.Add(ItemID);
+                }
             }
+
+            if (MissingItemIDs.Count() > 0)
+            {
+                var ViewResult = PersistenceService.RetreiveCompleteItems(MissingItemIDs);
+                NotCachedItems = GetItemsFromView(ViewResult);
+                foreach (Item Item in NotCachedItems)
+                {
+                    string Key = string.Format("Item:{0}", Item.ItemID);
+                    CacheService.StoreObject(Key, Item);
+                }
+            }
+
+            CachedItems.AddRange(NotCachedItems);
+            return CachedItems;
         }
 
         public static List<Item> GetItemsFromView(IEnumerable<Db.CompleteItem> ViewResult)
         {
+
+            ICacheService CacheService = Configure.GetCacheService();
+            IPersistenceService PersistenceService = Configure.GetPersistenceService();
+
             var ItemIDs = ViewResult.Select(v => v.ItemID).Distinct();
-            List<Item> Output = new List<Item>();
+
+            List<int> MissingItemIDs = new List<int>();
+            List<Item> CachedItems = new List<Item>();
+            List<Item> NotCachedItems = new List<Item>();
             foreach (var ItemID in ItemIDs)
             {
-                Output.Add(Item.GetItemFromView(ItemID, ViewResult));
+                string Key = string.Format("Item:{0}", ItemID);
+                var MaybeCompleteItem = (Item)CacheService.GetObject(Key);
+
+                if (MaybeCompleteItem != null)
+                {
+                    CachedItems.Add(MaybeCompleteItem);
+                }
+                else
+                {
+                    MissingItemIDs.Add(ItemID);
+                }
             }
-            return Output;
+
+            if (MissingItemIDs.Count() > 0)
+            {
+                foreach (int ItemID in MissingItemIDs)
+                {
+                    var Item = GetItemFromView(ItemID, ViewResult);
+                    NotCachedItems.Add(Item);
+                    string Key = string.Format("Item:{0}", ItemID);
+                    CacheService.StoreObject(Key, Item);
+                }
+            }
+
+            CachedItems.AddRange(NotCachedItems);
+            return CachedItems;
         }
 
         public static Item GetItemFromView(int ItemID, IEnumerable<Db.CompleteItem> ViewResult)
@@ -294,12 +392,9 @@ namespace EffectFramework.Core.Models
 
             if (ItemRows.Count() > 0) {
                 var First = ItemRows.First();
-                using (IKernel Kernel = new StandardKernel(new Configure()))
-                {
-                    Item Item = (Item)Kernel.Get(((ItemType)First.ItemTypeID).Type);
-                    Item.LoadByView(ItemID, ItemRows);
-                    return Item;
-                }
+                Item Item = (Item)Activator.CreateInstance(((ItemType)First.ItemTypeID).Type);
+                Item.LoadByView(ItemID, ItemRows);
+                return Item;
             }
             else
             {

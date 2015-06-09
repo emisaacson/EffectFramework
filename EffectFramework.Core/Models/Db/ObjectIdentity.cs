@@ -7,5 +7,6 @@ namespace EffectFramework.Core.Models.Db
     {
         public int ObjectID;
         public Guid ObjectGuid;
+        public bool DidUpdate;
     }
 }

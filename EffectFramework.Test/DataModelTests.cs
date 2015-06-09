@@ -11,31 +11,32 @@ using EffectFramework.Core.Services;
 using EffectFramework.Core.Models;
 using EffectFramework.Core.Forms;
 using EffectFramework.Core;
-using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.Configuration;
 using EffectFramework.Core.Exceptions;
+using EffectFramework.Core.Models.Annotations;
 
 namespace EffectFramework.Test
 {
     public class DataModelTests : IDisposable
     {
-        public EffectFrameworkTestsContext ef { get; set; }
+        public EffectFrameworkTestsContext Ef { get; set; }
         public DataModelTests()
         {
-            ef = new EffectFrameworkTestsContext();
+            Ef = new EffectFrameworkTestsContext();
 
-            var configuration = new Configuration(ef.BasePath)
+            var configuration = new ConfigurationBuilder(Ef.BasePath)
                 .AddJsonFile("config.json");
-            ef.Configuration = configuration;
+            Ef.Configuration = configuration.Build();
 
-            Configure.ConnectionString = ef.Configuration["Data:DefaultConnection:ConnectionString"];
+            Configure.PersistenceConnectionString = Ef.Configuration["Data:DefaultConnection:ConnectionString"];
 
-            ef.PrepareEF7Database();
+            Ef.PrepareEF7Database();
         }
 
         [Fact]
         public void CreateEF7DBContext()
         {
-            using (var db = new EntityFramework7DBContext(ef.Configuration["Data:DefaultConnection:ConnectionString"]))
+            using (var db = new EntityFramework7DBContext(Ef.Configuration["Data:DefaultConnection:ConnectionString"]))
             {
 
             }
@@ -48,7 +49,7 @@ namespace EffectFramework.Test
             {
                 Kernel.Load(new EffectFramework.Core.Configure());
 
-                Core.Models.Db.Item Item = ef.TempItems.First();
+                Core.Models.Db.Item Item = Ef.TempItems.First();
 
                 User NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
                 NewUser.EffectiveDate = new DateTime(2015, 1, 1);
@@ -75,7 +76,7 @@ namespace EffectFramework.Test
             using (IKernel Kernel = new StandardKernel())
             {
                 Kernel.Load(new EffectFramework.Core.Configure());
-                Core.Models.Db.Item Item = ef.TempItems.First();
+                Core.Models.Db.Item Item = Ef.TempItems.First();
 
                 User NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
                 NewUser.EffectiveDate = new DateTime(2015, 1, 1);
@@ -108,7 +109,7 @@ namespace EffectFramework.Test
             using (IKernel Kernel = new StandardKernel())
             {
                 Kernel.Load(new EffectFramework.Core.Configure());
-                Core.Models.Db.Item Item = ef.TempItems.First();
+                Core.Models.Db.Item Item = Ef.TempItems.First();
 
                 User NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
                 NewUser.EffectiveDate = new DateTime(2015, 1, 1);
@@ -153,7 +154,7 @@ namespace EffectFramework.Test
             using (IKernel Kernel = new StandardKernel())
             {
                 Kernel.Load(new EffectFramework.Core.Configure());
-                Core.Models.Db.Item Item = ef.TempItems.First();
+                Core.Models.Db.Item Item = Ef.TempItems.First();
 
                 User NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
                 NewUser.EffectiveDate = new DateTime(2015, 1, 1);
@@ -197,7 +198,7 @@ namespace EffectFramework.Test
         {
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                Core.Models.Db.Item Item = ef.TempItems.First();
+                Core.Models.Db.Item Item = Ef.TempItems.First();
 
                 User NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
                 NewUser.EffectiveDate = new DateTime(2015, 1, 1);
@@ -217,7 +218,7 @@ namespace EffectFramework.Test
         {
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                Core.Models.Db.Item Item = ef.TempItems.Last();
+                Core.Models.Db.Item Item = Ef.TempItems.Last();
 
                 User NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
                 NewUser.EffectiveDate = new DateTime(2015, 1, 1);
@@ -234,7 +235,7 @@ namespace EffectFramework.Test
 
                 Assert.False(UserType.Dirty);
 
-                using (var db = new EntityFramework7DBContext(ef.Configuration["Data:DefaultConnection:ConnectionString"]))
+                using (var db = new EntityFramework7DBContext(Ef.Configuration["Data:DefaultConnection:ConnectionString"]))
                 {
                     Field Field = db.Fields.Where(ef => ef.FieldID == UserType.FieldID.Value).Single();
 
@@ -259,7 +260,7 @@ namespace EffectFramework.Test
             using (IKernel Kernel = new StandardKernel())
             {
                 Kernel.Load(new EffectFramework.Core.Configure());
-                Core.Models.Db.Item Item = ef.TempItems.First();
+                Core.Models.Db.Item Item = Ef.TempItems.First();
 
                 User NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
                 NewUser.EffectiveDate = new DateTime(2015, 1, 1);
@@ -269,9 +270,9 @@ namespace EffectFramework.Test
 
                 Job.PersistToDatabase();
 
-                using (var db = new EntityFramework7DBContext(ef.Configuration["Data:DefaultConnection:ConnectionString"]))
+                using (var db = new EntityFramework7DBContext(Ef.Configuration["Data:DefaultConnection:ConnectionString"]))
                 {
-                    ef.TempField.Add(db.Fields.Where(f => f.FieldID == Job.JobStartDate.FieldID.Value).Single());
+                    Ef.TempField.Add(db.Fields.Where(f => f.FieldID == Job.JobStartDate.FieldID.Value).Single());
                 }
 
                 NewUser = Kernel.Get<User>(new ConstructorArgument("UserID", Item.ItemID.Value));
@@ -289,17 +290,17 @@ namespace EffectFramework.Test
             User User = null;
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                User = Kernel.Get<User>(new ConstructorArgument("UserID", ef.TempItems.First().ItemID));
+                User = Kernel.Get<User>(new ConstructorArgument("UserID", Ef.TempItems.First().ItemID));
             }
 
             User.EffectiveDate = new DateTime(2015, 3, 1);
-            GeneralInfoEntity Entity = User.EffectiveRecord.CreateEntityAndAdjustNeighbors<GeneralInfoEntity>(CopyValuesFromPrevious: true);
+            GeneralInfoEntity Entity = User.EffectiveRecord.CreateEntityAndApplyPolicy<GeneralInfoEntity>(CopyValuesFromPrevious: true);
             Entity.First_Name.Value = "Bobby";
             User.PersistToDatabase();
 
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                User = Kernel.Get<User>(new ConstructorArgument("UserID", ef.TempItems.First().ItemID));
+                User = Kernel.Get<User>(new ConstructorArgument("UserID", Ef.TempItems.First().ItemID));
             }
             User.EffectiveDate = new DateTime(2015, 1, 1);
             GeneralInfoForm Form = new GeneralInfoForm()
@@ -318,7 +319,7 @@ namespace EffectFramework.Test
 
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                User = Kernel.Get<User>(new ConstructorArgument("UserID", ef.TempItems.First().ItemID));
+                User = Kernel.Get<User>(new ConstructorArgument("UserID", Ef.TempItems.First().ItemID));
             }
             User.EffectiveDate = new DateTime(2015, 1, 1);
             Form = new GeneralInfoForm();
@@ -334,7 +335,7 @@ namespace EffectFramework.Test
 
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                User = Kernel.Get<User>(new ConstructorArgument("UserID", ef.TempItems.First().ItemID));
+                User = Kernel.Get<User>(new ConstructorArgument("UserID", Ef.TempItems.First().ItemID));
             }
             User.EffectiveDate = new DateTime(2015, 3, 1);
             Form = new GeneralInfoForm()
@@ -361,7 +362,7 @@ namespace EffectFramework.Test
 
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                User = Kernel.Get<User>(new ConstructorArgument("UserID", ef.TempItems.First().ItemID));
+                User = Kernel.Get<User>(new ConstructorArgument("UserID", Ef.TempItems.First().ItemID));
             }
             User.EffectiveDate = new DateTime(2015, 1, 1);
             GeneralInfoForm Form = new GeneralInfoForm();
@@ -378,7 +379,7 @@ namespace EffectFramework.Test
 
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                User = Kernel.Get<User>(new ConstructorArgument("UserID", ef.TempItems.First().ItemID));
+                User = Kernel.Get<User>(new ConstructorArgument("UserID", Ef.TempItems.First().ItemID));
             }
             User.EffectiveDate = new DateTime(2015, 4, 1);
             var Entity = User.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
@@ -401,8 +402,8 @@ namespace EffectFramework.Test
         {
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                User User1 = Kernel.Get<User>(new ConstructorArgument("UserID", ef.TempItems.First().ItemID));
-                User User2 = Kernel.Get<User>(new ConstructorArgument("UserID", ef.TempItems.First().ItemID));
+                User User1 = Kernel.Get<User>(new ConstructorArgument("UserID", Ef.TempItems.First().ItemID));
+                User User2 = Kernel.Get<User>(new ConstructorArgument("UserID", Ef.TempItems.First().ItemID));
 
                 User1.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>().UserType.Value = "Administrator";
                 User2.EffectiveRecord.GetFirstEntityOrDefault<UserTypeEntity>().UserType.Value = "Pion";
@@ -420,9 +421,11 @@ namespace EffectFramework.Test
         {
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                User User = Kernel.Get<User>(new ConstructorArgument("UserID", ef.TempItems.First().ItemID));
+                User User = Kernel.Get<User>(new ConstructorArgument("UserID", Ef.TempItems.First().ItemID));
+                User.EffectiveDate = new DateTime(2015, 6, 1);
 
-                User.EffectiveRecord.CreateEntityAndAdjustNeighbors<GeneralInfoEntity>(true);
+                var OldEntity = User.EffectiveRecord.GetFirstEntityOrDefault<GeneralInfoEntity>();
+                OldEntity.EndEffectiveDate = new DateTime(2015, 7, 1);
 
                 User.PersistToDatabase();
 
@@ -431,7 +434,9 @@ namespace EffectFramework.Test
 
                 Assert.Equal(1, User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
 
-                User.EffectiveRecord.CreateEntityAndAdjustNeighbors<GeneralInfoEntity>(true, new DateTime(2015, 9, 1));
+                User.EffectiveDate = new DateTime(2015, 7, 1);
+
+                User.EffectiveRecord.CreateEntityAndApplyPolicy<GeneralInfoEntity>(new DateTime(2015, 9, 1), CopyValuesFromPrevious: true);
                 User.PersistToDatabase();
 
                 Assert.Equal(1, User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
@@ -447,7 +452,7 @@ namespace EffectFramework.Test
         {
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
-                User User = Kernel.Get<User>(new ConstructorArgument("UserID", ef.TempItems.First().ItemID));
+                User User = Kernel.Get<User>(new ConstructorArgument("UserID", Ef.TempItems.First().ItemID));
 
                 DateTime Today = DateTime.Now.Date;
 
@@ -531,9 +536,9 @@ namespace EffectFramework.Test
             }
         }
 
-        public User(IPersistenceService PersistenceService, ICacheService CacheService) : base(PersistenceService, CacheService) { }
+        public User() : base() { }
 
-        public User(int UserID, IPersistenceService PersistenceService, ICacheService CacheService, bool LoadItem = true) : base(UserID, PersistenceService, CacheService, LoadItem) { }
+        public User(int UserID, bool LoadItem = true) : base(UserID, LoadItem) { }
     }
 
     public class AddressEntity : EntityBase
@@ -546,10 +551,8 @@ namespace EffectFramework.Test
             }
         }
 
-        public AddressEntity() : base() { }
-
-        public AddressEntity(IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public AddressEntity(Core.Models.Item Item, EffectFramework.Core.Models.Db.Entity DbEntity)
+            : base(Item, DbEntity)
         {
 
         }
@@ -560,6 +563,7 @@ namespace EffectFramework.Test
         }
     }
 
+    [ApplyPolicy(typeof(NoOverlapPolicy))]
     public class GeneralInfoEntity : EntityBase
     {
         public override EntityType Type
@@ -570,23 +574,17 @@ namespace EffectFramework.Test
             }
         }
 
-        public GeneralInfoEntity() : base()
+        public GeneralInfoEntity(Core.Models.Item Item, EffectFramework.Core.Models.Db.Entity DbEntity)
+            : base(Item, DbEntity)
         {
 
-        }
-
-
-
-        public GeneralInfoEntity(IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
-        {
         }
 
         protected override void WireUpFields()
         {
-            Start_Date = new FieldDate(TestFieldType.User_Start_Date, PersistenceService, CacheService);
-            First_Name = new FieldString(TestFieldType.First_Name, PersistenceService, CacheService);
-            Last_Name = new FieldString(TestFieldType.Last_Name, PersistenceService, CacheService);
+            Start_Date = new FieldDate(TestFieldType.User_Start_Date, this);
+            First_Name = new FieldString(TestFieldType.First_Name, this);
+            Last_Name = new FieldString(TestFieldType.Last_Name, this);
         }
 
         public FieldDate Start_Date { get; private set; }
@@ -605,18 +603,16 @@ namespace EffectFramework.Test
             }
         }
 
-        public UserTypeEntity() : base() { }
-
-        public UserTypeEntity(IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public UserTypeEntity(Core.Models.Item Item, EffectFramework.Core.Models.Db.Entity DbEntity)
+            : base(Item, DbEntity)
         {
 
         }
 
         protected override void WireUpFields()
         {
-            UserType = new FieldString(TestFieldType.User_Type, PersistenceService, CacheService);
-            JobStartDate = new FieldDate(TestFieldType.Job_Start_Date, PersistenceService, CacheService);
+            UserType = new FieldString(TestFieldType.User_Type, this);
+            JobStartDate = new FieldDate(TestFieldType.Job_Start_Date, this);
         }
 
         public FieldString UserType { get; private set; }

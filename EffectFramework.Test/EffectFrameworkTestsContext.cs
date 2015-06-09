@@ -1,6 +1,6 @@
 ﻿using EffectFramework.Core.Models.Db;
 using Microsoft.Data.Entity;
-using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,6 +56,7 @@ namespace EffectFramework.Test
                     EntityTypeID = TestEntityType.General_Info,
                     IsDeleted = false,
                     Guid = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
                 };
 
 
@@ -67,6 +68,7 @@ namespace EffectFramework.Test
                     EntityTypeID = TestEntityType.User_Role,
                     IsDeleted = false,
                     Guid = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
                 };
 
                 Entity NewEntity3 = new Entity()
@@ -77,6 +79,7 @@ namespace EffectFramework.Test
                     EntityTypeID = TestEntityType.User_Role,
                     IsDeleted = false,
                     Guid = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
                 };
 
                 db.Entities.Add(NewEntity1);
@@ -91,6 +94,7 @@ namespace EffectFramework.Test
                     IsDeleted = false,
                     ValueDate = new DateTime(2015, 1, 1),
                     Guid = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
                 };
 
                 Field NewField4 = new Field()
@@ -100,6 +104,7 @@ namespace EffectFramework.Test
                     IsDeleted = false,
                     ValueText = "John",
                     Guid = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
                 };
 
                 Field NewField5 = new Field()
@@ -109,6 +114,7 @@ namespace EffectFramework.Test
                     IsDeleted = false,
                     ValueText = "Smith",
                     Guid = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
                 };
 
                 Field NewField2 = new Field()
@@ -118,6 +124,7 @@ namespace EffectFramework.Test
                     IsDeleted = false,
                     ValueText = "Subscriber",
                     Guid = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
                 };
 
                 Field NewField3 = new Field()
@@ -127,6 +134,7 @@ namespace EffectFramework.Test
                     IsDeleted = false,
                     ValueText = "Editor",
                     Guid = Guid.NewGuid(),
+                    CreateDate = DateTime.Now,
                 };
 
                 db.Fields.Add(NewField1);

@@ -1,14 +1,19 @@
 ﻿using System;
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Services;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+using EffectFramework.Core.Models.Db;
 
 namespace EffectFramework.Core.Models.Fields
 {
     /// <summary>
     /// The base class of all Fields
     /// </summary>
+    [Serializable]
     public class FieldBase
     {
+        [NonSerialized]
         protected Logger _Log;
         protected Logger Log {
             get
@@ -27,10 +32,33 @@ namespace EffectFramework.Core.Models.Fields
         /// The static FielType of this Field
         /// </value>
         public FieldType Type { get; protected set; }
+
+        private IFieldTypeMeta _Meta;
+        private IFieldTypeMeta _DefaultMeta = new FieldTypeMetaBasic(false);
+        public virtual IFieldTypeMeta Meta
+        {
+            get
+            {
+                if (_Meta == null)
+                {
+                    TryLoadFieldMeta();
+                }
+                if (_Meta /*still!*/ == null)
+                {
+                    return _DefaultMeta;
+                }
+                return _Meta;
+            }
+            protected set
+            {
+                _Meta = value;
+            }
+        }
         public EntityBase Entity { get; protected set; }
         public Guid Guid { get; protected set; }
         public int? FieldID { get; protected set; }
         public bool Dirty { get; protected set; }
+        public string Name { get; protected set; }
 
         protected string ValueString { get; set; }
         protected DateTime? ValueDate { get; set; }
@@ -46,14 +74,52 @@ namespace EffectFramework.Core.Models.Fields
         protected int? OriginalValueLookup { get; set; }
         protected byte[] OriginalValueBinary { get; set; }
 
-        protected readonly IPersistenceService PersistenceService;
-        protected readonly ICacheService CacheService;
+        [NonSerialized]
+        protected IPersistenceService _PersistenceService;
+        protected IPersistenceService PersistenceService
+        {
+            get
+            {
+                if (_PersistenceService == null)
+                {
+                    _PersistenceService = Configure.GetPersistenceService();
+                }
+                return _PersistenceService;
+            }
+        }
+        [NonSerialized]
+        protected ICacheService _CacheService;
+        protected ICacheService CacheService
+        {
+            get
+            {
+                if (_CacheService == null)
+                {
+                    _CacheService = Configure.GetCacheService();
+                }
+                return _CacheService;
+            }
+        }
 
-        public FieldBase(IPersistenceService PersistenceService, ICacheService CacheService)
+        public FieldBase()
         {
             this.Dirty = false;
-            this.PersistenceService = PersistenceService;
-            this.CacheService = CacheService;
+        }
+
+        public FieldBase(FieldType Type, FieldBase Base)
+        {
+            this.Type = Type;
+            this.Name = Type.Name;
+            LoadUpValues(Base);
+        }
+
+        public FieldBase(FieldType Type, FieldBase Base, EntityBase Entity)
+        {
+            this.Type = Type;
+            this.Name = Type.Name;
+            this.Entity = Entity;
+            LoadUpValues(Base);
+            TryLoadFieldMeta();
         }
 
         public FieldBase(Db.Field Field)
@@ -61,23 +127,43 @@ namespace EffectFramework.Core.Models.Fields
             this.Dirty = false;
             this.FieldID = Field.FieldID;
 
-            this.ValueString  = Field.ValueText;
-            this.ValueDate    = Field.ValueDate;
+            this.ValueString = Field.ValueText;
+            this.ValueDate = Field.ValueDate;
             this.ValueDecimal = Field.ValueDecimal;
-            this.ValueBool    = Field.ValueBoolean;
-            this.ValueLookup  = Field.ValueLookup;
-            this.ValueBinary  = Field.ValueBinary;
+            this.ValueBool = Field.ValueBoolean;
+            this.ValueLookup = Field.ValueLookup;
+            this.ValueBinary = Field.ValueBinary;
             this.Guid = Field.Guid;
 
             RefreshOriginalValues();
 
         }
 
-        public FieldBase(FieldType Type, FieldBase Base, IPersistenceService PersistenceService, ICacheService CacheService)
+        protected void TryLoadFieldMeta()
         {
-            this.PersistenceService = PersistenceService;
-            this.CacheService = CacheService;
-            LoadUpValues(Base);
+            if (Entity == null || Entity.Item == null)
+            {
+                Log.Trace("Cannot get field meta if Entity and Item not wired. FieldID: {0}", FieldID);
+                return;
+            }
+
+            string FieldTypeMetaKey = string.Format("FieldTypeMeta:{0}:{1}:{2}", Entity.Item.Type.Value, Entity.Type.Value, Type.Value);
+
+            IFieldTypeMeta RawMeta = (IFieldTypeMeta)CacheService.GetObject(FieldTypeMetaKey);
+
+            BinaryFormatter Formatter = new BinaryFormatter();
+            if (RawMeta == null)
+            {
+                Log.Trace("Cache returned null FieldMetaData. Getting from Database. Cache Key: {0}", FieldTypeMetaKey);
+                Meta = PersistenceService.GetFieldTypeMeta(Entity.Item.Type.Value, Entity.Type.Value, Type.Value);
+
+                CacheService.StoreObject(FieldTypeMetaKey, Meta);
+            }
+            else
+            {
+                Log.Trace("Cache returned FieldMetaData. Cache Key: {0}", FieldTypeMetaKey);
+                Meta = RawMeta;
+            }
         }
 
         protected void LoadUpValues(FieldBase Base)
@@ -145,22 +231,6 @@ namespace EffectFramework.Core.Models.Fields
             RefreshOriginalValues();
         }
 
-        public void PersistToDatabase(Db.IDbContext ctx = null)
-        {
-            Log.Info("Saving the field to the database. FieldID: {0}",
-                FieldID.HasValue ? FieldID.Value.ToString() : "null");
-
-            PersistenceService.RecordAudit(this, null, null, ctx);
-
-            var Identity = PersistenceService.SaveSingleField(this, ctx);
-            this.FieldID = Identity.ObjectID;
-            this.Guid = Identity.ObjectGuid;
-
-            this.Dirty = false;
-
-            RefreshOriginalValues();
-        }
-
         /// <summary>
         /// Compares the value of this field to another and return true if they are identical. This
         /// method may be overridden in subclasses.
@@ -201,24 +271,29 @@ namespace EffectFramework.Core.Models.Fields
             return ((IField)this).Value.Equals(((IField)OtherField).Value);
         }
 
-        public void PersistToDatabase(EntityBase Entity, Db.IDbContext ctx = null)
+        /// <summary>
+        /// Persists the field to the database
+        /// </summary>
+        /// <param name="ctx">An optional database context. One will be created if null.</param>
+        /// <returns>true if the field was updated, false if no change was made.</returns>
+        public bool PersistToDatabase(Db.IDbContext ctx = null)
         {
-            if (Entity == null)
-            {
-                Log.Warn("Trying to save a Field to a null Entity. FieldID: {0}, Field Type: {1}",
-                    FieldID.HasValue ? FieldID.Value.ToString() : "null",
-                    Type.Name);
-
-                throw new ArgumentNullException();
-            }
-
-            Log.Info("Saving the field to the database. FieldID: {0}, EntityID: {1}",
-                FieldID.HasValue ? FieldID.Value.ToString() : "null",
-                Entity.EntityID.HasValue ? Entity.EntityID.Value.ToString() : "null");
+            Log.Info("Saving the field to the database. FieldID: {0}",
+                FieldID.HasValue ? FieldID.Value.ToString() : "null");
 
             PersistenceService.RecordAudit(this, null, null, ctx);
 
-            var Identity = PersistenceService.SaveSingleField(Entity, this, ctx);
+
+            ObjectIdentity Identity;
+            if (this.Entity != null)
+            {
+                Identity = PersistenceService.SaveSingleField(this.Entity, this, ctx);
+            }
+            else
+            {
+                Identity = PersistenceService.SaveSingleField(this, ctx);
+            }
+
             if (Identity != null)
             {
                 this.FieldID = Identity.ObjectID;
@@ -232,7 +307,14 @@ namespace EffectFramework.Core.Models.Fields
 
             this.Dirty = false;
 
+            if (Identity != null && Identity.DidUpdate)
+            {
+                CacheService.DeleteObject(string.Format("Field:{0}", FieldID));
+            }
+
             RefreshOriginalValues();
+
+            return Identity == null ? false : Identity.DidUpdate;
         }
 
         /// <summary>

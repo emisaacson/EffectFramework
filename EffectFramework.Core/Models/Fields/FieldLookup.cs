@@ -6,9 +6,9 @@ using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models.Fields
 {
+    [Serializable]
     public class FieldLookup : FieldBase, IField
     {
-        public string Name { get; private set; }
         public int? Value
         {
             get
@@ -53,6 +53,31 @@ namespace EffectFramework.Core.Models.Fields
                     this.Dirty = true;
                     this.ValueLookup = _Value;
                 }
+            }
+        }
+
+        private FieldTypeMetaBasic _Meta = new FieldTypeMetaBasic(false);
+        public FieldTypeMetaBasic MetaLookup
+        {
+            get
+            {
+                return _Meta;
+            }
+        }
+        public override IFieldTypeMeta Meta
+        {
+            get
+            {
+                return _Meta;
+            }
+            protected set
+            {
+                if (!(value is FieldTypeMetaBasic))
+                {
+                    Log.Error("Must assign a FieldTypeMetaBasic to a lookup field. Value type: {0}, Field ID: {1}", value.GetType().Name, FieldID);
+                    throw new InvalidCastException("Must assign a FieldTypeMetaBasic to a lookup field.");
+                }
+                _Meta = (FieldTypeMetaBasic)value;
             }
         }
 
@@ -107,36 +132,28 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public FieldLookup(IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public FieldLookup()
+            : base()
         { }
 
-        public FieldLookup(FieldType Type, IPersistenceService PersistenceService, ICacheService CacheService)
-            : this(Type, null, null, PersistenceService, CacheService)
+        public FieldLookup(FieldType Type)
+            : this(Type, null, null)
         {
 
         }
 
-        public FieldLookup(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
-            : this(Type, null, Entity, PersistenceService, CacheService)
+        public FieldLookup(FieldType Type, EntityBase Entity)
+            : this(Type, null, Entity)
         {
 
         }
 
-        public FieldLookup(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public FieldLookup(FieldType Type, FieldBase Base, EntityBase Entity)
+            : base(Type, Base, Entity)
         {
             if (Type.DataType != DataType.Lookup)
             {
                 throw new ArgumentOutOfRangeException("Cannot create a lookup field from a non-lookup type.");
-            }
-            this.Type = Type;
-            this.Name = Type.Name;
-            this.Entity = Entity;
-
-            if (Base != null)
-            {
-                LoadUpValues(Base);
             }
         }
 

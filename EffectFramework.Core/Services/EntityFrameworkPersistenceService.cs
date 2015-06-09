@@ -12,9 +12,22 @@ namespace EffectFramework.Core.Services
     /// <summary>
     /// Implementation of IPersistenceService for SQL Server and Entity Framework 7.
     /// </summary>
+    [Serializable]
     public class EntityFrameworkPersistenceService : IPersistenceService
     {
-        private static Logger Log = new Logger("EntityFrameworkPersistenceService");
+        [NonSerialized]
+        protected Logger _Log;
+        protected Logger Log
+        {
+            get
+            {
+                if (_Log == null)
+                {
+                    _Log = new Logger(GetType().Name);
+                }
+                return _Log;
+            }
+        }
         private string ConnectionString;
         public EntityFrameworkPersistenceService(string ConnectionString)
         {
@@ -90,7 +103,8 @@ namespace EffectFramework.Core.Services
                 {
                     return new ObjectIdentity() {
                         ObjectID = Field.FieldID.Value,
-                        ObjectGuid = Field.Guid
+                        ObjectGuid = Field.Guid,
+                        DidUpdate = false,
                     };
                 }
 
@@ -153,7 +167,8 @@ namespace EffectFramework.Core.Services
                 return new ObjectIdentity()
                 {
                     ObjectID = DbField.FieldID,
-                    ObjectGuid = DbField.Guid
+                    ObjectGuid = DbField.Guid,
+                    DidUpdate = true,
                 };
             }
             finally
@@ -203,7 +218,8 @@ namespace EffectFramework.Core.Services
                     return new ObjectIdentity()
                     {
                         ObjectID = DbField.FieldID,
-                        ObjectGuid = DbField.Guid
+                        ObjectGuid = DbField.Guid,
+                        DidUpdate = false,
                     };
                 }
 
@@ -249,7 +265,8 @@ namespace EffectFramework.Core.Services
                 return new ObjectIdentity()
                 {
                     ObjectID = DbField.FieldID,
-                    ObjectGuid = DbField.Guid
+                    ObjectGuid = DbField.Guid,
+                    DidUpdate = true,
                 };
             }
             finally
@@ -328,7 +345,8 @@ namespace EffectFramework.Core.Services
                     return new ObjectIdentity()
                     {
                         ObjectID = DbEntity.EntityID,
-                        ObjectGuid = DbEntity.Guid
+                        ObjectGuid = DbEntity.Guid,
+                        DidUpdate = false,
                     };
                 }
 
@@ -348,7 +366,8 @@ namespace EffectFramework.Core.Services
                 return new ObjectIdentity()
                 {
                     ObjectID = DbEntity.EntityID,
-                    ObjectGuid = DbEntity.Guid
+                    ObjectGuid = DbEntity.Guid,
+                    DidUpdate = true,
                 };
             }
             finally
@@ -405,7 +424,8 @@ namespace EffectFramework.Core.Services
                     return new ObjectIdentity()
                     {
                         ObjectID = DbEntity.EntityID,
-                        ObjectGuid = DbEntity.Guid
+                        ObjectGuid = DbEntity.Guid,
+                        DidUpdate = false,
                     };
                 }
 
@@ -425,7 +445,8 @@ namespace EffectFramework.Core.Services
                 return new ObjectIdentity()
                 {
                     ObjectID = DbEntity.EntityID,
-                    ObjectGuid = DbEntity.Guid
+                    ObjectGuid = DbEntity.Guid,
+                    DidUpdate = true,
                 };
             }
             finally
@@ -492,7 +513,8 @@ namespace EffectFramework.Core.Services
                     return new ObjectIdentity()
                     {
                         ObjectID = DbItem.ItemID.Value,
-                        ObjectGuid = DbItem.Guid
+                        ObjectGuid = DbItem.Guid,
+                        DidUpdate = false,
                     };
                 }
 
@@ -503,7 +525,8 @@ namespace EffectFramework.Core.Services
                 return new ObjectIdentity()
                 {
                     ObjectID = DbItem.ItemID.Value,
-                    ObjectGuid = DbItem.Guid
+                    ObjectGuid = DbItem.Guid,
+                    DidUpdate = true,
                 };
             }
             finally
@@ -717,7 +740,7 @@ namespace EffectFramework.Core.Services
                 List<EntityBase> Output = new List<EntityBase>();
                 foreach (var DbEntity in DbEntities)
                 {
-                    Output.Add(EntityFactory.GenerateEntityFromDbObject(DbEntity));
+                    Output.Add(EntityBase.GenerateEntityFromDbObject(DbEntity, Item));
                 }
 
                 return Output;
@@ -929,6 +952,36 @@ namespace EffectFramework.Core.Services
 
                 db.SaveChanges();
 
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+
+        public IFieldTypeMeta GetFieldTypeMeta(int ItemTypeID, int EntityTypeID, int FieldTypeID, IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                FieldType FieldType = (FieldType)FieldTypeID;
+                Type SystemMetaType = FieldType.DataType.MetaType;
+
+                var DbFieldTypeMeta = db.FieldTypeMetas.Where(f => f.ItemTypeID == ItemTypeID && f.EntityTypeID == EntityTypeID && f.FieldTypeID == FieldTypeID).FirstOrDefault();
+
+                return (IFieldTypeMeta)SystemMetaType.GetConstructor(new Type[] { typeof(FieldTypeMeta) }).Invoke(new object[] { DbFieldTypeMeta });
             }
             finally
             {

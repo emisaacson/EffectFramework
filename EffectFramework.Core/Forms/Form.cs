@@ -276,6 +276,7 @@ namespace EffectFramework.Core.Forms
                 var MemberItemType = MemberBinding.ItemType ?? FormItemType;
                 var MemberEntityType = MemberBinding.EntityType ?? FormEntityType;
                 var MemberIDMemberName = MemberBinding.IDPropertyName ?? FormIDMemberName;
+                Item BoundItem = BoundItems != null && BoundItems.ContainsKey(MemberItemType) ? BoundItems[MemberItemType] : null;
 
                 if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
                 {
@@ -283,7 +284,7 @@ namespace EffectFramework.Core.Forms
                     throw new InvalidOperationException("Binding is not configured properly.");
                 }
 
-                EntityBase Entity = EntityBase.GetEntityBySystemType(MemberEntityType);
+                EntityBase Entity = EntityBase.GetEntityBySystemType(MemberEntityType, BoundItem);
 
                 return Entity;
             }
@@ -328,6 +329,7 @@ namespace EffectFramework.Core.Forms
                 string MemberEffectiveDateFieldName = EffectiveDateMemberName;
                 string MemberEndEffectiveDateFieldName = EndEffectiveDateMemberName;
                 var _MemberName = MemberBinding.FieldType ?? Member.Name;
+                Item BoundItem = BoundItems != null && BoundItems.ContainsKey(MemberItemType) ? BoundItems[MemberItemType] : null;
 
                 if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
                 {
@@ -355,7 +357,7 @@ namespace EffectFramework.Core.Forms
                     throw new InvalidOperationException("Entity schema is not correct.");
                 }
 
-                EntityBase Entity = EntityBase.GetEntityBySystemType(MemberEntityType);
+                EntityBase Entity = EntityBase.GetEntityBySystemType(MemberEntityType, BoundItem);
                 object EntityMember = null;
 
                 if (EntityMemberInfo.MemberType == MemberTypes.Property)
@@ -523,7 +525,7 @@ namespace EffectFramework.Core.Forms
                         {
                             // There's no EntityID set so assume we will create a new one.
                             // This instance is just to access its Type member.
-                            EntityBase Instance = (EntityBase)Activator.CreateInstance(MemberEntityType);
+                            EntityBase Instance = EntityBase.GetEntityBySystemType(MemberEntityType);
                             if (EntityCache.ContainsKey(Instance.Type))
                             {
                                 Entity = EntityCache[Instance.Type];

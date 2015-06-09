@@ -5,9 +5,9 @@ using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models.Fields
 {
+    [Serializable]
     public class FieldBinary : FieldBase, IField
     {
-        public string Name { get; private set; }
         public byte[] Value
         {
             get
@@ -26,6 +26,30 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+        private FieldTypeMetaBasic _Meta = new FieldTypeMetaBasic(false);
+        public FieldTypeMetaBasic MetaBinary
+        {
+            get
+            {
+                return _Meta;
+            }
+        }
+        public override IFieldTypeMeta Meta {
+            get
+            {
+                return _Meta;
+            }
+            protected set
+            {
+                if (!(value is FieldTypeMetaBasic))
+                {
+                    Log.Error("Must assign a FieldTypeMetaBasic to a binary field. Value type: {0}, Field ID: {1}", value.GetType().Name, FieldID);
+                    throw new InvalidCastException("Must assign a FieldTypeMetaBasic to a binary field.");
+                }
+                _Meta = (FieldTypeMetaBasic)value;
+            }
+        }
+
         object IField.Value
         {
             get
@@ -35,8 +59,9 @@ namespace EffectFramework.Core.Models.Fields
 
             set
             {
-                if (!typeof(byte[]).IsAssignableFrom(value.GetType()))
+                if (!(value is byte[]))
                 {
+                    Log.Error("Must assign a byte array to a binary field. Value Type: {0}, Field ID: {1}", value.GetType().Name, FieldID);
                     throw new InvalidCastException("Must assign a byte array to a binary field.");
                 }
                 if (this.ValueBinary != null && (byte[])value == null ||
@@ -81,36 +106,28 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public FieldBinary(IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public FieldBinary()
+            : base()
         { }
 
-        public FieldBinary(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
-            : this(Type, null, Entity, PersistenceService, CacheService)
+        public FieldBinary(FieldType Type, EntityBase Entity)
+            : this(Type, null, Entity)
         {
 
         }
 
-        public FieldBinary(FieldType Type, IPersistenceService PersistenceService, ICacheService CacheService)
-            : this(Type, null, null, PersistenceService, CacheService)
+        public FieldBinary(FieldType Type)
+            : this(Type, null, null)
         {
 
         }
 
-        public FieldBinary(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public FieldBinary(FieldType Type, FieldBase Base, EntityBase Entity)
+            : base(Type, Base, Entity)
         {
             if (Type.DataType != DataType.Binary)
             {
                 throw new ArgumentOutOfRangeException("Cannot create a binary field from a non-binary type.");
-            }
-            this.Type = Type;
-            this.Name = Type.Name;
-            this.Entity = Entity;
-
-            if (Base != null)
-            {
-                LoadUpValues(Base);
             }
         }
 

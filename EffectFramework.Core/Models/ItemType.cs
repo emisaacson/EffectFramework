@@ -6,6 +6,7 @@ namespace EffectFramework.Core.Models
     /// <summary>
     /// All custom item types must inherit from this base class.
     /// </summary>
+    [Serializable]
     public class ItemType
     {
         /// <summary>
@@ -65,6 +66,34 @@ namespace EffectFramework.Core.Models
                 throw new InvalidOperationException("Cannot register the same Item Type twice.");
             }
             TypeRegistry[Type.Value] = Type;
+        }
+
+        public static bool operator ==(ItemType It1, ItemType It2)
+        {
+            if ((object)It1 == null && (object)It2 == null)
+            {
+                return true;
+            }
+            if ((object)It1 == null || (object)It2 == null)
+            {
+                return false;
+            }
+
+            return It1.Value == It2.Value;
+        }
+
+        public static bool operator !=(ItemType It1, ItemType It2)
+        {
+            if ((object)It1 == null && (object)It2 == null)
+            {
+                return false;
+            }
+            if ((object)It1 == null || (object)It2 == null)
+            {
+                return true;
+            }
+
+            return It1.Value != It2.Value;
         }
     }
 }

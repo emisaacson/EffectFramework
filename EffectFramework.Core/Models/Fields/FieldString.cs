@@ -4,9 +4,9 @@ using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models.Fields
 {
+    [Serializable]
     public class FieldString : FieldBase, IField
     {
-        public string Name { get; private set; }
         public string Value
         {
             get
@@ -37,6 +37,40 @@ namespace EffectFramework.Core.Models.Fields
                     this.Dirty = true;
                     this.ValueString = (string)value;
                 }
+            }
+        }
+
+        private FieldTypeMetaText _Meta;
+        private FieldTypeMetaText _DefaultMeta = new FieldTypeMetaText(false, null);
+        public FieldTypeMetaText MetaText
+        {
+            get
+            {
+                if (_Meta == null)
+                {
+                    TryLoadFieldMeta();
+                }
+                if (_Meta /*still*/ == null)
+                {
+                    return _DefaultMeta;
+                }
+                return _Meta;
+            }
+        }
+        public override IFieldTypeMeta Meta
+        {
+            get
+            {
+                return MetaText;
+            }
+            protected set
+            {
+                if (!(value is FieldTypeMetaText))
+                {
+                    Log.Error("Must assign a FieldTypeMetaText to a text field. Value type: {0}, Field ID: {1}", value.GetType().Name, FieldID);
+                    throw new InvalidCastException("Must assign a FieldTypeMetaText to a text field.");
+                }
+                _Meta = (FieldTypeMetaText)value;
             }
         }
 
@@ -73,36 +107,28 @@ namespace EffectFramework.Core.Models.Fields
         }
 
 
-        public FieldString(IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public FieldString()
+            : base()
         { }
 
-        public FieldString(FieldType Type, IPersistenceService PersistenceService, ICacheService CacheService)
-            : this(Type, null, null, PersistenceService, CacheService)
+        public FieldString(FieldType Type)
+            : this(Type, null, null)
         {
 
         }
 
-        public FieldString(FieldType Type, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
-            : this(Type, null, Entity, PersistenceService, CacheService)
+        public FieldString(FieldType Type, EntityBase Entity)
+            : this(Type, null, Entity)
         {
 
         }
 
-        public FieldString(FieldType Type, FieldBase Base, EntityBase Entity, IPersistenceService PersistenceService, ICacheService CacheService)
-            : base(PersistenceService, CacheService)
+        public FieldString(FieldType Type, FieldBase Base, EntityBase Entity)
+            : base(Type, Base, Entity)
         {
             if (Type.DataType != DataType.Text)
             {
                 throw new ArgumentOutOfRangeException("Cannot create a string field from a non-string type.");
-            }
-            this.Type = Type;
-            this.Name = Type.Name;
-            this.Entity = Entity;
-
-            if (Base != null)
-            {
-                LoadUpValues(Base);
             }
         }
     }

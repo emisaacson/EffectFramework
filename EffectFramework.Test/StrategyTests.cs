@@ -1,5 +1,5 @@
 ﻿using EffectFramework.Core;
-using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.Configuration;
 using Ninject;
 using System;
 using Xunit;
@@ -14,11 +14,12 @@ namespace EffectFramework.Test
         {
             ef = new EffectFrameworkTestsContext();
 
-            var configuration = new Configuration(ef.BasePath)
-                .AddJsonFile("config.json");
-            ef.Configuration = configuration;
+            var Configuration = new ConfigurationBuilder(ef.BasePath)
+                .AddJsonFile("config.json")
+                .Build();
+            ef.Configuration = Configuration;
 
-            Configure.ConnectionString = ef.Configuration["Data:DefaultConnection:ConnectionString"];
+            Configure.PersistenceConnectionString = ef.Configuration["Data:DefaultConnection:ConnectionString"];
 
             ef.PrepareEF7Database();
         }

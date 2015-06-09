@@ -1,9 +1,12 @@
-﻿namespace EffectFramework.Core.Models.Fields
+﻿using System;
+
+namespace EffectFramework.Core.Models.Fields
 {
     /// <summary>
     /// A class representing a single ID/value pair from the lookup
     /// table of the persistence store.
     /// </summary>
+    [Serializable]
     public class LookupEntry
     {
         public int ID { get; private set; }

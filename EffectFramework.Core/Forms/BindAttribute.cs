@@ -10,10 +10,10 @@ namespace EffectFramework.Core.Forms
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Class)]
     public class BindAttribute : Attribute
     {
-        public Type ItemType { get; private set; }
-        public Type EntityType { get; private set; }
-        public string FieldType { get; private set; }
-        public string IDPropertyName { get; private set; }
+        public Type ItemType { get; protected set; }
+        public Type EntityType { get; protected set; }
+        public string FieldType { get; protected set; }
+        public string IDPropertyName { get; protected set; }
 
 
         public BindAttribute(Type ItemType, Type EntityType, string FieldType, string IDPropertyName = null)
