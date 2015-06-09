@@ -198,6 +198,14 @@ namespace EffectFramework.Core.Models
             _AllEntities.Clear();
 
             Db.CompleteItem[] Rows = View.Where(v => v.ItemID == ItemID).ToArray();
+
+            if (Rows.Length == 0)
+            {
+                Log.Error("Cannot get item from this view. ItemID: {0}", ItemID);
+                throw new InvalidOperationException("Item does not exist in the passed view.");
+            }
+            this.Guid = Rows.First().ItemGuid;
+
             var EntityIDs = View.Select(v => v.EntityID).Distinct();
 
             foreach (var EntityID in EntityIDs)
@@ -205,7 +213,6 @@ namespace EffectFramework.Core.Models
                 var EntityRows = Rows.Where(r => r.EntityID == EntityID);
                 if (EntityRows.Count() > 0) {
                     var First = EntityRows.First();
-
                     EntityBase Entity = EntityBase.GetEntityByType((EntityType)First.EntityTypeID, this);
                     Entity.LoadUpEntityFromView(Rows.Where(r => r.EntityID == EntityID));
                     this.AddEntity(Entity);

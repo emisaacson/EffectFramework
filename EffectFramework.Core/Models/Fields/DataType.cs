@@ -113,5 +113,15 @@ namespace EffectFramework.Core.Models.Fields
 
             return Dt1.Value != Dt2.Value;
         }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

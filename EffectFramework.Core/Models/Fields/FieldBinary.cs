@@ -43,7 +43,7 @@ namespace EffectFramework.Core.Models.Fields
             {
                 if (!(value is FieldTypeMetaBasic))
                 {
-                    Log.Error("Must assign a FieldTypeMetaBasic to a binary field. Value type: {0}, Field ID: {1}", value.GetType().Name, FieldID);
+                    Log.Error("Must assign a FieldTypeMetaBasic to a binary field. Value type: {0}, Field ID: {1}", value?.GetType()?.Name, FieldID);
                     throw new InvalidCastException("Must assign a FieldTypeMetaBasic to a binary field.");
                 }
                 _Meta = (FieldTypeMetaBasic)value;
@@ -59,9 +59,9 @@ namespace EffectFramework.Core.Models.Fields
 
             set
             {
-                if (!(value is byte[]))
+                if (value != null && !(value is byte[]))
                 {
-                    Log.Error("Must assign a byte array to a binary field. Value Type: {0}, Field ID: {1}", value.GetType().Name, FieldID);
+                    Log.Error("Must assign a byte array to a binary field. Value Type: {0}, Field ID: {1}", value?.GetType()?.Name, FieldID);
                     throw new InvalidCastException("Must assign a byte array to a binary field.");
                 }
                 if (this.ValueBinary != null && (byte[])value == null ||
