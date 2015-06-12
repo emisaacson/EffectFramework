@@ -63,6 +63,13 @@ namespace EffectFramework.Core.Forms
             ParseFormAttributes();
         }
 
+        public virtual string Name
+        {
+            get
+            {
+                return GetType().Name;
+            }
+        }
 
         /// <summary>
         /// Adds an Item to the list of bound Items for this form. Multiple Items
@@ -276,7 +283,7 @@ namespace EffectFramework.Core.Forms
                 var MemberItemType = MemberBinding.ItemType ?? FormItemType;
                 var MemberEntityType = MemberBinding.EntityType ?? FormEntityType;
                 var MemberIDMemberName = MemberBinding.IDPropertyName ?? FormIDMemberName;
-                Item BoundItem = BoundItems != null && BoundItems.ContainsKey(MemberItemType) ? BoundItems[MemberItemType] : null;
+                Item BoundItem = BoundItems != null && BoundItems.ContainsKey(MemberItemType) ? BoundItems[MemberItemType] : Item.CreateItem(MemberItemType);
 
                 if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
                 {
@@ -292,6 +299,29 @@ namespace EffectFramework.Core.Forms
             {
                 return null;
             }
+        }
+
+        public string GetFormFieldNameIfBound(FieldBase Field)
+        {
+            if (Field == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            var AllFields = GetBoundFields();
+
+            foreach (var _Field in AllFields)
+            {
+                var BoundField = (FieldBase)GetBoundField(_Field.Name);
+                if (BoundField.Entity.Item.Type == Field.Entity.Item.Type &&
+                    BoundField.Entity.Type == Field.Entity.Type &&
+                    BoundField.Type == Field.Type)
+                {
+                    return _Field.Name;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -329,7 +359,7 @@ namespace EffectFramework.Core.Forms
                 string MemberEffectiveDateFieldName = EffectiveDateMemberName;
                 string MemberEndEffectiveDateFieldName = EndEffectiveDateMemberName;
                 var _MemberName = MemberBinding.FieldType ?? Member.Name;
-                Item BoundItem = BoundItems != null && BoundItems.ContainsKey(MemberItemType) ? BoundItems[MemberItemType] : null;
+                Item BoundItem = BoundItems != null && BoundItems.ContainsKey(MemberItemType) ? BoundItems[MemberItemType] : Item.CreateItem(MemberItemType);
 
                 if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
                 {
@@ -669,6 +699,19 @@ namespace EffectFramework.Core.Forms
                     }
                 }
             }
+        }
+
+        private IEnumerable<MemberInfo> GetBoundFields()
+        {
+            List<MemberInfo> MemberInfos = new List<MemberInfo>();
+
+            var Properties = this.GetType().GetProperties().Where(p => p.CustomAttributes.Any(a => typeof(BindAttribute).IsAssignableFrom(a.AttributeType)));
+            var Fields = this.GetType().GetFields().Where(p => p.CustomAttributes.Any(a => typeof(BindAttribute).IsAssignableFrom(a.AttributeType)));
+
+            MemberInfos.AddRange(Properties);
+            MemberInfos.AddRange(Fields);
+
+            return MemberInfos;
         }
 
         /// <summary>

@@ -11,5 +11,6 @@
         object OriginalDereferencedValue { get; }
         int? FieldID { get; }
         FieldType Type { get; }
+        IFieldTypeMeta Meta { get; }
     }
 }

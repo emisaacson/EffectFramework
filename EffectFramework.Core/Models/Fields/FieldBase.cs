@@ -4,6 +4,7 @@ using EffectFramework.Core.Services;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using EffectFramework.Core.Models.Db;
+using System.Collections.Generic;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -32,6 +33,14 @@ namespace EffectFramework.Core.Models.Fields
         /// The static FielType of this Field
         /// </value>
         public FieldType Type { get; protected set; }
+
+        public virtual bool IsLazy
+        {
+            get
+            {
+                return false;
+            }
+        }
 
         private IFieldTypeMeta _Meta;
         private IFieldTypeMeta _DefaultMeta = new FieldTypeMetaBasic(false);
@@ -316,6 +325,79 @@ namespace EffectFramework.Core.Models.Fields
 
             return Identity == null ? false : Identity.DidUpdate;
         }
+
+        public ValidationSummary Validate()
+        {
+            List<ValidationResult> Errors = new List<ValidationResult>();
+
+            if (Meta.IsRequired && (
+                ((IField)this).Value == null || (this.Type.DataType == DataType.Text && string.IsNullOrWhiteSpace(((FieldString)this).Value))
+            ))
+            {
+                Errors.Add(new ValidationResult(this, string.Format(Strings.Field_Is_Required, this.Entity.Type.Name, this.Name)));
+            }
+
+            if (Meta.HasRange && (
+                (Type.DataType == DataType.Date && !TestDateRange()) ||
+                (Type.DataType == DataType.Decimal && !TestDecimalRange())
+            ))
+            {
+                Errors.Add(new ValidationResult(this, string.Format(Strings.Range_Is_Required, this.Entity.Type.Name, this.Name, this.Meta.RangeMin, this.Meta.RangeMax)));
+            }
+
+            if (Meta.HasRegex && Type.DataType == DataType.Text && !string.IsNullOrWhiteSpace(((FieldString)this).Value) && !Meta.TextRegex.IsMatch(((FieldString)this).Value))
+            {
+                Errors.Add(new ValidationResult(this, string.Format(Strings.Field_Does_Not_Validate, this.Entity.Type.Name, this.Name)));
+            }
+
+            return new ValidationSummary(Errors);
+        }
+
+        private bool TestDateRange()
+        {
+            if (Type.DataType != DataType.Date)
+            {
+                throw new InvalidOperationException("Cannot test a date range on anything other than a date field.");
+            }
+
+            DateTime? RangeMax = ((FieldDate)this).MetaDate.RangeMax;
+            DateTime? RangeMin = ((FieldDate)this).MetaDate.RangeMin;
+
+            if (RangeMax.HasValue && this.ValueDate.HasValue && this.ValueDate.Value > RangeMax.Value)
+            {
+                return false;
+            }
+            if (RangeMin.HasValue && this.ValueDate.HasValue && this.ValueDate.Value < RangeMin.Value)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool TestDecimalRange()
+        {
+            if (Type.DataType != DataType.Decimal)
+            {
+                throw new InvalidOperationException("Cannot test a date range on anything other than a date field.");
+            }
+
+            // EITODO implement this once FieldDecimal is implemented
+            //decimal? RangeMax = ((FieldDecimal)this).MetaDecimal.RangeMax;
+            //decimal? RangeMin = ((FieldDecimal)this).MetaDecimal.RangeMin;
+
+            //if (RangeMax.HasValue && this.ValueDate.HasValue && this.ValueDecimal.Value > RangeMax.Value)
+            //{
+            //    return false;
+            //}
+            //if (RangeMin.HasValue && this.ValueDate.HasValue && this.ValueDecimal.Value < RangeMin.Value)
+            //{
+            //    return false;
+            //}
+
+            return true;
+        }
+
 
         /// <summary>
         /// Sets the OriginalValue cache so long as the value is pure

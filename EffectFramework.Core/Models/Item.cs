@@ -133,6 +133,12 @@ namespace EffectFramework.Core.Models
             }
         }
 
+        public Item()
+            : this(false)
+        {
+
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Item"/> class. The item is initially
         /// dirty and has no item ID. When persisted, an ItemID will be added to the class.
@@ -226,9 +232,16 @@ namespace EffectFramework.Core.Models
         /// Persist the item and all of its entities to database.
         /// </summary>
         /// <param name="ctx">The database context. If one is not provided, a new one will be created with a transaction.</param>
+        /// <exception cref="ValidationFailedException">Thrown if the submitted item fails field validation.</exception>
         /// <returns>True if the Item or any of its entites were changed.</returns>
         public bool PersistToDatabase(Db.IDbContext ctx = null)
         {
+            ValidationSummary Summary = Validate();
+            if (!Summary.IsValid)
+            {
+                throw new ValidationFailedException(Summary);
+            }
+
             Db.IDbContext db = null;
             try {
                 if (ctx == null)
@@ -285,6 +298,29 @@ namespace EffectFramework.Core.Models
                 }
             }
         }
+
+        public ValidationSummary Validate()
+        {
+            List<ValidationResult> Errors = new List<ValidationResult>();
+            foreach (var Entity in AllEntities)
+            {
+                var Fields = Entity.GetAllEntityFields();
+                foreach (var Field in Fields)
+                {
+                    if (Field.Dirty)
+                    {
+                        ValidationSummary Result = Field.Validate();
+                        if (!Result.IsValid)
+                        {
+                            Errors.AddRange(Result.Errors);
+                        }
+                    }
+                }
+            }
+
+            return new ValidationSummary(Errors);
+        }
+
         protected void LoadByID(int ItemID)
         {
             if (this.ItemID.HasValue && ItemID != this.ItemID.Value)
@@ -407,6 +443,38 @@ namespace EffectFramework.Core.Models
             {
                 return null;
             }
+        }
+
+        public static Item CreateItem(Type ItemType, bool Sparse = false)
+        {
+            if (ItemType == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (!typeof(Item).IsAssignableFrom(ItemType))
+            {
+                throw new ArgumentOutOfRangeException("Cannot create an item from this system type.");
+            }
+
+            return (Item)Activator.CreateInstance(ItemType, Sparse);
+        }
+
+        public static Item CreateItem(ItemType Type, bool Sparse = false)
+        {
+            if (Type == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            return CreateItem(Type.Type, Sparse);
+        }
+
+        public static TItem CreateItem<TItem>(bool Sparse = false)
+            where TItem : Item, new()
+        {
+            TItem Instance = new TItem();
+
+            return (TItem)CreateItem(Instance.Type, Sparse);
         }
 
         internal void AddEntity(EntityBase Entity)
