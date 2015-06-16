@@ -45,7 +45,7 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        private bool? __IsRequired;
+        protected bool? __IsRequired;
         protected bool? _IsRequired
         {
             get
@@ -143,6 +143,26 @@ namespace EffectFramework.Core.Models.Fields
             else
             {
                 this._IsRequired = false;
+            }
+        }
+
+        internal void CopyValuesFrom(FieldTypeMetaBase OtherMeta)
+        {
+            if (OtherMeta == null)
+            {
+                throw new ArgumentNullException(nameof(OtherMeta));
+            }
+            this.__IsRequired = OtherMeta.__IsRequired;
+            this.TextRegex = OtherMeta.TextRegex;
+            this.DecimalMin = OtherMeta.DecimalMin;
+            this.DecimalMax = OtherMeta.DecimalMax;
+            this.DateTimeMax = OtherMeta.DateTimeMax;
+            this.DateTimeMin = OtherMeta.DateTimeMin;
+
+            if (OtherMeta.IsRequiredQuery != null)
+            {
+                this.IsRequiredQuery = Configure.GetObjectQueryProvider();
+                this.IsRequiredQuery.QueryText = OtherMeta.IsRequiredQuery.QueryText;
             }
         }
     }

@@ -32,9 +32,13 @@ namespace EffectFramework.Core.Models
         /// </exception>
         public void PerformUpdate(Item Item, EntityBase Entity, IUpdateStrategy PreferredUpdateStrategy = null, IUpdateStrategy PreferredUpdateStrategyForDuplicateDates = null)
         {
-            if (Item == null || Entity == null)
+            if (Item == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(Item));
+            }
+            if (Entity == null)
+            {
+                throw new ArgumentNullException(nameof(Entity));
             }
 
             IUpdateStrategy Strategy = Entity.GetUpdateStrategy();

@@ -10,7 +10,7 @@ namespace EffectFramework.Core.Models.Annotations
         {
             if (Policy == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(Policy));
             }
 
             if (!typeof(UpdatePolicy).IsAssignableFrom(Policy))

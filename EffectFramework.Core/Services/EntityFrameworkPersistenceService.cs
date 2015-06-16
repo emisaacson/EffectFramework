@@ -49,7 +49,7 @@ namespace EffectFramework.Core.Services
 
                 if (Entity == null)
                 {
-                    throw new ArgumentNullException();
+                    throw new ArgumentNullException(nameof(Entity));
                 }
 
                 Field DbField = null;
@@ -294,7 +294,7 @@ namespace EffectFramework.Core.Services
 
                 if (Item == null)
                 {
-                    throw new ArgumentNullException();
+                    throw new ArgumentNullException(nameof(Item));
                 }
 
                 Entity DbEntity = null;
@@ -550,7 +550,7 @@ namespace EffectFramework.Core.Services
         {
             if (Entity == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(Entity));
             }
             if (!Entity.EntityID.HasValue)
             {
@@ -662,7 +662,7 @@ namespace EffectFramework.Core.Services
 
                 if (Entity == null)
                 {
-                    throw new ArgumentNullException();
+                    throw new ArgumentNullException(nameof(Entity));
                 }
 
                 Entity DbEntity = null;
@@ -711,7 +711,7 @@ namespace EffectFramework.Core.Services
         {
             if (Item == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(Item));
             }
             if (!Item.ItemID.HasValue)
             {
@@ -853,7 +853,7 @@ namespace EffectFramework.Core.Services
 
                 if (Field == null)
                 {
-                    throw new ArgumentNullException();
+                    throw new ArgumentNullException(nameof(Field));
                 }
 
                 if (!Field.FieldID.HasValue || !Field.Dirty)
@@ -919,7 +919,7 @@ namespace EffectFramework.Core.Services
 
                 if (Entity == null)
                 {
-                    throw new ArgumentNullException();
+                    throw new ArgumentNullException(nameof(Entity));
                 }
 
                 if (!Entity.EntityID.HasValue || !Entity.Dirty)

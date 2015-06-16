@@ -10,7 +10,7 @@ namespace EffectFramework.Core.Models.Annotations
         {
             if (Strategy == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(Strategy));
             }
             if (!typeof(IUpdateStrategy).IsAssignableFrom(Strategy))
             {

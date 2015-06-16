@@ -157,7 +157,7 @@ namespace EffectFramework.Core.Models
         {
             if (EntityType == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(EntityType));
             }
             var Entity = EntityBase.GetEntityByType(EntityType);
             Entity.EffectiveDate = EffectiveDate;

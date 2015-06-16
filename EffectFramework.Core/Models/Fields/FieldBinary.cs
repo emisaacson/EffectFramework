@@ -161,7 +161,7 @@ namespace EffectFramework.Core.Models.Fields
                 Log.Warn("Trying to compare Field to a null Field. FieldID: {0}",
                         FieldID.HasValue ? FieldID.Value.ToString() : "null");
 
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(OtherField));
             }
             if (OtherField.Type.DataType != this.Type.DataType)
             {

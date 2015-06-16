@@ -257,7 +257,7 @@ namespace EffectFramework.Core.Models.Entities
             if (OtherEntity == null)
             {
                 Log.Warn("Trying to copy values from a null entity. EntityID: {0}", this.EntityID.HasValue ? this.EntityID.Value.ToString() : "null");
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(OtherEntity));
             }
             if (OtherEntity.Type != this.Type)
             {
@@ -345,7 +345,7 @@ namespace EffectFramework.Core.Models.Entities
         {
             if (OtherEntity == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(OtherEntity));
             }
             if (OtherEntity.Type != this.Type)
             {
@@ -454,7 +454,7 @@ namespace EffectFramework.Core.Models.Entities
         {
             if (SystemType == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(SystemType));
             }
             if (!typeof(EntityBase).IsAssignableFrom(SystemType) || SystemType == typeof(EntityBase))
             {
@@ -475,7 +475,7 @@ namespace EffectFramework.Core.Models.Entities
         {
             if (DbEntity == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(DbEntity));
             }
 
             int EntityTypeID = DbEntity.EntityTypeID;
@@ -499,7 +499,7 @@ namespace EffectFramework.Core.Models.Entities
         {
             if (DbEntity == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(DbEntity));
             }
 
             int EntityTypeID = DbEntity.EntityTypeID;
@@ -523,7 +523,7 @@ namespace EffectFramework.Core.Models.Entities
         {
             if (Type == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(Type));
             }
             return GetEntityBySystemType(Type.Type, Item);
         }

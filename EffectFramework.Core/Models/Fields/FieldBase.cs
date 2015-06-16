@@ -63,13 +63,20 @@ namespace EffectFramework.Core.Models.Fields
                         if (_DefaultMeta == null)
                         {
                             _DefaultMeta = DefaultMeta;
-                            ((FieldTypeMetaBase)_DefaultMeta).Field = this;
                         }
+
+                        // The field does not get cached so it's very hard to tell
+                        // if this will be filled in or not when we retreive it.
+                        // Just set the field every time.
+                        ((FieldTypeMetaBase)_DefaultMeta).Field = this;
                         return _DefaultMeta;
                     }
                     
-                    ((FieldTypeMetaBase)_Meta).Field = this;
                 }
+                // The field does not get cached so it's very hard to tell
+                // if this will be filled in or not when we retreive it.
+                // Just set the field every time.
+                ((FieldTypeMetaBase)_Meta).Field = this;
                 return _Meta;
             }
             protected set
@@ -268,7 +275,7 @@ namespace EffectFramework.Core.Models.Fields
                 Log.Warn("Trying to compare Field to a null Field. FieldID: {0}",
                     FieldID.HasValue ? FieldID.Value.ToString() : "null");
 
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(OtherField));
             }
             if (OtherField.Type.DataType != this.Type.DataType)
             {
@@ -286,7 +293,7 @@ namespace EffectFramework.Core.Models.Fields
             }
 
             if ((((IField)this).Value == null && ((IField)OtherField).Value != null) ||  // If a is null and b is not, not identical
-                 (((IField)this).Value != null && ((IField)OtherField).Value == null))   // If b is null and a is not, not identical
+                (((IField)this).Value != null && ((IField)OtherField).Value == null))    // If b is null and a is not, not identical
             {
                 return false;
             }

@@ -262,7 +262,7 @@ namespace EffectFramework.Core.Forms
             if (MemberName == null)
             {
                 Log.Error("A null member name was passed to GetBoundItem.");
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(MemberName));
             }
             MemberInfo Member = this.GetType().GetProperty(MemberName);
             if (Member == null)
@@ -312,7 +312,7 @@ namespace EffectFramework.Core.Forms
             if (MemberName == null)
             {
                 Log.Error("A null member name was passed to GetBoundEntity.");
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(MemberName));
             }
             MemberInfo Member = this.GetType().GetProperty(MemberName);
             if (Member == null)
@@ -355,7 +355,7 @@ namespace EffectFramework.Core.Forms
         {
             if (Field == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(Field));
             }
 
             var AllFields = GetBoundFields();
@@ -386,7 +386,7 @@ namespace EffectFramework.Core.Forms
         {
             if (MemberName == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(MemberName));
             }
             MemberInfo Member = this.GetType().GetProperty(MemberName);
             if (Member == null)

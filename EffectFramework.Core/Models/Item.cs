@@ -305,9 +305,10 @@ namespace EffectFramework.Core.Models
             foreach (var Entity in AllEntities)
             {
                 var Fields = Entity.GetAllEntityFields();
-                foreach (var Field in Fields)
+                // Test any field that is on an entity with updated fields
+                if (Fields.Any(f => f.Dirty))
                 {
-                    if (Field.Dirty)
+                    foreach (var Field in Fields)
                     {
                         ValidationSummary Result = Field.Validate();
                         if (!Result.IsValid)
@@ -429,7 +430,7 @@ namespace EffectFramework.Core.Models
         {
             if (ViewResult == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(ViewResult));
             }
             var ItemRows = ViewResult.Where(v => v.ItemID == ItemID);
 
@@ -449,7 +450,7 @@ namespace EffectFramework.Core.Models
         {
             if (ItemType == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(ItemType));
             }
             if (!typeof(Item).IsAssignableFrom(ItemType))
             {
@@ -463,7 +464,7 @@ namespace EffectFramework.Core.Models
         {
             if (Type == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(Type));
             }
 
             return CreateItem(Type.Type, Sparse);
@@ -481,7 +482,7 @@ namespace EffectFramework.Core.Models
         {
             if (Entity == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(Entity));
             }
 
             _AllEntities.Add(Entity);
@@ -497,7 +498,7 @@ namespace EffectFramework.Core.Models
         {
             if (Entity == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(Entity));
             }
 
             _AllEntities.Remove(Entity);
