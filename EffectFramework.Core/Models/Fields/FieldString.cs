@@ -40,28 +40,26 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        private FieldTypeMetaText _Meta;
-        private FieldTypeMetaText _DefaultMeta = new FieldTypeMetaText(false, null);
+
+        protected override IFieldTypeMeta DefaultMeta
+        {
+            get
+            {
+                return new FieldTypeMetaText(false, null);
+            }
+        }
         public FieldTypeMetaText MetaText
         {
             get
             {
-                if (_Meta == null)
-                {
-                    TryLoadFieldMeta();
-                }
-                if (_Meta /*still*/ == null)
-                {
-                    return _DefaultMeta;
-                }
-                return _Meta;
+                return (FieldTypeMetaText)Meta;
             }
         }
         public override IFieldTypeMeta Meta
         {
             get
             {
-                return MetaText;
+                return base.Meta;
             }
             protected set
             {
@@ -104,6 +102,19 @@ namespace EffectFramework.Core.Models.Fields
             {
                 return this.OriginalValueString;
             }
+        }
+
+        public bool ValueEquals(object Value)
+        {
+            if (Value == null)
+            {
+                return this.Value == null;
+            }
+            else if (Value is string)
+            {
+                return (string)this.Value == (string)Value;
+            }
+            return false;
         }
 
 

@@ -247,6 +247,11 @@ namespace EffectFramework.Core.Models.Entities
             RefreshOriginalValues();
         }
 
+        /// <summary>
+        /// Copy all the values of all the fields from another entity.
+        /// </summary>
+        /// <param name="OtherEntity">The Entity to copy the field values from.</param>
+        /// <exception cref="InvalidOperationException">Thrown if the passed entity is of a different type.</exception>
         public void CopyValuesFrom(EntityBase OtherEntity)
         {
             if (OtherEntity == null)
@@ -289,6 +294,9 @@ namespace EffectFramework.Core.Models.Entities
             this.FlagForRemoval = true;
         }
 
+        /// <summary>
+        /// Flags the Entity for deletion.
+        /// </summary>
         public void Delete()
         {
             this.IsDeleted = true;
@@ -315,6 +323,16 @@ namespace EffectFramework.Core.Models.Entities
             }
 
             return Output;
+        }
+
+        /// <summary>
+        /// Returns a field object of the specified type if it exists, otherwise null.
+        /// </summary>
+        /// <param name="FieldType">The field type to search for</param>
+        /// <returns>The field object, or null if not found.</returns>
+        public FieldBase GetFieldByFieldType(FieldType FieldType)
+        {
+            return GetAllEntityFields().FirstOrDefault(f => f.Type == FieldType);
         }
 
         /// <summary>
@@ -423,14 +441,22 @@ namespace EffectFramework.Core.Models.Entities
 
             return ThisDidUpdate;
         }
-
+        
+        /// <summary>
+        /// Creates a new entity from the provided System Type. The system
+        /// type must be a subclass of EntityBase.
+        /// </summary>
+        /// <param name="SystemType">The System Type</param>
+        /// <param name="Item">An optional Item to bind to the Entity.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if the passed SystemType is not a subclass of EntityBase</exception>
+        /// <returns>The newly created Entity</returns>
         public static EntityBase GetEntityBySystemType(Type SystemType, Item Item = null)
         {
             if (SystemType == null)
             {
                 throw new ArgumentNullException();
             }
-            if (!typeof(EntityBase).IsAssignableFrom(SystemType))
+            if (!typeof(EntityBase).IsAssignableFrom(SystemType) || SystemType == typeof(EntityBase))
             {
                 throw new ArgumentOutOfRangeException("Cannot create an entity from a type that isn't a subclass of EntityBase.");
             }
@@ -487,6 +513,12 @@ namespace EffectFramework.Core.Models.Entities
             return (EntityBase)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity });
         }
 
+        /// <summary>
+        /// Generates a new entity from the given EntityType
+        /// </summary>
+        /// <param name="Type">The EntityType</param>
+        /// <param name="Item">An optional Item to bind to the Entity</param>
+        /// <returns>The newly created Entity</returns>
         public static EntityBase GetEntityByType(EntityType Type, Item Item = null)
         {
             if (Type == null)

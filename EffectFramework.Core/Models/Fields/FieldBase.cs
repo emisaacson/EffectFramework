@@ -30,7 +30,7 @@ namespace EffectFramework.Core.Models.Fields
         /// Gets the type of the Field instance
         /// </summary>
         /// <value>
-        /// The static FielType of this Field
+        /// The static FieldType of this Field
         /// </value>
         public FieldType Type { get; protected set; }
 
@@ -42,8 +42,15 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        private IFieldTypeMeta _Meta;
-        private IFieldTypeMeta _DefaultMeta = new FieldTypeMetaBasic(false);
+        protected IFieldTypeMeta _Meta;
+        protected IFieldTypeMeta _DefaultMeta;
+        protected virtual IFieldTypeMeta DefaultMeta
+        {
+            get
+            {
+                return new FieldTypeMetaBasic(false);
+            }
+        }
         public virtual IFieldTypeMeta Meta
         {
             get
@@ -51,10 +58,17 @@ namespace EffectFramework.Core.Models.Fields
                 if (_Meta == null)
                 {
                     TryLoadFieldMeta();
-                }
-                if (_Meta /*still!*/ == null)
-                {
-                    return _DefaultMeta;
+                    if (_Meta /*still!*/ == null)
+                    {
+                        if (_DefaultMeta == null)
+                        {
+                            _DefaultMeta = DefaultMeta;
+                            ((FieldTypeMetaBase)_DefaultMeta).Field = this;
+                        }
+                        return _DefaultMeta;
+                    }
+                    
+                    ((FieldTypeMetaBase)_Meta).Field = this;
                 }
                 return _Meta;
             }
@@ -164,9 +178,10 @@ namespace EffectFramework.Core.Models.Fields
             if (RawMeta == null)
             {
                 Log.Trace("Cache returned null FieldMetaData. Getting from Database. Cache Key: {0}", FieldTypeMetaKey);
-                Meta = PersistenceService.GetFieldTypeMeta(Entity.Item.Type.Value, Entity.Type.Value, Type.Value);
+                var FieldMeta = PersistenceService.GetFieldTypeMeta(Entity.Item.Type.Value, Entity.Type.Value, Type.Value);
+                CacheService.StoreObject(FieldTypeMetaKey, FieldMeta);
 
-                CacheService.StoreObject(FieldTypeMetaKey, Meta);
+                Meta = FieldMeta;
             }
             else
             {

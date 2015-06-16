@@ -250,6 +250,56 @@ namespace EffectFramework.Core.Forms
         }
 
         /// <summary>
+        /// Gets the item bound to this member on the form.
+        /// </summary>
+        /// <param name="MemberName">Name of the form field or property.</param>
+        /// <returns>A new instance of the bound entity, or null.</returns>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The specified field does not exist.</exception>
+        /// <exception cref="System.InvalidOperationException">Binding is not configured properly.</exception>
+        public Item GetBoundItem(string MemberName)
+        {
+            if (MemberName == null)
+            {
+                Log.Error("A null member name was passed to GetBoundItem.");
+                throw new ArgumentNullException();
+            }
+            MemberInfo Member = this.GetType().GetProperty(MemberName);
+            if (Member == null)
+            {
+                Member = this.GetType().GetField(MemberName);
+            }
+            if (Member == null)
+            {
+                Log.Error("An invalid MemberName was passed to GetBoundItem. MemberName: {0}", MemberName);
+                throw new ArgumentOutOfRangeException("The specified field does not exist.");
+            }
+            var MemberBinding = Member.GetCustomAttribute<BindAttribute>();
+            var MemberLevelEffectiveDateAttribute = Member.GetCustomAttribute<EffectiveDateAttribute>();
+            var MemberLevelEndEffectiveDateAttribute = Member.GetCustomAttribute<EndEffectiveDateAttribute>();
+
+            if (MemberBinding != null)
+            {
+                var MemberItemType = MemberBinding.ItemType ?? FormItemType;
+                var MemberEntityType = MemberBinding.EntityType ?? FormEntityType;
+                var MemberIDMemberName = MemberBinding.IDPropertyName ?? FormIDMemberName;
+                Item BoundItem = BoundItems != null && BoundItems.ContainsKey(MemberItemType) ? BoundItems[MemberItemType] : Item.CreateItem(MemberItemType);
+
+                if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
+                {
+                    Log.Error("Not able to get bound item due to improper binding.");
+                    throw new InvalidOperationException("Binding is not configured properly.");
+                }
+
+                return BoundItem;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets a new instance of the entity bound to this member on the form.
         /// </summary>
         /// <param name="MemberName">Name of the form field or property.</param>

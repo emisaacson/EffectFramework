@@ -28,7 +28,7 @@ namespace EffectFramework.Core.Models.Fields
 
         public FieldTypeMetaBasic(bool IsRequired)
         {
-            this.IsRequired = IsRequired;
+            this._IsRequired = IsRequired;
         }
 
         public FieldTypeMetaBasic(Db.FieldTypeMeta DbFieldTypeMeta)

@@ -56,28 +56,27 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        private FieldTypeMetaDate _Meta;
-        private FieldTypeMetaDate _DefaultMeta = new FieldTypeMetaDate(false, null, null);
+
+        protected override IFieldTypeMeta DefaultMeta
+        {
+            get
+            {
+                return new FieldTypeMetaDate(false, null, null);
+            }
+        }
+
         public FieldTypeMetaDate MetaDate
         {
             get
             {
-                if (_Meta == null)
-                {
-                    TryLoadFieldMeta();
-                }
-                if (_Meta /*still*/ == null)
-                {
-                    return _DefaultMeta;
-                }
-                return _Meta;
+                return (FieldTypeMetaDate)Meta;
             }
         }
         public override IFieldTypeMeta Meta
         {
             get
             {
-                return MetaDate;
+                return base.Meta;
             }
             protected set
             {
@@ -121,6 +120,24 @@ namespace EffectFramework.Core.Models.Fields
                 return this.OriginalValueDate;
             }
         }
+
+        public bool ValueEquals(object Value)
+        {
+            if (Value == null)
+            {
+                return !this.Value.HasValue;
+            }
+            else if (Value is DateTime)
+            {
+                return this.Value.HasValue && this.Value.Value == (DateTime)Value;
+            }
+            else if (Value is string)
+            {
+                return this.Value.HasValue && this.Value.Value == Convert.ToDateTime((string)Value);
+            }
+            return false;
+        }
+
 
         public FieldDate()
             : base()

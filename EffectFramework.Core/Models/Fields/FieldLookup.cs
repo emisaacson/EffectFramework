@@ -56,19 +56,18 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        private FieldTypeMetaBasic _Meta = new FieldTypeMetaBasic(false);
         public FieldTypeMetaBasic MetaLookup
         {
             get
             {
-                return _Meta;
+                return (FieldTypeMetaBasic)Meta;
             }
         }
         public override IFieldTypeMeta Meta
         {
             get
             {
-                return _Meta;
+                return base.Meta;
             }
             protected set
             {
@@ -130,6 +129,31 @@ namespace EffectFramework.Core.Models.Fields
                 }
                 return null;
             }
+        }
+
+        public bool ValueEquals(object Value)
+        {
+            if (Value == null)
+            {
+                return this.Value == null;
+            }
+            else if (Value is string)
+            {
+                int PossibleIntParsed;
+                if (int.TryParse((string)Value, out PossibleIntParsed))
+                {
+                    return this.Value.HasValue && this.Value.Value == PossibleIntParsed;
+                }
+                else
+                {
+                    return (string)this.DereferencedValue == (string)Value;
+                }
+            }
+            else if (Value is int)
+            {
+                return this.Value.Value == (int)Value;
+            }
+            return false;
         }
 
         public FieldLookup()

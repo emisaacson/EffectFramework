@@ -42,12 +42,11 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        private FieldTypeMetaBasic _Meta = new FieldTypeMetaBasic(false);
         public FieldTypeMetaBasic MetaBool
         {
             get
             {
-                return _Meta;
+                return (FieldTypeMetaBasic)Meta;
             }
         }
         public override IFieldTypeMeta Meta
@@ -97,6 +96,23 @@ namespace EffectFramework.Core.Models.Fields
             {
                 return this.OriginalValueBool;
             }
+        }
+
+        public bool ValueEquals(object Value)
+        {
+            if (Value == null)
+            {
+                return !this.Value.HasValue;
+            }
+            else if (Value is bool)
+            {
+                return this.Value.HasValue && this.Value.Value == (bool)Value;
+            }
+            else if (Value is string)
+            {
+                return this.Value.HasValue && this.Value.Value == Convert.ToBoolean((string)Value);
+            }
+            return false;
         }
 
         public FieldBool()

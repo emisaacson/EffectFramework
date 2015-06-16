@@ -50,7 +50,7 @@ namespace EffectFramework.Core.Models.Fields
 
         public FieldTypeMetaDecimal(bool IsRequired, decimal? Max, decimal? Min)
         {
-            this.IsRequired = IsRequired;
+            this._IsRequired = IsRequired;
             this.DecimalMax = Max;
             this.DecimalMin = Min;
         }

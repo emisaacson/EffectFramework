@@ -55,7 +55,7 @@ namespace EffectFramework.Core.Models.Fields
 
         public FieldTypeMetaDate(bool IsRequired, DateTime? Max, DateTime? Min)
         {
-            this.IsRequired = IsRequired;
+            this._IsRequired = IsRequired;
             this.DateTimeMax = Max;
             this.DateTimeMin = Min;
         }

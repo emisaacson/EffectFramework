@@ -8,6 +8,7 @@ namespace EffectFramework.Core.Models.Fields
 {
     public interface IFieldTypeMeta
     {
+        FieldBase Field { get; set; }
         bool HasRange { get; }
         bool HasRegex { get; }
         bool IsRequired { get; }

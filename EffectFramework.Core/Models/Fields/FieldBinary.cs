@@ -26,18 +26,17 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        private FieldTypeMetaBasic _Meta = new FieldTypeMetaBasic(false);
         public FieldTypeMetaBasic MetaBinary
         {
             get
             {
-                return _Meta;
+                return (FieldTypeMetaBasic)Meta;
             }
         }
         public override IFieldTypeMeta Meta {
             get
             {
-                return _Meta;
+                return base.Meta;
             }
             protected set
             {
@@ -104,6 +103,24 @@ namespace EffectFramework.Core.Models.Fields
             {
                 return this.OriginalValueBinary;
             }
+        }
+
+        public bool ValueEquals(object Value)
+        {
+            if (Value == null)
+            {
+                return this.Value == null;
+            }
+            else if (Value is string)
+            {
+                byte[] Decoded = Convert.FromBase64String((string)Value);
+                return this.Value.SequenceEqual(Decoded);
+            }
+            else if (Value is byte[])
+            {
+                return this.Value.SequenceEqual((byte[])Value);
+            }
+            return false;
         }
 
         public FieldBinary()

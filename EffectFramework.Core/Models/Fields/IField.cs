@@ -12,5 +12,6 @@
         int? FieldID { get; }
         FieldType Type { get; }
         IFieldTypeMeta Meta { get; }
+        bool ValueEquals(object Value);
     }
 }

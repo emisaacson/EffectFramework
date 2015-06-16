@@ -38,7 +38,7 @@ namespace EffectFramework.Core.Models.Fields
 
         public FieldTypeMetaText(bool IsRequired, Regex TextRegex)
         {
-            this.IsRequired = IsRequired;
+            this._IsRequired = IsRequired;
             this.TextRegex = TextRegex;
         }
         public FieldTypeMetaText(Db.FieldTypeMeta DbFieldTypeMeta)

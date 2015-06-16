@@ -20,6 +20,7 @@ namespace EffectFramework.Core
         private static Type PersistenceServiceType = typeof(EntityFrameworkPersistenceService);
         private static Type CacheServiceType = typeof(NullCacheService);
         private static Type LoggingProviderType = typeof(NullLoggingProvider);
+        private static Type ObjectQueryProviderType = typeof(NullObjectQuery);
 
         private static IPersistenceService _PersistenceService;
         private static ICacheService _CacheService;
@@ -43,6 +44,9 @@ namespace EffectFramework.Core
 
             Kernel.Bind<ILoggingProvider>()
                 .To(LoggingProviderType);
+
+            Kernel.Bind<IObjectQueryProvider>()
+                .To(ObjectQueryProviderType);
 
             Kernel.Bind<ICacheService>()
                 .To(CacheServiceType)
@@ -81,6 +85,17 @@ namespace EffectFramework.Core
             where LoggingProviderT : ILoggingProvider
         {
             LoggingProviderType = typeof(LoggingProviderT);
+        }
+
+        /// <summary>
+        /// Registers the object query provider. The type should be wired up in the startup routine
+        /// of the app. By default, the Null object query provider is used.
+        /// </summary>
+        /// <typeparam name="ObjectQueryProviderT">The type of the object query provider (must implement IObjectQueryProvider).</typeparam>
+        public static void RegisterObjectQueryProvider<ObjectQueryProviderT>()
+            where ObjectQueryProviderT : IObjectQueryProvider
+        {
+            ObjectQueryProviderType = typeof(ObjectQueryProviderT);
         }
 
         /// <summary>
@@ -147,6 +162,14 @@ namespace EffectFramework.Core
                 }
             }
             return _CacheService;
+        }
+
+        public static IObjectQueryProvider GetObjectQueryProvider()
+        {
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                return Kernel.Get<IObjectQueryProvider>();
+            }
         }
     }
 }
