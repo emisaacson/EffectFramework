@@ -15,5 +15,6 @@ namespace EffectFramework.Core.Models.Fields
         Regex TextRegex { get; }
         object RangeMin { get; }
         object RangeMax { get; }
+        FieldTypeMetaSafetyContainer GetSafetyContainer();
     }
 }
