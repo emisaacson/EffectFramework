@@ -146,6 +146,16 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+        public FieldTypeMetaSafetyContainer GetSafetyContainer()
+        {
+            if (!(this is IFieldTypeMeta))
+            {
+                throw new InvalidOperationException("Cannot cast this object to IFieldTypeMeta.");
+            }
+            FieldTypeMetaSafetyContainer Container = new FieldTypeMetaSafetyContainer((IFieldTypeMeta)this);
+            return Container;
+        }
+
         internal void CopyValuesFrom(FieldTypeMetaBase OtherMeta)
         {
             if (OtherMeta == null)
