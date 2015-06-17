@@ -3,6 +3,7 @@
 ################################################################################
 
 *.user
+*.lock.json
 .vs
 artifacts
 EffectFramework.Core/bin

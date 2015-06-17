@@ -33,7 +33,7 @@ namespace EffectFramework.Core.Models.Db
             this.ConnectionString = ConnectionString;
         }
 
-        protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(this.ConnectionString);
         }
