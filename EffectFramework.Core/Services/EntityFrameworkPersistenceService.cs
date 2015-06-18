@@ -127,6 +127,7 @@ namespace EffectFramework.Core.Services
                 DbField.ValueBinary = null;
                 DbField.ValueEntityReference = null;
                 DbField.ValueItemReference = null;
+
                 DbField.Guid = Guid.NewGuid();
 
                 if (Field.Type.DataType == DataType.Boolean)
@@ -237,6 +238,8 @@ namespace EffectFramework.Core.Services
                 DbField.ValueDecimal = null;
                 DbField.ValueText = null;
                 DbField.ValueLookup = null;
+                DbField.ValueEntityReference = null;
+
                 DbField.Guid = Guid.NewGuid();
 
                 if (Field.Type.DataType == DataType.Boolean)
@@ -258,6 +261,10 @@ namespace EffectFramework.Core.Services
                 else if (Field.Type.DataType == DataType.Text)
                 {
                     DbField.ValueText = (string)((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.EntityReference)
+                {
+                    DbField.ValueEntityReference = (int)((IField)Field).Value;
                 }
 
                 db.SaveChanges();
@@ -574,11 +581,21 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public FieldBase RetreiveSingleFieldOrDefault(int FieldID)
+        public FieldBase RetreiveSingleFieldOrDefault(int FieldID, IDbContext ctx = null)
         {
 
-            using (var db = new EntityFramework7DBContext(ConnectionString))
+            EntityFramework7DBContext db = null;
+            try
             {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
                 var DbField = db.Fields.Where(f => f.FieldID == FieldID &&
                                               !f.IsDeleted).FirstOrDefault();
 
@@ -590,6 +607,13 @@ namespace EffectFramework.Core.Services
                 FieldBase Base = new FieldBase(DbField);
 
                 return Base;
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
             }
         }
 
@@ -645,6 +669,43 @@ namespace EffectFramework.Core.Services
                 return default(EntityT);
             }
         }*/
+
+        public EntityBase RetreiveSingleEntityOrDefault(int EntityID, IDbContext ctx = null)
+        {
+            if (EntityID < 1)
+            {
+                throw new ArgumentException("Must pass an Item with a valid ID.");
+            }
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                var DbEntityPossibility = db.Entities
+                    .Where(e => e.EntityID == EntityID && e.IsDeleted == false).FirstOrDefault();
+
+                if (DbEntityPossibility == null)
+                {
+                    return null;
+                }
+
+                return EntityBase.GenerateEntityFromDbObject(DbEntityPossibility);
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
 
         public void SaveAndDeleteSingleEntity(EntityBase Entity, IDbContext ctx = null)
         {
@@ -884,6 +945,8 @@ namespace EffectFramework.Core.Services
                     ValueBinaryNew = Field is FieldBinary ? ((FieldBinary)Field).Value : null,
                     ValueLookupOld = Field is FieldLookup ? ((FieldLookup)Field).OriginalValue : null,
                     ValueLookupNew = Field is FieldLookup ? ((FieldLookup)Field).Value : null,
+                    ValueEntityReferenceOld = Field is FieldEntityReference ? ((FieldEntityReference)Field).OriginalValue : null,
+                    ValueEntityReferenceNew = Field is FieldEntityReference ? ((FieldEntityReference)Field).Value : null,
                     CreateDate = DateTime.Now,
                     ItemReference = ItemID,
                     Comment = Comment,

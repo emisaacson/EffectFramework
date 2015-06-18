@@ -92,8 +92,10 @@ namespace EffectFramework.Core.Services
         /// Retreives a single field from the database by field ID.
         /// </summary>
         /// <param name="FieldID">The field ID.</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
         /// <returns>An instance of the field, or null if it cannot be found.</returns>
-        FieldBase RetreiveSingleFieldOrDefault(int FieldID);
+        FieldBase RetreiveSingleFieldOrDefault(int FieldID, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Retreives a single field from the database of the specified type.
@@ -112,6 +114,15 @@ namespace EffectFramework.Core.Services
         /// <param name="EffectiveDate">The effective date.</param>
         /// <returns></returns>
         EntityT RetreiveSingleEntityOrDefault<EntityT>(Item Item, DateTime? EffectiveDate = null) where EntityT : EntityBase, new(); */
+
+        /// <summary>
+        /// Retreives the particular entity from the database.
+        /// </summary>
+        /// <param name="EntityID">The entity ID</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
+        /// <returns>The Entity object</returns>
+        EntityBase RetreiveSingleEntityOrDefault(int EntityID, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Saves all fields of the entity and sets the delete flag.

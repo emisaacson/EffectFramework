@@ -95,6 +95,7 @@ namespace EffectFramework.Core.Models.Fields
         protected decimal? ValueDecimal { get; set; }
         protected bool? ValueBool { get; set; }
         protected int? ValueLookup { get; set; }
+        protected int? ValueEntityReference { get; set; }
         protected byte[] ValueBinary { get; set; }
 
         protected string OriginalValueString { get; set; }
@@ -102,6 +103,7 @@ namespace EffectFramework.Core.Models.Fields
         protected decimal? OriginalValueDecimal { get; set; }
         protected bool? OriginalValueBool { get; set; }
         protected int? OriginalValueLookup { get; set; }
+        protected int? OriginalValueEntityReference { get; set; }
         protected byte[] OriginalValueBinary { get; set; }
 
         [NonSerialized]
@@ -163,6 +165,7 @@ namespace EffectFramework.Core.Models.Fields
             this.ValueBool = Field.ValueBoolean;
             this.ValueLookup = Field.ValueLookup;
             this.ValueBinary = Field.ValueBinary;
+            this.ValueEntityReference = Field.ValueEntityReference;
             this.Guid = Field.Guid;
 
             RefreshOriginalValues();
@@ -213,6 +216,7 @@ namespace EffectFramework.Core.Models.Fields
                 this.ValueBool    = null;
                 this.ValueLookup  = null;
                 this.ValueBinary  = null;
+                this.ValueEntityReference = null;
             }
             else
             {
@@ -224,6 +228,7 @@ namespace EffectFramework.Core.Models.Fields
                 this.ValueBool    = Base.ValueBool;
                 this.ValueLookup  = Base.ValueLookup;
                 this.ValueBinary  = Base.ValueBinary;
+                this.ValueEntityReference = Base.ValueEntityReference;
 
                 this.Guid         = Base.Guid;
             }
@@ -256,6 +261,7 @@ namespace EffectFramework.Core.Models.Fields
             this.ValueBool    = View.ValueBoolean;
             this.ValueLookup  = View.ValueLookup;
             this.ValueBinary  = View.ValueBinary;
+            this.ValueEntityReference = View.ValueEntityReference;
 
             this.Guid         = View.EntityFieldGuid;
 
@@ -434,6 +440,7 @@ namespace EffectFramework.Core.Models.Fields
                 this.OriginalValueBool    = this.ValueBool;
                 this.OriginalValueLookup  = this.ValueLookup;
                 this.OriginalValueBinary  = this.ValueBinary;
+                this.OriginalValueEntityReference = this.ValueEntityReference;
             }
         }
     }
