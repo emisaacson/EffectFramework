@@ -5,9 +5,6 @@ using System.Reflection;
 using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Services;
 using EffectFramework.Core.Models.Annotations;
-using Ninject;
-using Ninject.Parameters;
-using EffectFramework.Core.Models.Db;
 
 namespace EffectFramework.Core.Models.Entities
 {
@@ -378,7 +375,7 @@ namespace EffectFramework.Core.Models.Entities
         {
             PersistenceService.RecordAudit(this, null, null, ctx);
 
-            ObjectIdentity Identity;
+            Db.ObjectIdentity Identity;
             if (this.Item != null) {
                 Identity = PersistenceService.SaveSingleEntity(Item, this, ctx);
             }

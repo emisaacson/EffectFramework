@@ -13,7 +13,11 @@ namespace EffectFramework.Core.Models.Db
         public DbSet<CompleteItem> CompleteItems { get; set; }
         public DbSet<FieldTypeMeta> FieldTypeMetas { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
-        private string ConnectionString { get; set; }
+        public DbSet<ItemType> ItemTypes { get; set; }
+        public DbSet<EntityType> EntityTypes { get; set; }
+        public DbSet<FieldType> FieldTypes { get; set; }
+
+        protected string ConnectionString { get; set; }
 
         public void usp_DeleteEntireDatabase(bool ForReal = false)
         {
@@ -116,15 +120,41 @@ namespace EffectFramework.Core.Models.Db
                     .ForeignKey(ef => ef.EntityID);
             });
 
-            builder.Entity<Field>(e => {
+            builder.Entity<Field>(e =>
+            {
                 e.Table("Fields");
 
                 e.Key(ef => ef.FieldID);
 
                 e.Property(ef => ef.FieldID).ForSqlServer().UseIdentity();
             });
-                
 
+            builder.Entity<ItemType>(e =>
+            {
+                e.Table("ItemTypes");
+
+                e.Key(it => it.ItemTypeID);
+
+                e.Property(it => it.ItemTypeID).ForSqlServer().UseIdentity();
+            });
+
+            builder.Entity<EntityType>(e =>
+            {
+                e.Table("EntityTypes");
+
+                e.Key(et => et.EntityTypeID);
+
+                e.Property(et => et.EntityTypeID).ForSqlServer().UseIdentity();
+            });
+
+            builder.Entity<FieldType>(e =>
+            {
+                e.Table("FieldTypes");
+
+                e.Key(ft => ft.FieldTypeID);
+
+                e.Property(ft => ft.FieldTypeID).ForSqlServer().UseIdentity();
+            });
         }
 
         public IDisposable BeginTransaction()

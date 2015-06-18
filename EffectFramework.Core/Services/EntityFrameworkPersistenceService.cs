@@ -545,7 +545,7 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, FieldType FieldType)
+        public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, Models.Fields.FieldType FieldType)
         {
 
             int FieldTypeID = FieldType.Value;
@@ -1039,7 +1039,7 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                FieldType FieldType = (FieldType)FieldTypeID;
+                Models.Fields.FieldType FieldType = (Models.Fields.FieldType)FieldTypeID;
                 Type SystemMetaType = FieldType.DataType.MetaType;
 
                 var DbFieldTypeMeta = db.FieldTypeMetas.Where(f => f.ItemTypeID == ItemTypeID && f.EntityTypeID == EntityTypeID && f.FieldTypeID == FieldTypeID).FirstOrDefault();

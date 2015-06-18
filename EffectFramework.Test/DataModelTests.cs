@@ -497,7 +497,7 @@ namespace EffectFramework.Test
         public DateTime Effective_Date { get; set; }
         public int? GeneralInfoID { get; set; }
     }
-    public class TestEntityType : EntityType
+    public class TestEntityType : Core.Models.Entities.EntityType
     {
         public static readonly TestEntityType User_Role = new TestEntityType(Strings.Job, 1, typeof(UserTypeEntity));
         public static readonly TestEntityType Address = new TestEntityType(Strings.Address, 2, typeof(AddressEntity));
@@ -506,7 +506,7 @@ namespace EffectFramework.Test
         protected TestEntityType(string Name, int Value, Type Type) : base(Name, Value, Type) { }
     }
 
-    public class TestFieldType : FieldType
+    public class TestFieldType : Core.Models.Fields.FieldType
     {
         protected TestFieldType(string Name, int Value, DataType DataType) : base(Name, Value, DataType) { }
 
@@ -518,7 +518,7 @@ namespace EffectFramework.Test
 
     }
 
-    public class TestItemType : ItemType
+    public class TestItemType : Core.Models.ItemType
     {
         protected TestItemType(string Name, int Value, Type Type) : base(Name, Value, Type) { }
 
@@ -528,7 +528,7 @@ namespace EffectFramework.Test
 
     public class User : Core.Models.Item
     {
-        public override ItemType Type
+        public override Core.Models.ItemType Type
         {
             get
             {
@@ -543,7 +543,7 @@ namespace EffectFramework.Test
 
     public class AddressEntity : EntityBase
     {
-        public override EntityType Type
+        public override Core.Models.Entities.EntityType Type
         {
             get
             {
@@ -566,7 +566,7 @@ namespace EffectFramework.Test
     [ApplyPolicy(typeof(NoOverlapPolicy))]
     public class GeneralInfoEntity : EntityBase
     {
-        public override EntityType Type
+        public override Core.Models.Entities.EntityType Type
         {
             get
             {
@@ -595,7 +595,7 @@ namespace EffectFramework.Test
     public class UserTypeEntity : EntityBase
     {
 
-        public override EntityType Type
+        public override Core.Models.Entities.EntityType Type
         {
             get
             {
