@@ -43,6 +43,7 @@ namespace EffectFramework.Test
                     ItemTypeID = TestItemType.User.Value,
                     IsDeleted = false,
                     Guid = Guid.NewGuid(),
+                    TenantID = 1,
                 };
 
                 db.Items.Add(NewItem);
@@ -57,6 +58,7 @@ namespace EffectFramework.Test
                     IsDeleted = false,
                     Guid = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
+                    TenantID = 1,
                 };
 
 
@@ -69,6 +71,7 @@ namespace EffectFramework.Test
                     IsDeleted = false,
                     Guid = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
+                    TenantID = 1,
                 };
 
                 Entity NewEntity3 = new Entity()
@@ -80,6 +83,7 @@ namespace EffectFramework.Test
                     IsDeleted = false,
                     Guid = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
+                    TenantID = 1,
                 };
 
                 db.Entities.Add(NewEntity1);
@@ -95,6 +99,7 @@ namespace EffectFramework.Test
                     ValueDate = new DateTime(2015, 1, 1),
                     Guid = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
+                    TenantID = 1,
                 };
 
                 Field NewField4 = new Field()
@@ -105,6 +110,7 @@ namespace EffectFramework.Test
                     ValueText = "John",
                     Guid = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
+                    TenantID = 1,
                 };
 
                 Field NewField5 = new Field()
@@ -115,6 +121,7 @@ namespace EffectFramework.Test
                     ValueText = "Smith",
                     Guid = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
+                    TenantID = 1,
                 };
 
                 Field NewField2 = new Field()
@@ -125,6 +132,7 @@ namespace EffectFramework.Test
                     ValueText = "Subscriber",
                     Guid = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
+                    TenantID = 1,
                 };
 
                 Field NewField3 = new Field()
@@ -135,6 +143,7 @@ namespace EffectFramework.Test
                     ValueText = "Editor",
                     Guid = Guid.NewGuid(),
                     CreateDate = DateTime.Now,
+                    TenantID = 1,
                 };
 
                 db.Fields.Add(NewField1);

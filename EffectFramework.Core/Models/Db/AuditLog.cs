@@ -34,5 +34,7 @@ namespace EffectFramework.Core.Models.Db
         public DateTime CreateDate { get; set; }
         public int? ItemReference { get; set; }
         public string Comment { get; set; }
+        public int TenantID { get; set; }
+
     }
 }

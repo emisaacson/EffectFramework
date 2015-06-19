@@ -11,5 +11,7 @@ namespace EffectFramework.Core.Models.Db
         public string Name { get; set; }
         public int DataTypeID { get; set; }
         public int LookupTypeID { get; set; }
+        public int TenantID { get; set; }
+
     }
 }

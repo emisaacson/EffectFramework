@@ -6,6 +6,6 @@
         public string Value { get; set; }
         public int LookupTypeID { get; set; }
         public bool IsDeleted { get; set; }
-
+        public int TenantID { get; set; }
     }
 }

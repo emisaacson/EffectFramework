@@ -18,6 +18,7 @@ namespace EffectFramework.Core.Models.Db
         public DateTime? DeleteDate { get; set; }
         public int? DeleteItemReference { get; set; }
         public string DeleteItemComment { get; set; }
+        public int TenantID { get; set; }
 
         public Item Item { get; set; }
         public List<Field> EntityFields { get; set; }

@@ -23,5 +23,7 @@ namespace EffectFramework.Core.Models.Db
         public string DatetimeMaxQuery { get; set; }
         public string TextRegex { get; set; }
         public string TextRegexQuery { get; set; }
+        public int TenantID { get; set; }
+
     }
 }

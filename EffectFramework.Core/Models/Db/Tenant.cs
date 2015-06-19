@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 
 namespace EffectFramework.Core.Models.Db
 {
-    public class EntityType
+    public class Tenant
     {
-        public int EntityTypeID { get; set; }
-        public string Name { get; set; }
         public int TenantID { get; set; }
-
+        public string Name { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }
