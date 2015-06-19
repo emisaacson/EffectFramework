@@ -1,37 +1,4 @@
-﻿/****** Object:  StoredProcedure [dbo].[usp_DeleteEntireDatabase]    Script Date: 6/7/2015 3:24:00 AM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-CREATE PROCEDURE [dbo].[usp_DeleteEntireDatabase]
-AS
-BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
-
-	BEGIN TRANSACTION deleteDatabase;
-
-	DELETE FROM Fields;
-	DELETE FROM Entities;
-	DELETE FROM Items;
-
-	DBCC CHECKIDENT ('dbo.Fields',RESEED, 0);
-	DBCC CHECKIDENT ('dbo.Entities',RESEED, 0);
-	DBCC CHECKIDENT ('dbo.Items',RESEED, 0);
-
-	COMMIT TRANSACTION deleteDatabase;
-
-END
-
-
-
-
-
-
-GO
-/****** Object:  Table [dbo].[AuditLog]    Script Date: 6/7/2015 3:24:00 AM ******/
+﻿/****** Object:  Table [dbo].[AuditLog]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -66,6 +33,7 @@ CREATE TABLE [dbo].[AuditLog](
 	[CreateDate] [datetime] NOT NULL,
 	[ItemReference] [int] NULL,
 	[Comment] [nvarchar](max) NULL,
+	[TenantID] [int] NULL,
  CONSTRAINT [PK_AuditLog] PRIMARY KEY CLUSTERED 
 (
 	[AuditLogID] ASC
@@ -75,7 +43,7 @@ CREATE TABLE [dbo].[AuditLog](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  Table [dbo].[DataTypes]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[DataTypes]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -90,7 +58,7 @@ CREATE TABLE [dbo].[DataTypes](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[Entities]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[Entities]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -109,6 +77,7 @@ CREATE TABLE [dbo].[Entities](
 	[DeleteDate] [datetime] NULL,
 	[DeleteItemReference] [int] NULL,
 	[DeleteItemComment] [nvarchar](max) NULL,
+	[TenantID] [int] NULL,
  CONSTRAINT [PK_Entities] PRIMARY KEY CLUSTERED 
 (
 	[EntityID] ASC
@@ -116,7 +85,7 @@ CREATE TABLE [dbo].[Entities](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[EntityTypes]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[EntityTypes]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -124,6 +93,7 @@ GO
 CREATE TABLE [dbo].[EntityTypes](
 	[EntityTypeID] [int] NOT NULL,
 	[Name] [nvarchar](1024) NOT NULL,
+	[TenantID] [int] NULL,
  CONSTRAINT [PK_EntityTypes] PRIMARY KEY CLUSTERED 
 (
 	[EntityTypeID] ASC
@@ -131,7 +101,7 @@ CREATE TABLE [dbo].[EntityTypes](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[Fields]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[Fields]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -158,6 +128,7 @@ CREATE TABLE [dbo].[Fields](
 	[DeleteDate] [datetime] NULL,
 	[DeleteItemReference] [int] NULL,
 	[DeleteItemComment] [nvarchar](max) NULL,
+	[TenantID] [int] NULL,
  CONSTRAINT [PK_Fields] PRIMARY KEY CLUSTERED 
 (
 	[FieldID] ASC
@@ -167,7 +138,7 @@ CREATE TABLE [dbo].[Fields](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  Table [dbo].[FieldTypeMeta]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[FieldTypeMeta]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -189,6 +160,7 @@ CREATE TABLE [dbo].[FieldTypeMeta](
 	[DatetimeMaxQuery] [nvarchar](max) NULL,
 	[TextRegex] [nvarchar](max) NULL,
 	[TextRegexQuery] [nvarchar](max) NULL,
+	[TenantID] [int] NULL,
  CONSTRAINT [PK_FieldTypeMeta] PRIMARY KEY CLUSTERED 
 (
 	[FieldTypeMetaID] ASC
@@ -202,7 +174,7 @@ CREATE TABLE [dbo].[FieldTypeMeta](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[FieldTypes]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[FieldTypes]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -212,6 +184,7 @@ CREATE TABLE [dbo].[FieldTypes](
 	[Name] [nvarchar](1024) NOT NULL,
 	[DataTypeID] [int] NOT NULL,
 	[LookupTypeID] [int] NULL,
+	[TenantID] [int] NULL,
  CONSTRAINT [PK_FieldTypes] PRIMARY KEY CLUSTERED 
 (
 	[FieldTypeID] ASC
@@ -219,7 +192,7 @@ CREATE TABLE [dbo].[FieldTypes](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[Items]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[Items]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -229,6 +202,7 @@ CREATE TABLE [dbo].[Items](
 	[IsDeleted] [bit] NOT NULL,
 	[Guid] [uniqueidentifier] NOT NULL,
 	[ItemTypeID] [int] NOT NULL,
+	[TenantID] [int] NULL,
  CONSTRAINT [PK_Items] PRIMARY KEY CLUSTERED 
 (
 	[ItemID] ASC
@@ -236,7 +210,7 @@ CREATE TABLE [dbo].[Items](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[ItemTypes]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[ItemTypes]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -244,6 +218,7 @@ GO
 CREATE TABLE [dbo].[ItemTypes](
 	[ItemTypeID] [int] NOT NULL,
 	[Name] [nvarchar](1024) NOT NULL,
+	[TenantID] [int] NULL,
  CONSTRAINT [PK_ItemTypes] PRIMARY KEY CLUSTERED 
 (
 	[ItemTypeID] ASC
@@ -251,7 +226,7 @@ CREATE TABLE [dbo].[ItemTypes](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[Lookups]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[Lookups]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -262,7 +237,8 @@ CREATE TABLE [dbo].[Lookups](
 	[LookupID] [int] IDENTITY(1,1) NOT NULL,
 	[Value] [varchar](max) NOT NULL,
 	[LookupTypeID] [int] NOT NULL,
-	[IsDeleted] [bit] NOT NULL,
+	[IsDeleted] [bit] NOT NULL CONSTRAINT [DF_Lookups_IsDeleted]  DEFAULT ((0)),
+	[TenantID] [int] NULL,
  CONSTRAINT [PK_Lookups] PRIMARY KEY CLUSTERED 
 (
 	[LookupID] ASC
@@ -272,7 +248,7 @@ CREATE TABLE [dbo].[Lookups](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  Table [dbo].[LookupTypes]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[LookupTypes]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -283,6 +259,7 @@ CREATE TABLE [dbo].[LookupTypes](
 	[LookupTypeID] [int] IDENTITY(1,1) NOT NULL,
 	[Name] [varchar](1024) NOT NULL,
 	[IsDeleted] [bit] NOT NULL,
+	[TenantID] [int] NULL,
  CONSTRAINT [PK_LookupTypes] PRIMARY KEY CLUSTERED 
 (
 	[LookupTypeID] ASC
@@ -292,7 +269,23 @@ CREATE TABLE [dbo].[LookupTypes](
 GO
 SET ANSI_PADDING OFF
 GO
-/****** Object:  View [dbo].[CompleteItems]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  Table [dbo].[Tenants]    Script Date: 6/19/2015 12:09:01 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Tenants](
+	[TenantID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](1000) NOT NULL,
+	[IsDeleted] [bit] NOT NULL,
+ CONSTRAINT [PK_Tenants] PRIMARY KEY CLUSTERED 
+(
+	[TenantID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  View [dbo].[CompleteItems]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -345,8 +338,9 @@ WHERE i.IsDeleted = 0
 
 
 
+
 GO
-/****** Object:  View [dbo].[CurrentItems]    Script Date: 6/7/2015 3:24:00 AM ******/
+/****** Object:  View [dbo].[CurrentItems]    Script Date: 6/19/2015 12:09:01 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -401,8 +395,12 @@ WHERE i.IsDeleted = 0 AND en.EffectiveDate <= GETDATE() AND (en.EndEffectiveDate
 
 
 
+
 GO
-ALTER TABLE [dbo].[Lookups] ADD  CONSTRAINT [DF_Lookups_IsDeleted]  DEFAULT ((0)) FOR [IsDeleted]
+ALTER TABLE [dbo].[AuditLog]  WITH CHECK ADD  CONSTRAINT [FK_AuditLog_AuditLog] FOREIGN KEY([AuditLogID])
+REFERENCES [dbo].[AuditLog] ([AuditLogID])
+GO
+ALTER TABLE [dbo].[AuditLog] CHECK CONSTRAINT [FK_AuditLog_AuditLog]
 GO
 ALTER TABLE [dbo].[AuditLog]  WITH CHECK ADD  CONSTRAINT [FK_AuditLog_Entities] FOREIGN KEY([EntityID])
 REFERENCES [dbo].[Entities] ([EntityID])
@@ -454,6 +452,11 @@ REFERENCES [dbo].[Lookups] ([LookupID])
 GO
 ALTER TABLE [dbo].[AuditLog] CHECK CONSTRAINT [FK_AuditLog_Lookups1]
 GO
+ALTER TABLE [dbo].[AuditLog]  WITH CHECK ADD  CONSTRAINT [FK_AuditLog_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[AuditLog] CHECK CONSTRAINT [FK_AuditLog_Tenants]
+GO
 ALTER TABLE [dbo].[Entities]  WITH CHECK ADD  CONSTRAINT [FK_Entities_EntityTypes] FOREIGN KEY([EntityTypeID])
 REFERENCES [dbo].[EntityTypes] ([EntityTypeID])
 GO
@@ -473,6 +476,16 @@ ALTER TABLE [dbo].[Entities]  WITH CHECK ADD  CONSTRAINT [FK_Entities_Items2] FO
 REFERENCES [dbo].[Items] ([ItemID])
 GO
 ALTER TABLE [dbo].[Entities] CHECK CONSTRAINT [FK_Entities_Items2]
+GO
+ALTER TABLE [dbo].[Entities]  WITH CHECK ADD  CONSTRAINT [FK_Entities_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[Entities] CHECK CONSTRAINT [FK_Entities_Tenants]
+GO
+ALTER TABLE [dbo].[EntityTypes]  WITH CHECK ADD  CONSTRAINT [FK_EntityTypes_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[EntityTypes] CHECK CONSTRAINT [FK_EntityTypes_Tenants]
 GO
 ALTER TABLE [dbo].[Fields]  WITH CHECK ADD  CONSTRAINT [FK_Fields_Entities] FOREIGN KEY([EntityID])
 REFERENCES [dbo].[Entities] ([EntityID])
@@ -509,6 +522,11 @@ REFERENCES [dbo].[Lookups] ([LookupID])
 GO
 ALTER TABLE [dbo].[Fields] CHECK CONSTRAINT [FK_Fields_Lookups]
 GO
+ALTER TABLE [dbo].[Fields]  WITH CHECK ADD  CONSTRAINT [FK_Fields_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[Fields] CHECK CONSTRAINT [FK_Fields_Tenants]
+GO
 ALTER TABLE [dbo].[FieldTypeMeta]  WITH CHECK ADD  CONSTRAINT [FK_FieldTypeMeta_EntityTypes] FOREIGN KEY([EntityTypeID])
 REFERENCES [dbo].[EntityTypes] ([EntityTypeID])
 GO
@@ -524,6 +542,11 @@ REFERENCES [dbo].[ItemTypes] ([ItemTypeID])
 GO
 ALTER TABLE [dbo].[FieldTypeMeta] CHECK CONSTRAINT [FK_FieldTypeMeta_ItemTypes]
 GO
+ALTER TABLE [dbo].[FieldTypeMeta]  WITH CHECK ADD  CONSTRAINT [FK_FieldTypeMeta_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[FieldTypeMeta] CHECK CONSTRAINT [FK_FieldTypeMeta_Tenants]
+GO
 ALTER TABLE [dbo].[FieldTypes]  WITH CHECK ADD  CONSTRAINT [FK_FieldTypes_DataTypes] FOREIGN KEY([DataTypeID])
 REFERENCES [dbo].[DataTypes] ([DataTypeID])
 GO
@@ -534,15 +557,74 @@ REFERENCES [dbo].[LookupTypes] ([LookupTypeID])
 GO
 ALTER TABLE [dbo].[FieldTypes] CHECK CONSTRAINT [FK_FieldTypes_LookupTypes]
 GO
+ALTER TABLE [dbo].[FieldTypes]  WITH CHECK ADD  CONSTRAINT [FK_FieldTypes_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[FieldTypes] CHECK CONSTRAINT [FK_FieldTypes_Tenants]
+GO
 ALTER TABLE [dbo].[Items]  WITH CHECK ADD  CONSTRAINT [FK_Items_ItemTypes] FOREIGN KEY([ItemTypeID])
 REFERENCES [dbo].[ItemTypes] ([ItemTypeID])
 GO
 ALTER TABLE [dbo].[Items] CHECK CONSTRAINT [FK_Items_ItemTypes]
 GO
+ALTER TABLE [dbo].[Items]  WITH CHECK ADD  CONSTRAINT [FK_Items_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[Items] CHECK CONSTRAINT [FK_Items_Tenants]
+GO
+ALTER TABLE [dbo].[ItemTypes]  WITH CHECK ADD  CONSTRAINT [FK_ItemTypes_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[ItemTypes] CHECK CONSTRAINT [FK_ItemTypes_Tenants]
+GO
 ALTER TABLE [dbo].[Lookups]  WITH CHECK ADD  CONSTRAINT [FK_Lookups_LookupTypes] FOREIGN KEY([LookupTypeID])
 REFERENCES [dbo].[LookupTypes] ([LookupTypeID])
 GO
 ALTER TABLE [dbo].[Lookups] CHECK CONSTRAINT [FK_Lookups_LookupTypes]
+GO
+ALTER TABLE [dbo].[Lookups]  WITH CHECK ADD  CONSTRAINT [FK_Lookups_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[Lookups] CHECK CONSTRAINT [FK_Lookups_Tenants]
+GO
+ALTER TABLE [dbo].[LookupTypes]  WITH CHECK ADD  CONSTRAINT [FK_LookupTypes_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[LookupTypes] CHECK CONSTRAINT [FK_LookupTypes_Tenants]
+GO
+/****** Object:  StoredProcedure [dbo].[usp_DeleteEntireDatabase]    Script Date: 6/19/2015 12:09:01 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[usp_DeleteEntireDatabase]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	BEGIN TRANSACTION deleteDatabase;
+
+	DELETE FROM Fields;
+	DELETE FROM Entities;
+	DELETE FROM Items;
+
+	DBCC CHECKIDENT ('dbo.Fields',RESEED, 0);
+	DBCC CHECKIDENT ('dbo.Entities',RESEED, 0);
+	DBCC CHECKIDENT ('dbo.Items',RESEED, 0);
+
+	COMMIT TRANSACTION deleteDatabase;
+
+END
+
+
+
+
+
+
+
 GO
 
 
