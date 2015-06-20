@@ -21,9 +21,11 @@ namespace EffectFramework.Core
         private static Type CacheServiceType = typeof(NullCacheService);
         private static Type LoggingProviderType = typeof(NullLoggingProvider);
         private static Type ObjectQueryProviderType = typeof(NullObjectQuery);
+        private static Type TenantResolutionProviderType = typeof(DefaultTenantResolver);
 
         private static IPersistenceService _PersistenceService;
         private static ICacheService _CacheService;
+        private static ITenantResolutionProvider _TenantResolutionProvider;
 
         public Configure()
         {
@@ -52,6 +54,9 @@ namespace EffectFramework.Core
                 .To(CacheServiceType)
                 .InSingletonScope()
                 .WithPropertyValue("ConnectionString", CacheConnectionString);
+
+            Kernel.Bind<ITenantResolutionProvider>()
+                .To(TenantResolutionProviderType);
         }
 
         /// <summary>
@@ -85,6 +90,17 @@ namespace EffectFramework.Core
             where LoggingProviderT : ILoggingProvider
         {
             LoggingProviderType = typeof(LoggingProviderT);
+        }
+
+        /// <summary>
+        /// Registers the tenant resolution provider. The type should be wired up in the startup
+        /// routine of the app. By default, the DefaultTenantResolver is used.
+        /// </summary>
+        /// <typeparam name="TenantResolutionProviderT">The type of the Tenant resolution provider (must implement ITenantResolutionProvider)</typeparam>
+        public static void RegisterTenantResolutionProvider<TenantResolutionProviderT>()
+            where TenantResolutionProviderT : ITenantResolutionProvider
+        {
+            TenantResolutionProviderType = typeof(TenantResolutionProviderT);
         }
 
         /// <summary>
@@ -169,6 +185,14 @@ namespace EffectFramework.Core
             using (IKernel Kernel = new StandardKernel(new Configure()))
             {
                 return Kernel.Get<IObjectQueryProvider>();
+            }
+        }
+
+        public static ITenantResolutionProvider GetTenantResolutionProvider()
+        {
+            using (IKernel Kernel = new StandardKernel(new Configure()))
+            {
+                return Kernel.Get<ITenantResolutionProvider>();
             }
         }
     }

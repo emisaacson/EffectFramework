@@ -19,6 +19,13 @@ namespace EffectFramework.Core.Models.Fields
         public DataType DataType { get; protected set; }
         public string Name { get; protected set; }
         public int? LookupTypeID { get; protected set; }
+        public virtual int TenantID {
+            get
+            {
+                return Configure.GetTenantResolutionProvider().GetTenantID();
+            }
+        }
+
         private static Dictionary<int, FieldType> TypeRegistry = new Dictionary<int, FieldType>();
 
         protected FieldType(string Name, int Value, DataType DataType, int? LookupTypeID = null)

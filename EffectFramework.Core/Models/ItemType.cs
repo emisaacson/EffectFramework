@@ -24,6 +24,15 @@ namespace EffectFramework.Core.Models
         /// The name of the item type.
         /// </value>
         public string Name { get; private set; }
+
+        public virtual int TenantID
+        {
+            get
+            {
+                return Configure.GetTenantResolutionProvider().GetTenantID();
+            }
+        }
+
         public Type Type { get; private set; }
         private static Dictionary<int, ItemType> TypeRegistry = new Dictionary<int, ItemType>();
 

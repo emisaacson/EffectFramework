@@ -5,6 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using EffectFramework.Core.Models.Db;
 using System.Collections.Generic;
+using EffectFramework.Core.Exceptions;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -89,6 +90,7 @@ namespace EffectFramework.Core.Models.Fields
         public int? FieldID { get; protected set; }
         public bool Dirty { get; protected set; }
         public string Name { get; protected set; }
+        public virtual int TenantID { get; protected set; }
 
         protected string ValueString { get; set; }
         protected DateTime? ValueDate { get; set; }
@@ -318,6 +320,13 @@ namespace EffectFramework.Core.Models.Fields
             Log.Info("Saving the field to the database. FieldID: {0}",
                 FieldID.HasValue ? FieldID.Value.ToString() : "null");
 
+            if (!PerformSanityCheck())
+            {
+                Log.Fatal("TenantID mismatch. Global TenantID: {0}, Field TenantID: {1}, Entity TenantID: {2}",
+                    Configure.GetTenantResolutionProvider().GetTenantID(), this.TenantID, this.Entity?.TenantID);
+                throw new FatalException("Invalid data exception.");
+            }
+
             PersistenceService.RecordAudit(this, null, null, ctx);
 
 
@@ -352,6 +361,21 @@ namespace EffectFramework.Core.Models.Fields
             RefreshOriginalValues();
 
             return Identity == null ? false : Identity.DidUpdate;
+        }
+
+        public bool PerformSanityCheck()
+        {
+            int _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+
+            if (_TenantID != this.TenantID)
+            {
+                return false;
+            }
+            if (this.Entity != null && this.Entity.TenantID != _TenantID)
+            {
+                return false;
+            }
+            return true;
         }
 
         public ValidationSummary Validate()

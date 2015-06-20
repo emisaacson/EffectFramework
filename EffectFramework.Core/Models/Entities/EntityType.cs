@@ -9,6 +9,13 @@ namespace EffectFramework.Core.Models.Entities
         public int Value { get; protected set; }
         public string Name { get; protected set; }
         public Type Type { get; protected set; }
+        public virtual int TenantID
+        {
+            get {
+                return Configure.GetTenantResolutionProvider().GetTenantID();
+            }
+        }
+
         private static Dictionary<int, EntityType> TypeRegistry = new Dictionary<int, EntityType>();
         protected EntityType(string Name, int Value, Type Type)
         {

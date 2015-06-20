@@ -5,6 +5,7 @@ using System.Reflection;
 using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Services;
 using EffectFramework.Core.Models.Annotations;
+using EffectFramework.Core.Exceptions;
 
 namespace EffectFramework.Core.Models.Entities
 {
@@ -30,6 +31,7 @@ namespace EffectFramework.Core.Models.Entities
         public int? ItemID { get; protected set; }
         public Guid Guid { get; protected set; }
         public bool Dirty { get; protected set; }
+        public virtual int TenantID { get; protected set; }
 
         private Item _Item;
         public Item Item {
@@ -373,6 +375,13 @@ namespace EffectFramework.Core.Models.Entities
         /// <returns>true if the Entity or any of its fields were changed in the database.</returns>
         public bool PersistToDatabase(Db.IDbContext ctx = null)
         {
+            if (!PerformSanityCheck())
+            {
+                Log.Fatal("TenantID mismatch. Global TenantID: {0}, Field TenantID: {1}, Item TenantID: {2}",
+                    Configure.GetTenantResolutionProvider().GetTenantID(), this.TenantID, this.Item?.TenantID);
+                throw new FatalException("Invalid data exception.");
+            }
+
             PersistenceService.RecordAudit(this, null, null, ctx);
 
             Db.ObjectIdentity Identity;
@@ -437,6 +446,21 @@ namespace EffectFramework.Core.Models.Entities
             }
 
             return ThisDidUpdate;
+        }
+
+        public bool PerformSanityCheck()
+        {
+            int _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+
+            if (_TenantID != this.TenantID)
+            {
+                return false;
+            }
+            if (this.Item != null && _TenantID != this.Item.TenantID)
+            {
+                return false;
+            }
+            return true;
         }
         
         /// <summary>

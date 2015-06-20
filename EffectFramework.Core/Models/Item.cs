@@ -65,6 +65,9 @@ namespace EffectFramework.Core.Models
         ///   <c>true</c> if dirty; otherwise, <c>false</c>.
         /// </value>
         public bool Dirty { get; protected set; }
+
+        public virtual int TenantID { get; protected set; }
+
         /// <summary>
         /// Gets the type of this item.
         /// </summary>
@@ -477,6 +480,16 @@ namespace EffectFramework.Core.Models
             TItem Instance = new TItem();
 
             return (TItem)CreateItem(Instance.Type, Sparse);
+        }
+
+        public bool PerformSanityCheck()
+        {
+            if (Configure.GetTenantResolutionProvider().GetTenantID() != this.TenantID)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         internal void AddEntity(EntityBase Entity)
