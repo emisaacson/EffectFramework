@@ -297,16 +297,21 @@ CREATE VIEW [dbo].[CompleteItems] AS
 SELECT
 i.ItemID,
 i.[Guid] as ItemGuid,
+i.TenantID as ItemTenantID,
 it.ItemTypeID,
 it.Name as ItemTypeName,
+it.TenantID as ItemTypeTenantID,
 en.EntityID,
 et.EntityTypeID,
 et.Name as EntityTypeName,
+et.TenantID as EntityTypeTenantID,
 en.EffectiveDate as EntityEffectiveDate,
 en.EndEffectiveDate as EntityEndEffectiveDate,
 en.[Guid] as EntityGuid,
+en.TenantID as EntityTenantID,
 ft.FieldTypeID,
 ft.Name as FieldTypeName,
+ft.TenantID as FieldTypeTenantID,
 dt.DataTypeID,
 dt.Name as DataTypeName,
 f.FieldID,
@@ -319,7 +324,8 @@ f.ValueItemReference,
 f.ValueEntityReference,
 f.ValueBinary,
 l.Value as LookupText,
-f.[Guid] as EntityFieldGuid
+f.[Guid] as EntityFieldGuid,
+f.TenantID as FieldTenantID
 FROM Items i
 JOIN ItemTypes it on it.ItemTypeID = i.ItemTypeID
 JOIN Entities en on en.ItemID = i.ItemID and en.IsDeleted = 0
@@ -352,41 +358,8 @@ GO
 
 
 CREATE VIEW [dbo].[CurrentItems] AS
-SELECT
-i.ItemID,
-i.[Guid] as ItemGuid,
-it.ItemTypeID,
-it.Name as ItemTypeName,
-en.EntityID,
-et.EntityTypeID,
-et.Name as EntityTypeName,
-en.EffectiveDate as EntityEffectiveDate,
-en.EndEffectiveDate as EntityEndEffectiveDate,
-en.[Guid] as EntityGuid,
-ft.FieldTypeID,
-ft.Name as FieldTypeName,
-dt.DataTypeID,
-dt.Name as DataTypeName,
-f.FieldID,
-f.ValueText,
-f.ValueDate,
-f.ValueDecimal,
-f.ValueBoolean,
-f.ValueLookup,
-f.ValueItemReference,
-f.ValueEntityReference,
-f.ValueBinary,
-l.Value as LookupText,
-f.[Guid] as EntityFieldGuid
-FROM Items i
-JOIN ItemTypes it on it.ItemTypeID = i.ItemTypeID
-JOIN Entities en on en.ItemID = i.ItemID and en.IsDeleted = 0
-JOIN EntityTypes et on et.EntityTypeID = en.EntityTypeID
-JOIN Fields f on f.EntityID = en.EntityID and f.IsDeleted = 0
-JOIN FieldTypes ft on ft.FieldTypeID = f.FieldTypeID
-JOIN DataTypes dt on dt.DataTypeID = ft.DataTypeID
-LEFT JOIN Lookups l on f.ValueLookup = l.LookupId and l.IsDeleted = 0
-WHERE i.IsDeleted = 0 AND en.EffectiveDate <= GETDATE() AND (en.EndEffectiveDate IS NULL OR en.EndEffectiveDate > GETDATE())
+SELECT * FROM [dbo].[CompleteItems]
+WHERE EntityEffectiveDate <= GETDATE() AND (EntityEndEffectiveDate IS NULL OR EntityEndEffectiveDate > GETDATE())
 
 
 

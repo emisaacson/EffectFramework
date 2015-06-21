@@ -75,6 +75,7 @@ namespace EffectFramework.Core.Services
                         EntityID = Entity.EntityID.Value,
                         Guid = Guid.NewGuid(),
                         CreateDate = DateTime.Now,
+                        TenantID = Field.TenantID,
                     };
                     db.Fields.Add(DbField);
                     db.SaveChanges();
@@ -97,6 +98,12 @@ namespace EffectFramework.Core.Services
                 if (DbField.FieldTypeID != Field.Type.Value)
                 {
                     throw new Exceptions.DataTypeMismatchException();
+                }
+                
+                if (DbField.TenantID != Field.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Database: {0}, Field Object: {1}", DbField.TenantID, Field.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
                 }
 
                 if (!Field.Dirty)
@@ -214,6 +221,12 @@ namespace EffectFramework.Core.Services
                     throw new Exceptions.DataTypeMismatchException();
                 }
 
+                if (DbField.TenantID != Field.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Database: {0}, Field Object: {1}", DbField.TenantID, Field.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
                 if (!Field.Dirty)
                 {
                     return new ObjectIdentity()
@@ -320,6 +333,7 @@ namespace EffectFramework.Core.Services
                         ItemID = Item.ItemID.Value,
                         Guid = Guid.NewGuid(),
                         CreateDate = DateTime.Now,
+                        TenantID = Entity.TenantID,
                     };
                     db.Entities.Add(DbEntity);
                     db.SaveChanges();
@@ -345,6 +359,12 @@ namespace EffectFramework.Core.Services
                 if (DbEntity.EntityTypeID != Entity.Type.Value)
                 {
                     throw new Exceptions.DataTypeMismatchException();
+                }
+
+                if (DbEntity.TenantID != Entity.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Database: {0}, Entity Object: {1}", DbEntity.TenantID, Entity.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
                 }
 
                 if (!Entity.Dirty)
@@ -426,6 +446,12 @@ namespace EffectFramework.Core.Services
                     throw new Exceptions.DataTypeMismatchException();
                 }
 
+                if (DbEntity.TenantID != Entity.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Database: {0}, Entity Object: {1}", DbEntity.TenantID, Entity.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
                 if (!Entity.Dirty)
                 {
                     return new ObjectIdentity()
@@ -488,6 +514,7 @@ namespace EffectFramework.Core.Services
                         IsDeleted = false,
                         ItemTypeID = Item.Type.Value,
                         Guid = Guid.NewGuid(),
+                        TenantID = Item.TenantID,
                     };
                     db.Items.Add(DbItem);
                     db.SaveChanges();
@@ -513,6 +540,12 @@ namespace EffectFramework.Core.Services
                 if (DbItem.ItemTypeID != Item.Type.Value)
                 {
                     throw new Exceptions.DataTypeMismatchException();
+                }
+
+                if (DbItem.TenantID != Item.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Database: {0}, Item Object: {1}", DbItem.TenantID, Item.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
                 }
 
                 if (!Item.Dirty)
@@ -575,6 +608,14 @@ namespace EffectFramework.Core.Services
                     return null;
                 }
 
+                if (Entity.TenantID != DbField.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. EntityID: {0}, Entity Tenant ID: {1}, Field ID: {2} Field TenantID: {3}",
+                        Entity.EntityID.Value, Entity.TenantID, DbField.FieldID, DbField.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
+
                 FieldBase Base = new FieldBase(DbField);
 
                 return Base;
@@ -596,7 +637,10 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+
                 var DbField = db.Fields.Where(f => f.FieldID == FieldID &&
+                                              f.TenantID == TenantID &&
                                               !f.IsDeleted).FirstOrDefault();
 
                 if (DbField == null)
@@ -688,8 +732,13 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+
                 var DbEntityPossibility = db.Entities
-                    .Where(e => e.EntityID == EntityID && e.IsDeleted == false).FirstOrDefault();
+                    .Where(e =>
+                        e.EntityID == EntityID &&
+                        e.TenantID == TenantID &&
+                        !e.IsDeleted).FirstOrDefault();
 
                 if (DbEntityPossibility == null)
                 {
@@ -751,6 +800,13 @@ namespace EffectFramework.Core.Services
                     throw new Exceptions.DataTypeMismatchException();
                 }
 
+                if (DbEntity.TenantID != Entity.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. EntityID: {0}, Entity Tenant ID: {1}, Db Entity ID: {2} Db Entity TenantID: {3}",
+                        Entity.EntityID.Value, Entity.TenantID, DbEntity.EntityID, DbEntity.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
                 DbEntity.EffectiveDate = Entity.EffectiveDate;
                 DbEntity.EndEffectiveDate = Entity.EndEffectiveDate;
                 DbEntity.Guid = Guid.NewGuid();
@@ -774,14 +830,24 @@ namespace EffectFramework.Core.Services
             {
                 throw new ArgumentNullException(nameof(Item));
             }
+
             if (!Item.ItemID.HasValue)
             {
                 throw new ArgumentException("Record must have an ID.");
             }
 
+            int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            if (Item.TenantID != TenantID)
+            {
+                    Log.Fatal("Tenant ID Does not match. ItemID: {0}, Item Tenant ID: {1}, Global Tenant ID: {2}",
+                        Item.ItemID.Value, Item.TenantID, TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+            }
+
             using (var db = new EntityFramework7DBContext(ConnectionString))
             using (db.Database.AsRelational().Connection.BeginTransaction())
             {
+
                 var DbEntityPossibilities = db.Entities
                     .Where(e =>
                         e.ItemID == Item.ItemID.Value &&
@@ -801,6 +867,12 @@ namespace EffectFramework.Core.Services
                 List<EntityBase> Output = new List<EntityBase>();
                 foreach (var DbEntity in DbEntities)
                 {
+                    if (DbEntity.TenantID != TenantID)
+                    {
+                        Log.Fatal("Tenant ID Does not match. Entity Tenant ID: {0}, Global Tenant ID: {1}",
+                            DbEntity.TenantID, TenantID);
+                        throw new Exceptions.FatalException("Data error.");
+                    }
                     Output.Add(EntityBase.GenerateEntityFromDbObject(DbEntity, Item));
                 }
 
@@ -812,6 +884,13 @@ namespace EffectFramework.Core.Services
         {
             using (var db = new EntityFramework7DBContext(ConnectionString))
             {
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                if (Item.TenantID != TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Item Tenant ID: {0}, Global Tenant ID: {1}",
+                        Item.TenantID, TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
                 var DbItemRecord = db.Items
                     .Where(e =>
                         e.ItemID == Item.ItemID &&
@@ -852,11 +931,25 @@ namespace EffectFramework.Core.Services
                     return new LookupEntry[0];
                 }
 
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                if (TenantID != Field.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Field Tenant ID: {0}, Global Tenant ID: {1}",
+                        Field.TenantID, TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
                 var Lookups = db.Lookups.Where(l => l.LookupTypeID == (int)Field.Type.LookupTypeID.Value);
 
                 List<LookupEntry> Output = new List<LookupEntry>();
                 foreach (var Lookup in Lookups)
                 {
+                    if (TenantID != Lookup.TenantID)
+                    {
+                        Log.Fatal("Tenant ID Does not match. Field Tenant ID: {0}, Global Tenant ID: {1}",
+                            Field.TenantID, TenantID);
+                        throw new Exceptions.FatalException("Data error.");
+                    }
                     Output.Add(new LookupEntry(Lookup.LookupID, Lookup.Value));
                 }
 
@@ -884,8 +977,24 @@ namespace EffectFramework.Core.Services
                 {
                     db = (EntityFramework7DBContext)ctx;
                 }
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
                 CompleteItem[] Items = db.CompleteItems.Where(i => ItemIDs.Contains(i.ItemID)).ToArray();
+
+                foreach (var Item in Items)
+                {
+                    if (Item.ItemTenantID != TenantID ||
+                        Item.ItemTypeTenantID != TenantID ||
+                        Item.EntityTenantID != TenantID ||
+                        Item.EntityTypeTenantID != TenantID ||
+                        Item.FieldTypeTenantID != TenantID ||
+                        Item.FieldTenantID != TenantID)
+                    {
+                        Log.Fatal("Tenant ID Does not match. Global Tenant ID: {0}, ItemTenantID: {1}, ItemTypeTenantID: {2}, EntityTenantID: {3}, EntityTypeTenantID: {4}, FieldTypeTenantID: {5}, FieltTenantID: {6}",
+                            TenantID, Item.ItemTenantID, Item.ItemTypeTenantID, Item.EntityTenantID, Item.EntityTypeTenantID, Item.FieldTypeTenantID, Item.FieldTypeTenantID, Item.FieldTenantID);
+                        throw new Exceptions.FatalException("Data error.");
+                    }
+                }
 
                 return Items;
             }
@@ -930,6 +1039,13 @@ namespace EffectFramework.Core.Services
                     throw new InvalidOperationException("Entity or Item not yet persisted for this field.");
                 }
 
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                if (TenantID != Field.TenantID)
+                {
+                    Log.Fatal("TenantID Does not match. Global TenantID {0}, Field TenantID: {0}", TenantID, Field.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
                 AuditLog Audit = new AuditLog()
                 {
                     ItemID = Field.Entity.ItemID.Value,
@@ -950,6 +1066,7 @@ namespace EffectFramework.Core.Services
                     CreateDate = DateTime.Now,
                     ItemReference = ItemID,
                     Comment = Comment,
+                    TenantID = Field.TenantID,
                 };
 
                 db.AuditLogs.Add(Audit);
@@ -992,6 +1109,13 @@ namespace EffectFramework.Core.Services
                     return;
                 }
 
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                if (TenantID != Entity.TenantID)
+                {
+                    Log.Fatal("TenantID Does not match. Global TenantID {0}, Entity TenantID: {0}", TenantID, Entity.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
                 if (!Entity.ItemID.HasValue)
                 {
                     Log.Error("Entity or Item not yet persisted for this entity. EntityID: {0}", Entity.EntityID.Value);
@@ -1009,6 +1133,7 @@ namespace EffectFramework.Core.Services
                     CreateDate = DateTime.Now,
                     ItemReference = ItemID,
                     Comment = Comment,
+                    TenantID = Entity.TenantID,
                 };
 
                 db.AuditLogs.Add(Audit);
@@ -1042,7 +1167,14 @@ namespace EffectFramework.Core.Services
                 Models.Fields.FieldType FieldType = (Models.Fields.FieldType)FieldTypeID;
                 Type SystemMetaType = FieldType.DataType.MetaType;
 
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
                 var DbFieldTypeMeta = db.FieldTypeMetas.Where(f => f.ItemTypeID == ItemTypeID && f.EntityTypeID == EntityTypeID && f.FieldTypeID == FieldTypeID).FirstOrDefault();
+
+                if (DbFieldTypeMeta != null && TenantID != DbFieldTypeMeta.TenantID)
+                {
+                    Log.Fatal("TenantID Does not match. Global TenantID {0}, Field Type Meta TenantID: {1}", TenantID, DbFieldTypeMeta.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
 
                 return (IFieldTypeMeta)SystemMetaType.GetConstructor(new Type[] { typeof(FieldTypeMeta) }).Invoke(new object[] { DbFieldTypeMeta });
             }

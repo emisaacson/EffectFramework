@@ -138,12 +138,14 @@ namespace EffectFramework.Core.Models.Fields
         public FieldBase()
         {
             this.Dirty = false;
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
         }
 
         public FieldBase(FieldType Type, FieldBase Base)
         {
             this.Type = Type;
             this.Name = Type.Name;
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             LoadUpValues(Base);
         }
 
@@ -152,12 +154,22 @@ namespace EffectFramework.Core.Models.Fields
             this.Type = Type;
             this.Name = Type.Name;
             this.Entity = Entity;
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             LoadUpValues(Base);
             TryLoadFieldMeta();
         }
 
         public FieldBase(Db.Field Field)
         {
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+
+            if (this.TenantID != Field.TenantID)
+            {
+                Log.Fatal("TenantID Does not match. FieldID: {0}, Global TenantID: {1}, Field TenantID: {2}",
+                    Field.FieldID, this.TenantID, Field.TenantID);
+                throw new FatalException("Data error.");
+            }
+
             this.Dirty = false;
             this.FieldID = Field.FieldID;
 
@@ -185,7 +197,7 @@ namespace EffectFramework.Core.Models.Fields
             string FieldTypeMetaKey = string.Format("FieldTypeMeta:{0}:{1}:{2}", Entity.Item.Type.Value, Entity.Type.Value, Type.Value);
 
             IFieldTypeMeta RawMeta = (IFieldTypeMeta)CacheService.GetObject(FieldTypeMetaKey);
-
+            IFieldTypeMeta MetaToUse;
             BinaryFormatter Formatter = new BinaryFormatter();
             if (RawMeta == null)
             {
@@ -193,13 +205,22 @@ namespace EffectFramework.Core.Models.Fields
                 var FieldMeta = PersistenceService.GetFieldTypeMeta(Entity.Item.Type.Value, Entity.Type.Value, Type.Value);
                 CacheService.StoreObject(FieldTypeMetaKey, FieldMeta);
 
-                Meta = FieldMeta;
+                MetaToUse = FieldMeta;
             }
             else
             {
                 Log.Trace("Cache returned FieldMetaData. Cache Key: {0}", FieldTypeMetaKey);
-                Meta = RawMeta;
+                MetaToUse = RawMeta;
             }
+
+            if (((FieldTypeMetaBase)MetaToUse).TenantID != this.TenantID)
+            {
+                Log.Fatal("TenantID Does not match. FieldID: {0}, FieldTypeMetaID: {1}, Field TenantID: {2}, FieldTypeMeta TenantID : {3}",
+                    this.FieldID, ((FieldTypeMetaBase)MetaToUse).FieldTypeMetaID, this.TenantID, ((FieldTypeMetaBase)MetaToUse).TenantID);
+                throw new FatalException("Data error.");
+            }
+
+            Meta = MetaToUse;
         }
 
         protected void LoadUpValues(FieldBase Base)
@@ -207,7 +228,7 @@ namespace EffectFramework.Core.Models.Fields
             Log.Trace("Loading values for Field. FieldID: {0}",
                 Base == null || !Base.FieldID.HasValue ? "null" : Base.FieldID.Value.ToString());
 
-            this.Dirty = false;
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             if (Base == null)
             {
                 this.FieldID      = null;
@@ -222,6 +243,13 @@ namespace EffectFramework.Core.Models.Fields
             }
             else
             {
+                if (Base.TenantID != this.TenantID)
+                {
+                    Log.Fatal("TenantID Does not match. FieldID: {0}, Global TenantID: {1}, Other Field TenantID : {2}",
+                        this.FieldID, this.TenantID, Base.TenantID);
+                    throw new FatalException("Data error.");
+                }
+
                 this.FieldID      = Base.FieldID;
 
                 this.ValueString  = Base.ValueString;
@@ -234,6 +262,7 @@ namespace EffectFramework.Core.Models.Fields
 
                 this.Guid         = Base.Guid;
             }
+            this.Dirty = false;
 
             RefreshOriginalValues();
         }
@@ -241,6 +270,13 @@ namespace EffectFramework.Core.Models.Fields
 
         public void FillFromDatabase(EntityBase Entity, FieldBase Field)
         {
+            if (Entity.TenantID != this.TenantID ||
+                Field.TenantID != this.TenantID)
+            {
+                Log.Fatal("TenantID Does not match. EntityID: {0}, Entity TenantID {1}, Field ID: {2}, Field TenantID : {3}, this FieldID: {4}, this TenantID {5}",
+                    Entity.EntityID, Entity.TenantID, Field.FieldID, Field.TenantID, this.FieldID, this.TenantID);
+                throw new FatalException("Data error.");
+            }
             FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(Entity, Field.Type);
             LoadUpValues(Base);
         }
@@ -249,12 +285,26 @@ namespace EffectFramework.Core.Models.Fields
         {
             this.FieldID = FieldID;
             FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(FieldID);
+
+            if (Base.TenantID != this.TenantID)
+            {
+                Log.Fatal("TenantID Does not match. FieldID: {0}, Field TenantID: {1}, this TenantID: {2}",
+                    FieldID, Base.TenantID, this.TenantID);
+                throw new FatalException("Data error.");
+            }
+
             LoadUpValues(Base);
         }
 
         public void FillFromView(Db.CompleteItem View)
         {
-            this.Dirty        = false;
+
+            if (this.TenantID != View.FieldTenantID)
+            {
+                Log.Fatal("TenantID Does not match. This TenantID: {0}, View TenantID: {1}",
+                    this.TenantID, View.FieldTenantID);
+                throw new FatalException("Data error.");
+            }
 
             this.FieldID      = View.FieldID;
             this.ValueString  = View.ValueText;
@@ -266,6 +316,7 @@ namespace EffectFramework.Core.Models.Fields
             this.ValueEntityReference = View.ValueEntityReference;
 
             this.Guid         = View.EntityFieldGuid;
+            this.Dirty        = false;
 
             RefreshOriginalValues();
         }
@@ -293,6 +344,12 @@ namespace EffectFramework.Core.Models.Fields
                     Type.Name, OtherField.Type.Name);
 
                 throw new InvalidOperationException("Cannot compare two fields of different types.");
+            }
+            if (OtherField.TenantID != this.TenantID)
+            {
+                Log.Error("TenantID Does not match. FieldID: {0}, Other Field ID: {1}, TenantID: {2}, Other TenantID: {3}",
+                    FieldID, OtherField.FieldID, TenantID, OtherField.TenantID);
+                throw new FatalException("Data error.");
             }
 
             if (((IField)this).Value == null && ((IField)OtherField).Value == null) // Both are null, identical

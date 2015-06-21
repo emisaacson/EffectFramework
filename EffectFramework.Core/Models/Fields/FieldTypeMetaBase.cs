@@ -45,6 +45,10 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+        public int? FieldTypeMetaID { get; protected set; }
+
+        public int TenantID { get; protected set; }
+
         protected bool? __IsRequired;
         protected bool? _IsRequired
         {
@@ -120,13 +124,22 @@ namespace EffectFramework.Core.Models.Fields
 
         public FieldTypeMetaBase() {
             this._IsRequired = false;
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
         }
 
         public FieldTypeMetaBase(FieldTypeMeta DbFieldTypeMeta)
         {
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             if (DbFieldTypeMeta != null)
             {
+                if (this.TenantID != DbFieldTypeMeta.TenantID)
+                {
+                    Log.Fatal("TenantID Does not match. FieldTypeMeta ID: {0}, Global TenantID: {1}, FieldTypeMeta TenantID: {2}",
+                        DbFieldTypeMeta.FieldTypeMetaID, this.TenantID, DbFieldTypeMeta.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
                 // EITODO: Read queries and evaluate them
+                this.FieldTypeMetaID = DbFieldTypeMeta.FieldTypeMetaID;
                 this._IsRequired = DbFieldTypeMeta.IsRequired;
                 this.TextRegex = DbFieldTypeMeta.TextRegex != null ? new Regex(DbFieldTypeMeta.TextRegex) : null;
                 this.DecimalMin = DbFieldTypeMeta.DecimalMin;
@@ -162,6 +175,15 @@ namespace EffectFramework.Core.Models.Fields
             {
                 throw new ArgumentNullException(nameof(OtherMeta));
             }
+
+            if (this.TenantID != OtherMeta.TenantID)
+            {
+                Log.Fatal("TenantID Does not match. FieldTypeMeta ID: {0}, OtherFieldTypeMetaID: {1}, This TenantID: {2}, other TenantID: {3}",
+                    this.FieldTypeMetaID, OtherMeta.FieldTypeMetaID, this.TenantID, OtherMeta.TenantID);
+                throw new Exceptions.FatalException("Data error.");
+            }
+
+            this.FieldTypeMetaID = OtherMeta.FieldTypeMetaID;
             this.__IsRequired = OtherMeta.__IsRequired;
             this.TextRegex = OtherMeta.TextRegex;
             this.DecimalMin = OtherMeta.DecimalMin;

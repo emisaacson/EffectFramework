@@ -151,6 +151,7 @@ namespace EffectFramework.Core.Models
         public Item(bool Sparse = false)
         {
             this.Dirty = true;
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             this.Sparse = Sparse;
         }
 
@@ -164,6 +165,7 @@ namespace EffectFramework.Core.Models
         public Item(int ItemID, bool LoadItem = true, bool Sparse = false)
         {
             this.ItemID = ItemID;
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             this.Sparse = Sparse;
 
             if (LoadItem)
@@ -193,6 +195,13 @@ namespace EffectFramework.Core.Models
             {
                 throw new InvalidOperationException("Cannot reload an item with a null ID.");
             }
+
+            var TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            if (TenantID != this.TenantID)
+            {
+                Log.Fatal("TenantID Does not match. Global TenantID: {0}, Item TenantID: {1}", TenantID, this.TenantID);
+                throw new FatalException("Data error.");
+            }
             LoadByID(ItemID.Value);
         }
 
@@ -214,6 +223,15 @@ namespace EffectFramework.Core.Models
                 Log.Error("Cannot get item from this view. ItemID: {0}", ItemID);
                 throw new InvalidOperationException("Item does not exist in the passed view.");
             }
+
+            int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            if (TenantID != Rows.First().ItemTenantID)
+            {
+                Log.Fatal("TenantID Does not match. Global TenantID: {0}, Item TenantID: {1}", TenantID, this.TenantID);
+                throw new FatalException("Data error.");
+            }
+
+            this.TenantID = Rows.First().ItemTenantID;
             this.Guid = Rows.First().ItemGuid;
 
             var EntityIDs = View.Select(v => v.EntityID).Distinct();
@@ -256,6 +274,13 @@ namespace EffectFramework.Core.Models
                 else
                 {
                     db = ctx;
+                }
+
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                if (TenantID != this.TenantID)
+                {
+                    Log.Fatal("TenantID Does not match. Global TenantID: {0}, Item TenantID: {1}", TenantID, this.TenantID);
+                    throw new FatalException("Data error.");
                 }
 
                 var Identity = PersistenceService.SaveSingleItem(this, db);
@@ -333,6 +358,14 @@ namespace EffectFramework.Core.Models
                 throw new InvalidOperationException("Please do not reuse the same item object for an Item with a different ID.");
             }
             this.ItemID = ItemID;
+
+            int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            if (TenantID != this.TenantID)
+            {
+                Log.Fatal("TenantID Does not match. Global TenantID: {0}, Item Tenant ID: {1}", TenantID, this.TenantID);
+                throw new FatalException("Data error.");
+            }
+
             this.Guid = PersistenceService.RetreiveGuidForItem(this);
 
             DateTime? DateToSend = EffectiveDate;

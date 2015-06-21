@@ -185,6 +185,7 @@ namespace EffectFramework.Core.Models.Entities
             this.Dirty = true;
             this.IsDeleted = false;
             this.FlagForRemoval = false;
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             WireUpFields();
 
             if (DbEntity != null)
@@ -196,6 +197,13 @@ namespace EffectFramework.Core.Models.Entities
         protected void LoadUpEntity(Db.Entity DbEntity)
         {
             Log.Trace("Loading up entity fields from database. EntityID: {0}", DbEntity.EntityID);
+
+            if (this.TenantID != DbEntity.TenantID)
+            {
+                Log.Fatal("TenantID Does not match. Entit Tenant ID: {0}, EntityId: {1}, DbEntity TenantID: {2}",
+                    TenantID, DbEntity.EntityID, DbEntity.TenantID);
+                throw new FatalException("Data error.");
+            }
 
             this.EntityID = DbEntity.EntityID;
             this.ItemID = DbEntity.ItemID;
@@ -222,6 +230,13 @@ namespace EffectFramework.Core.Models.Entities
             {
                 var First = View.First();
                 Log.Trace("Loading up entity fields from view. EntityID: {0}", First.EntityID);
+
+                if (this.TenantID != First.EntityTenantID)
+                {
+                    Log.Fatal("TenantID Does not match. Entit Tenant ID: {0}, EntityId: {1}, DbEntity TenantID: {2}",
+                        TenantID, First.EntityID, First.EntityTenantID);
+                    throw new FatalException("Data error.");
+                }
 
                 this.EntityID         = First.EntityID;
                 this.EffectiveDate    = First.EntityEffectiveDate;
@@ -266,6 +281,12 @@ namespace EffectFramework.Core.Models.Entities
                     this.Type.Name, OtherEntity.Type.Name);
 
                 throw new InvalidOperationException("Must copy values from an entity of the same type.");
+            }
+            if (OtherEntity.TenantID != this.TenantID)
+            {
+                Log.Fatal("TenantID Does not match. This EntityID: {0}, This TenantID: {1}, Other Entity ID: {2}, Other TenantID: {3}",
+                    this.EntityID, this.TenantID, OtherEntity.EntityID, OtherEntity.TenantID);
+                throw new FatalException("Data error.");
             }
 
             Log.Trace("Copying values from another entity. EntityID: {0}, Other Entity ID: {1}",
@@ -349,6 +370,12 @@ namespace EffectFramework.Core.Models.Entities
             if (OtherEntity.Type != this.Type)
             {
                 throw new InvalidOperationException("Cannot compare entities of different types.");
+            }
+            if (OtherEntity.TenantID != this.TenantID)
+            {
+                Log.Fatal("TenantID Does not match. This entity id: {0}, Other Entity ID: {1}, This TenantID: {2}, Other TenantID: {3}",
+                    this.EntityID, OtherEntity.EntityID, this.TenantID, OtherEntity.TenantID);
+                throw new FatalException("Data error.");
             }
 
             var OtherEntityFieldObjects = OtherEntity.GetAllEntityFields();
