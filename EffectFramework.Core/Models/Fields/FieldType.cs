@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -9,6 +10,25 @@ namespace EffectFramework.Core.Models.Fields
     [Serializable]
     public class FieldType
     {
+        [NonSerialized]
+        private static Logger _Log;
+        private static object LogLock = new object();
+        private static Logger Log
+        {
+            get
+            {
+                if (_Log == null) {
+                    lock (LogLock)
+                    {
+                        if (_Log == null)
+                        {
+                            _Log = new Logger("FieldType");
+                        }
+                    }
+                }
+                return _Log;
+            }
+        }
         /// <summary>
         /// Gets or sets the field ID to match the persistence service..
         /// </summary>
@@ -27,6 +47,7 @@ namespace EffectFramework.Core.Models.Fields
         }
 
         private static Dictionary<int, FieldType> TypeRegistry = new Dictionary<int, FieldType>();
+        private static ReaderWriterLockSlim RegistryLock = new ReaderWriterLockSlim();
 
         protected FieldType(string Name, int Value, DataType DataType, int? LookupTypeID = null)
         {
@@ -44,20 +65,50 @@ namespace EffectFramework.Core.Models.Fields
 
         public static explicit operator FieldType(int i)
         {
-            if (TypeRegistry.ContainsKey(i))
+            try
             {
-                return TypeRegistry[i];
+                RegistryLock.EnterReadLock();
+                if (TypeRegistry.ContainsKey(i))
+                {
+                    return TypeRegistry[i];
+                }
+            }
+            finally
+            {
+                try
+                {
+                    RegistryLock.ExitReadLock();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Hell froze over.", e);
+                }
             }
             throw new InvalidCastException(string.Format("Cannot convert the int value {0} to a FieldType instance.", i));
         }
 
         private static void RegisterType(FieldType Type)
         {
-            if (TypeRegistry.ContainsKey(Type.Value))
+            try
             {
-                throw new InvalidOperationException("Cannot register the same Field Type twice.");
+                RegistryLock.EnterWriteLock();
+                if (TypeRegistry.ContainsKey(Type.Value))
+                {
+                    throw new InvalidOperationException("Cannot register the same Field Type twice.");
+                }
+                TypeRegistry[Type.Value] = Type;
             }
-            TypeRegistry[Type.Value] = Type;
+            finally
+            {
+                try
+                {
+                    RegistryLock.ExitWriteLock();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Hell froze over.", e);
+                }
+            }
         }
 
         public static bool operator ==(FieldType Ft1, FieldType Ft2)

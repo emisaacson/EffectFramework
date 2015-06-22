@@ -4,6 +4,7 @@ using EffectFramework.Core.Models;
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Services;
+using System.Threading;
 using Ninject.Modules;
 using Ninject;
 
@@ -15,18 +16,107 @@ namespace EffectFramework.Core
         /// Gets or sets the global connection string used for all instances of the 
         /// persistence service. This should be set in the startup routine of the app.
         /// </summary>
-        public static string PersistenceConnectionString;
-        public static string CacheConnectionString;
+        private static string _PersistenceConnectionString;
+        public static string PersistenceConnectionString
+        {
+            get
+            {
+                try
+                {
+                    ConnectionLock.EnterReadLock();
+                    return _PersistenceConnectionString;
+                }
+                finally
+                {
+                    try
+                    {
+                        ConnectionLock.ExitReadLock();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Hell froze over.", e);
+                    }
+                }
+            }
+            set
+            {
+                try
+                {
+                    ConnectionLock.EnterWriteLock();
+                    _PersistenceConnectionString = value;
+                }
+                finally
+                {
+                    try
+                    {
+                        ConnectionLock.ExitWriteLock();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Hell froze over.", e);
+                    }
+                }
+            }
+        }
+        private static string _CacheConnectionString;
+        public static string CacheConnectionString
+        {
+            get
+            {
+                try
+                {
+                    ConnectionLock.EnterReadLock();
+                    return _CacheConnectionString;
+                }
+                finally
+                {
+                    try
+                    {
+                        ConnectionLock.ExitReadLock();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Hell froze over.", e);
+                    }
+                }
+            }
+            set
+            {
+                try
+                {
+                    ConnectionLock.EnterWriteLock();
+                    _CacheConnectionString = value;
+                }
+                finally
+                {
+                    try
+                    {
+                        ConnectionLock.ExitWriteLock();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Hell froze over.", e);
+                    }
+                }
+            }
+        }
+        private static ReaderWriterLockSlim ConnectionLock = new ReaderWriterLockSlim();
+
         private static Type PersistenceServiceType = typeof(EntityFrameworkPersistenceService);
         private static Type CacheServiceType = typeof(NullCacheService);
         private static Type LoggingProviderType = typeof(NullLoggingProvider);
         private static Type ObjectQueryProviderType = typeof(NullObjectQuery);
         private static Type TenantResolutionProviderType = typeof(DefaultTenantResolver);
+        private static ReaderWriterLockSlim TypeLock = new ReaderWriterLockSlim();
 
         private static IPersistenceService _PersistenceService;
+        private static object PersistenceLock = new object();
         private static ICacheService _CacheService;
+        private static object CacheLock = new object();
         private static ITenantResolutionProvider _TenantResolutionProvider;
+        private static object TenantLock = new object();
 
+        private static Logger Log = new Logger("Configure");
         public Configure()
         {
 
@@ -38,25 +128,39 @@ namespace EffectFramework.Core
         }
         public override void Load()
         {
+            try {
+                TypeLock.EnterReadLock();
 
-            Kernel.Bind<IPersistenceService>()
-                .To(PersistenceServiceType)
-                .InSingletonScope()
-                .WithConstructorArgument("ConnectionString", PersistenceConnectionString);
+                Kernel.Bind<IPersistenceService>()
+                    .To(PersistenceServiceType)
+                    .InSingletonScope()
+                    .WithConstructorArgument("ConnectionString", PersistenceConnectionString);
 
-            Kernel.Bind<ILoggingProvider>()
-                .To(LoggingProviderType);
+                Kernel.Bind<ILoggingProvider>()
+                    .To(LoggingProviderType);
 
-            Kernel.Bind<IObjectQueryProvider>()
-                .To(ObjectQueryProviderType);
+                Kernel.Bind<IObjectQueryProvider>()
+                    .To(ObjectQueryProviderType);
 
-            Kernel.Bind<ICacheService>()
-                .To(CacheServiceType)
-                .InSingletonScope()
-                .WithPropertyValue("ConnectionString", CacheConnectionString);
+                Kernel.Bind<ICacheService>()
+                    .To(CacheServiceType)
+                    .InSingletonScope()
+                    .WithPropertyValue("ConnectionString", CacheConnectionString);
 
-            Kernel.Bind<ITenantResolutionProvider>()
-                .To(TenantResolutionProviderType);
+                Kernel.Bind<ITenantResolutionProvider>()
+                    .To(TenantResolutionProviderType);
+            }
+            finally
+            {
+                try
+                {
+                    TypeLock.ExitReadLock();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Hell froze over.", e);
+                }
+            }
         }
 
         /// <summary>
@@ -67,7 +171,22 @@ namespace EffectFramework.Core
         public static void RegisterPersistenceService<PersistenceServiceT>()
             where PersistenceServiceT : IPersistenceService
         {
-            PersistenceServiceType = typeof(PersistenceServiceT);
+            try
+            {
+                TypeLock.EnterWriteLock();
+                PersistenceServiceType = typeof(PersistenceServiceT);
+            }
+            finally
+            {
+                try
+                {
+                    TypeLock.ExitWriteLock();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Hell froze over.", e);
+                }
+            }
         }
 
         /// <summary>
@@ -78,7 +197,22 @@ namespace EffectFramework.Core
         public static void RegisterCacheService<CacheServiceT>()
             where CacheServiceT : ICacheService
         {
-            CacheServiceType = typeof(CacheServiceT);
+            try
+            {
+                TypeLock.EnterWriteLock();
+                CacheServiceType = typeof(CacheServiceT);
+            }
+            finally
+            {
+                try
+                {
+                    TypeLock.ExitWriteLock();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Hell froze over.", e);
+                }
+            }
         }
 
         /// <summary>
@@ -89,7 +223,22 @@ namespace EffectFramework.Core
         public static void RegisterLoggingProvider<LoggingProviderT>()
             where LoggingProviderT : ILoggingProvider
         {
-            LoggingProviderType = typeof(LoggingProviderT);
+            try
+            {
+                TypeLock.EnterWriteLock();
+                LoggingProviderType = typeof(LoggingProviderT);
+            }
+            finally
+            {
+                try
+                {
+                    TypeLock.ExitWriteLock();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Hell froze over.", e);
+                }
+            }
         }
 
         /// <summary>
@@ -100,7 +249,22 @@ namespace EffectFramework.Core
         public static void RegisterTenantResolutionProvider<TenantResolutionProviderT>()
             where TenantResolutionProviderT : ITenantResolutionProvider
         {
-            TenantResolutionProviderType = typeof(TenantResolutionProviderT);
+            try
+            {
+                TypeLock.EnterWriteLock();
+                TenantResolutionProviderType = typeof(TenantResolutionProviderT);
+            }
+            finally
+            {
+                try
+                {
+                    TypeLock.ExitWriteLock();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Hell froze over.", e);
+                }
+            }
         }
 
         /// <summary>
@@ -111,7 +275,22 @@ namespace EffectFramework.Core
         public static void RegisterObjectQueryProvider<ObjectQueryProviderT>()
             where ObjectQueryProviderT : IObjectQueryProvider
         {
-            ObjectQueryProviderType = typeof(ObjectQueryProviderT);
+            try
+            {
+                TypeLock.EnterWriteLock();
+                ObjectQueryProviderType = typeof(ObjectQueryProviderT);
+            }
+            finally
+            {
+                try
+                {
+                    TypeLock.ExitWriteLock();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Hell froze over.", e);
+                }
+            }
         }
 
         /// <summary>
@@ -127,31 +306,47 @@ namespace EffectFramework.Core
             where TEntityType : EntityType 
             where TFieldType : FieldType
         {
-            var ItemTypes = typeof(TItemType).GetFields(BindingFlags.Public | BindingFlags.Static);
-            var EventTypes = typeof(TEntityType).GetFields(BindingFlags.Public | BindingFlags.Static);
-            var FieldTypes = typeof(TFieldType).GetFields(BindingFlags.Public | BindingFlags.Static);
-
-            foreach (var ItemType in ItemTypes)
+            try
             {
-                if (typeof(ItemType).IsAssignableFrom(ItemType.FieldType))
+                TypeLock.EnterWriteLock();
+
+                var ItemTypes = typeof(TItemType).GetFields(BindingFlags.Public | BindingFlags.Static);
+                var EventTypes = typeof(TEntityType).GetFields(BindingFlags.Public | BindingFlags.Static);
+                var FieldTypes = typeof(TFieldType).GetFields(BindingFlags.Public | BindingFlags.Static);
+    
+                foreach (var ItemType in ItemTypes)
                 {
-                    var RegisteredType = ItemType.GetValue(null);
+                    if (typeof(ItemType).IsAssignableFrom(ItemType.FieldType))
+                    {
+                        var RegisteredType = ItemType.GetValue(null);
+                    }
+                }
+    
+                foreach (var EventType in EventTypes)
+                {
+                    if (typeof(EntityType).IsAssignableFrom(EventType.FieldType))
+                    {
+                        var RegisteredType = EventType.GetValue(null);
+                    }
+                }
+    
+                foreach (var FieldType in FieldTypes)
+                {
+                    if (typeof(FieldType).IsAssignableFrom(FieldType.FieldType))
+                    {
+                        var RegisteredType = FieldType.GetValue(null);
+                    }
                 }
             }
-
-            foreach (var EventType in EventTypes)
+            finally
             {
-                if (typeof(EntityType).IsAssignableFrom(EventType.FieldType))
+                try
                 {
-                    var RegisteredType = EventType.GetValue(null);
+                    TypeLock.ExitWriteLock();
                 }
-            }
-
-            foreach (var FieldType in FieldTypes)
-            {
-                if (typeof(FieldType).IsAssignableFrom(FieldType.FieldType))
+                catch (Exception e)
                 {
-                    var RegisteredType = FieldType.GetValue(null);
+                    Log.Error("Hell froze over.", e);
                 }
             }
         }
@@ -160,9 +355,15 @@ namespace EffectFramework.Core
         {
             if (_PersistenceService == null)
             {
-                using (IKernel Kernel = new StandardKernel(new Configure()))
+                lock (PersistenceLock)
                 {
-                    _PersistenceService = Kernel.Get<IPersistenceService>();
+                    if (_PersistenceService == null)
+                    {
+                        using (IKernel Kernel = new StandardKernel(new Configure()))
+                        {
+                            _PersistenceService = Kernel.Get<IPersistenceService>();
+                        }
+                    }
                 }
             }
             return _PersistenceService;
@@ -172,9 +373,15 @@ namespace EffectFramework.Core
         {
             if (_CacheService == null)
             {
-                using (IKernel Kernel = new StandardKernel(new Configure()))
+                lock (CacheLock)
                 {
-                    _CacheService = Kernel.Get<ICacheService>();
+                    if (_CacheService == null)
+                    {
+                        using (IKernel Kernel = new StandardKernel(new Configure()))
+                        {
+                            _CacheService = Kernel.Get<ICacheService>();
+                        }
+                    }
                 }
             }
             return _CacheService;
@@ -190,10 +397,20 @@ namespace EffectFramework.Core
 
         public static ITenantResolutionProvider GetTenantResolutionProvider()
         {
-            using (IKernel Kernel = new StandardKernel(new Configure()))
+            if (_TenantResolutionProvider == null)
             {
-                return Kernel.Get<ITenantResolutionProvider>();
+                lock (TenantLock)
+                {
+                    if (_TenantResolutionProvider == null)
+                    {
+                        using (IKernel Kernel = new StandardKernel(new Configure()))
+                        {
+                            _TenantResolutionProvider = Kernel.Get<ITenantResolutionProvider>();
+                        }
+                    }
+                }
             }
+            return _TenantResolutionProvider;
         }
     }
 }

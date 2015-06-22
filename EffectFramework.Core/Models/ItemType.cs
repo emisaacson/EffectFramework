@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace EffectFramework.Core.Models
 {
@@ -9,6 +10,25 @@ namespace EffectFramework.Core.Models
     [Serializable]
     public class ItemType
     {
+        [NonSerialized]
+        private static Logger _Log;
+        private static object LogLock = new object();
+        private static Logger Log
+        {
+            get
+            {
+                if (_Log == null) {
+                    lock (LogLock)
+                    {
+                        if (_Log == null)
+                        {
+                            _Log = new Logger("ItemType");
+                        }
+                    }
+                }
+                return _Log;
+            }
+        }
         /// <summary>
         /// Gets the Item Type ID for this item type.
         /// </summary>
@@ -35,6 +55,7 @@ namespace EffectFramework.Core.Models
 
         public Type Type { get; private set; }
         private static Dictionary<int, ItemType> TypeRegistry = new Dictionary<int, ItemType>();
+        private static ReaderWriterLockSlim RegistryLock = new ReaderWriterLockSlim();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ItemType"/> class. The name and value should
@@ -61,20 +82,49 @@ namespace EffectFramework.Core.Models
 
         public static explicit operator ItemType(int i)
         {
-            if (TypeRegistry.ContainsKey(i))
+            try
             {
-                return TypeRegistry[i];
+                RegistryLock.EnterReadLock();
+                if (TypeRegistry.ContainsKey(i))
+                {
+                    return TypeRegistry[i];
+                }
+            }
+            finally
+            {
+                try
+                {
+                    RegistryLock.ExitReadLock();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Hell froze over.", e);
+                }
             }
             throw new InvalidCastException(string.Format("Cannot convert the int value {0} to a FieldType instance.", i));
         }
 
         private static void RegisterType(ItemType Type)
         {
-            if (TypeRegistry.ContainsKey(Type.Value))
-            {
-                throw new InvalidOperationException("Cannot register the same Item Type twice.");
+            try {
+                RegistryLock.EnterWriteLock();
+                if (TypeRegistry.ContainsKey(Type.Value))
+                {
+                    throw new InvalidOperationException("Cannot register the same Item Type twice.");
+                }
+                TypeRegistry[Type.Value] = Type;
             }
-            TypeRegistry[Type.Value] = Type;
+            finally
+            {
+                try
+                {
+                    RegistryLock.ExitWriteLock();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Hell froze over.", e);
+                }
+            }
         }
 
         public static bool operator ==(ItemType It1, ItemType It2)
