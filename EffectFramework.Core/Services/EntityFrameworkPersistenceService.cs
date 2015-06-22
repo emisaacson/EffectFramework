@@ -252,6 +252,7 @@ namespace EffectFramework.Core.Services
                 DbField.ValueText = null;
                 DbField.ValueLookup = null;
                 DbField.ValueEntityReference = null;
+                DbField.ValueItemReference = null;
 
                 DbField.Guid = Guid.NewGuid();
 
@@ -278,6 +279,10 @@ namespace EffectFramework.Core.Services
                 else if (Field.Type.DataType == DataType.EntityReference)
                 {
                     DbField.ValueEntityReference = (int)((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.ItemReference)
+                {
+                    DbField.ValueItemReference = (int)((IField)Field).Value;
                 }
 
                 db.SaveChanges();
@@ -1063,6 +1068,8 @@ namespace EffectFramework.Core.Services
                     ValueLookupNew = Field is FieldLookup ? ((FieldLookup)Field).Value : null,
                     ValueEntityReferenceOld = Field is FieldEntityReference ? ((FieldEntityReference)Field).OriginalValue : null,
                     ValueEntityReferenceNew = Field is FieldEntityReference ? ((FieldEntityReference)Field).Value : null,
+                    ValueItemReferenceOld = Field is FieldItemReference ? ((FieldItemReference)Field).OriginalValue : null,
+                    ValueItemReferenceNew = Field is FieldItemReference ? ((FieldItemReference)Field).Value : null,
                     CreateDate = DateTime.Now,
                     ItemReference = ItemID,
                     Comment = Comment,

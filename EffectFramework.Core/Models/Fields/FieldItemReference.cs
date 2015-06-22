@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 namespace EffectFramework.Core.Models.Fields
 {
     [Serializable]
-    public class FieldEntityReference : FieldBase, IField
+    public class FieldItemReference : FieldBase, IField
     {
         public int? Value
         {
             get
             {
-                return this.ValueEntityReference;
+                return this.ValueItemReference;
             }
             set
             {
@@ -22,10 +22,10 @@ namespace EffectFramework.Core.Models.Fields
                 {
                     _Value = null;
                 }
-                if (!this.ValueEntityReference.Equals(_Value))
+                if (!this.ValueItemReference.Equals(_Value))
                 {
                     this.Dirty = true;
-                    this.ValueEntityReference = _Value;
+                    this.ValueItemReference = _Value;
                 }
             }
         }
@@ -34,7 +34,7 @@ namespace EffectFramework.Core.Models.Fields
         {
             get
             {
-                return this.ValueEntityReference;
+                return this.ValueItemReference;
             }
 
             set
@@ -48,10 +48,10 @@ namespace EffectFramework.Core.Models.Fields
                 {
                     _Value = null;
                 }
-                if (!this.ValueEntityReference.Equals(_Value))
+                if (!this.ValueItemReference.Equals(_Value))
                 {
                     this.Dirty = true;
-                    this.ValueEntityReference = _Value;
+                    this.ValueItemReference = _Value;
                 }
             }
         }
@@ -81,14 +81,14 @@ namespace EffectFramework.Core.Models.Fields
         }
 
         [NonSerialized]
-        private EntityBase _DereferencedValue;
+        private Item _DereferencedValue;
         public object DereferencedValue
         {
             get
             {
                 if (_DereferencedValue == null && this.Value.HasValue)
                 {
-                    var Deref = PersistenceService.RetreiveSingleEntityOrDefault(this.Value.Value);
+                    var Deref = Item.GetItemByID(this.Value.Value);
                     if (Deref.TenantID != this.TenantID)
                     {
                         throw new Exceptions.FatalException("Data error.");
@@ -103,7 +103,7 @@ namespace EffectFramework.Core.Models.Fields
         {
             get
             {
-                return this.OriginalValueEntityReference;
+                return this.OriginalValueItemReference;
             }
         }
 
@@ -111,20 +111,21 @@ namespace EffectFramework.Core.Models.Fields
         {
             get
             {
-                return this.OriginalValueEntityReference;
+                return this.OriginalValueItemReference;
             }
         }
 
         [NonSerialized]
-        private EntityBase _OriginalDereferencedValue;
+        private Item _OriginalDereferencedValue;
         public object OriginalDereferencedValue
         {
             get
             {
                 if (_OriginalDereferencedValue == null && this.OriginalValue.HasValue)
                 {
-                    var Deref = PersistenceService.RetreiveSingleEntityOrDefault(this.OriginalValue.Value);
-                    if (Deref.TenantID != this.TenantID) {
+                    var Deref = Item.GetItemByID(this.OriginalValue.Value);
+                    if (Deref.TenantID != this.TenantID)
+                    {
                         throw new Exceptions.FatalException("Data error.");
                     }
                     _OriginalDereferencedValue = Deref;
@@ -139,9 +140,9 @@ namespace EffectFramework.Core.Models.Fields
             {
                 return this.Value == null;
             }
-            else if (Value is EntityBase)
+            else if (Value is Item)
             {
-                return ((EntityBase)Value).EntityID.HasValue && this.Value.Value == ((EntityBase)Value).EntityID.Value;
+                return ((Item)Value).ItemID.HasValue && this.Value.Value == ((Item)Value).ItemID.Value;
             }
             else if (Value is int)
             {
@@ -150,28 +151,28 @@ namespace EffectFramework.Core.Models.Fields
             return false;
         }
 
-        public FieldEntityReference()
+        public FieldItemReference()
             : base()
         { }
 
-        public FieldEntityReference(FieldType Type)
+        public FieldItemReference(FieldType Type)
             : this(Type, null, null)
         {
 
         }
 
-        public FieldEntityReference(FieldType Type, EntityBase Entity)
+        public FieldItemReference(FieldType Type, EntityBase Entity)
             : this(Type, null, Entity)
         {
 
         }
 
-        public FieldEntityReference(FieldType Type, FieldBase Base, EntityBase Entity)
+        public FieldItemReference(FieldType Type, FieldBase Base, EntityBase Entity)
             : base(Type, Base, Entity)
         {
-            if (Type.DataType != DataType.EntityReference)
+            if (Type.DataType != DataType.ItemReference)
             {
-                throw new ArgumentOutOfRangeException("Cannot create an entity reference field from a non-entity-reference type.");
+                throw new ArgumentOutOfRangeException("Cannot create an item reference field from a non-item-reference type.");
             }
         }
     }
