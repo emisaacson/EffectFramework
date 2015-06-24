@@ -22,7 +22,7 @@ namespace EffectFramework.Core.Models.Fields
                     {
                         if (_Log == null)
                         {
-                            _Log = new Logger("FieldType");
+                            _Log = new Logger(nameof(FieldType));
                         }
                     }
                 }

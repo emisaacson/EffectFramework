@@ -22,7 +22,7 @@ namespace EffectFramework.Core.Models
                     {
                         if (_Log == null)
                         {
-                            _Log = new Logger("ItemType");
+                            _Log = new Logger(nameof(ItemType));
                         }
                     }
                 }
