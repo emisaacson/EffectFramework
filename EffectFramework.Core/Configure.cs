@@ -116,7 +116,7 @@ namespace EffectFramework.Core
         private static ITenantResolutionProvider _TenantResolutionProvider;
         private static object TenantLock = new object();
 
-        private static Logger Log = new Logger("Configure");
+        private static Logger Log = new Logger(nameof(Configure));
         public Configure()
         {
 
