@@ -285,6 +285,29 @@ CREATE TABLE [dbo].[Tenants](
 ) ON [PRIMARY]
 
 GO
+
+
+/****** Object:  Index [EntityFieldIndex]    Script Date: 6/25/2015 2:39:52 PM ******/
+CREATE NONCLUSTERED INDEX [EntityFieldIndex] ON [dbo].[Fields]
+(
+	[EntityID] ASC,
+	[IsDeleted] ASC
+)
+INCLUDE ( 	[FieldID],
+	[FieldTypeID],
+	[ValueText],
+	[ValueDate],
+	[ValueDecimal],
+	[ValueBoolean],
+	[ValueLookup],
+	[ValueBinary],
+	[ValueItemReference],
+	[ValueEntityReference],
+	[Guid],
+	[TenantID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+
 /****** Object:  View [dbo].[CompleteItems]    Script Date: 6/19/2015 3:18:31 PM ******/
 SET ANSI_NULLS ON
 GO
