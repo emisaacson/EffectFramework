@@ -12,22 +12,10 @@ namespace EffectFramework.Core.Services
     /// <summary>
     /// Implementation of IPersistenceService for SQL Server and Entity Framework 7.
     /// </summary>
-    [Serializable]
     public class EntityFrameworkPersistenceService : IPersistenceService
     {
-        [NonSerialized]
-        protected Logger _Log;
-        protected Logger Log
-        {
-            get
-            {
-                if (_Log == null)
-                {
-                    _Log = new Logger(GetType().Name);
-                }
-                return _Log;
-            }
-        }
+        private Logger Log = new Logger(nameof(EntityFrameworkPersistenceService));
+
         private string ConnectionString;
         public EntityFrameworkPersistenceService(string ConnectionString)
         {
@@ -955,7 +943,7 @@ namespace EffectFramework.Core.Services
                             Field.TenantID, TenantID);
                         throw new Exceptions.FatalException("Data error.");
                     }
-                    Output.Add(new LookupEntry(Lookup.LookupID, Lookup.Value));
+                    Output.Add(new LookupEntry(Lookup.LookupID, Lookup.Value, Lookup.TenantID));
                 }
 
                 return Output;

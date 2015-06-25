@@ -11,11 +11,13 @@ namespace EffectFramework.Core.Models.Fields
     {
         public int ID { get; private set; }
         public string Value { get; private set; }
+        public int TenantID { get; private set; }
 
-        public LookupEntry(int ID, string Value)
+        public LookupEntry(int ID, string Value, int TenantID)
         {
             this.ID = ID;
             this.Value = Value;
+            this.TenantID = TenantID;
         }
     }
 }
