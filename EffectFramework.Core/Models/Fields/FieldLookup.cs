@@ -87,7 +87,7 @@ namespace EffectFramework.Core.Models.Fields
             {
                 if (this.Value.HasValue)
                 {
-                    var Deref = Choices.Where(c => c.ID == this.Value.Value).FirstOrDefault();
+                    var Deref = Choices.Choices.Where(c => c.ID == this.Value.Value).FirstOrDefault();
                     if (Deref != null)
                     {
                         return Deref.Value;
@@ -120,7 +120,7 @@ namespace EffectFramework.Core.Models.Fields
             {
                 if (this.OriginalValueLookup.HasValue)
                 {
-                    var Deref = Choices.Where(c => c.ID == this.OriginalValueLookup.Value).FirstOrDefault();
+                    var Deref = Choices.Choices.Where(c => c.ID == this.OriginalValueLookup.Value).FirstOrDefault();
                     if (Deref != null)
                     {
                         return Deref.Value;
@@ -181,14 +181,14 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        private IEnumerable<LookupEntry> _Choices = null;
-        public IEnumerable<LookupEntry> Choices
+        private LookupCollection _Choices = null;
+        public LookupCollection Choices
         {
             get
             {
                 if (_Choices == null)
                 {
-                    _Choices = PersistenceService.GetChoicesForLookupField(this).OrderBy(l => l.Value);
+                    _Choices = PersistenceService.GetLookupCollectionById(this.Type.LookupTypeID.Value);
                 }
                 return _Choices;
             }

@@ -33,13 +33,23 @@ namespace EffectFramework.Core.Services
         Models.Db.ObjectIdentity SaveSingleField(FieldBase Field, Models.Db.IDbContext ctx = null);
 
         /// <summary>
-        /// Given a particular FieldLookup instance, gets the available choices for lookup field.
+        /// Retreives a Lookup Collection instance by ID
         /// </summary>
-        /// <param name="Field">The field.</param>
+        /// <param name="LookupTypeID">The ID of the collection.</param>
         /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
         /// a new one will be created.</param>
-        /// <returns>An enumerable of all available choices for the lookup field.</returns>
-        IEnumerable<LookupEntry> GetChoicesForLookupField(FieldLookup Field, Models.Db.IDbContext ctx = null);
+        /// <returns>A LookupCollection instance populated by the database.</returns>
+        LookupCollection GetLookupCollectionById(int LookupTypeID, Models.Db.IDbContext ctx = null);
+
+        Models.Db.ObjectIdentity SaveLookupCollection(LookupCollection LookupCollection, Models.Db.IDbContext ctx = null);
+
+        IEnumerable<LookupEntry> GetLookupEntries(int LookupTypeID, LookupCollection LookupCollection, Models.Db.IDbContext ctx = null);
+
+        Models.Db.ObjectIdentity SaveSingleLookupEntry(LookupEntry LookupEntry, Models.Db.IDbContext ctx = null);
+
+        void SaveAndDeleteLookupEntry(LookupEntry LookupEntry, Models.Db.IDbContext ctx = null);
+
+        void SaveAndDeleteLookupCollection(LookupCollection LookupCollection, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Persists a single entity to the database. If the EntityID is not available, the Item must be provided.

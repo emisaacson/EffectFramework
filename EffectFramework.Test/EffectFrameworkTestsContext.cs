@@ -153,7 +153,7 @@ namespace EffectFramework.Test
                 db.Fields.Add(NewField5);
                 db.SaveChanges();
 
-                db.Database.AsRelational().Connection.Transaction.Commit();
+                db.Commit();
 
                 TempItems.Add(NewItem);
             }
@@ -163,7 +163,7 @@ namespace EffectFramework.Test
         {
 
             using (var db = new EntityFramework7DBContext(Configuration["Data:DefaultConnection:ConnectionString"]))
-            using (db.Database.AsRelational().Connection.BeginTransaction())
+            using (db.BeginTransaction())
             {
                 var AllEntities = db.Entities.Where(e => TempItems.Select(i => i.ItemID).Contains(e.ItemID)).ToList();
                 var AllFields = db.Fields.Where(f => AllEntities.Select(e => e.EntityID).Contains(f.EntityID)).ToList();
@@ -201,7 +201,7 @@ namespace EffectFramework.Test
                 }
                 db.SaveChanges();
 
-                db.Database.AsRelational().Connection.Transaction.Commit();
+                db.Commit();
 
                 TempField.Clear();
                 TempItems.Clear();

@@ -23,7 +23,7 @@ namespace EffectFramework.Core.Models.Db
         {
             if (ForReal)
             {
-                using (var Command = this.Database.AsRelational().Connection.DbConnection.CreateCommand())
+                using (var Command = this.Database.GetDbConnection().CreateCommand())
                 {
                     Command.Connection.Open();
                     Command.CommandText = "EXEC dbo.usp_DeleteEntireDatabase;";
@@ -159,17 +159,17 @@ namespace EffectFramework.Core.Models.Db
 
         public IDisposable BeginTransaction()
         {
-            return this.Database.AsRelational().Connection.BeginTransaction();
+            return this.Database.BeginTransaction();
         }
 
         public void Rollback()
         {
-            this.Database.AsRelational().Connection.DbTransaction.Rollback();
+            this.Database.GetDbTransaction().Rollback();
         }
 
         public void Commit()
         {
-            this.Database.AsRelational().Connection.DbTransaction.Commit();
+            this.Database.GetDbTransaction().Commit();
         }
     }
 }

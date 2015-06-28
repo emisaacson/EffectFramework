@@ -35,11 +35,12 @@ namespace EffectFramework.Core.Models
         /// <value>
         /// All non-deleted entities for this Item.
         /// </value>
+        // EITODO: evaluate returning a read-only collection
         public IEnumerable<EntityBase> AllEntities
         {
             get
             {
-                return _AllEntities.Where(e => !e.FlagForRemoval && !e.IsDeleted);
+                return _AllEntities.Where(e => !e.FlagForRemoval && !e.IsDeleted); //.ToList().AsReadOnly();
             }
         }
         private List<EntityBase> _AllEntities = new List<EntityBase>();

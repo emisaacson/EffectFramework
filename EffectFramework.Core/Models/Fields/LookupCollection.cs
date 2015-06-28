@@ -1,9 +1,9 @@
 ﻿using EffectFramework.Core.Exceptions;
+using EffectFramework.Core.Models.Db;
 using EffectFramework.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -11,8 +11,8 @@ namespace EffectFramework.Core.Models.Fields
     public class LookupCollection
     {
         [NonSerialized]
-        protected Logger _Log;
-        protected Logger Log {
+        private Logger _Log;
+        private Logger Log {
             get
             {
                 if (_Log == null)
@@ -23,7 +23,41 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
         public bool Dirty { get; private set; }
-        public string Name { get; private set; }
+        public Guid Guid { get; private set; }
+        private string _Name;
+        public string Name
+        {
+            get
+            {
+                return _Name;
+            }
+            set
+            {
+                if (value != _Name)
+                {
+                    Dirty = true;
+                    _Name = value;
+                }
+            
+            }
+        }
+        public string OriginalName { get; private set; }
+        public int? LookupTypeID { get; private set; }
+
+        public bool FlagForDeletion { get; private set; } = false;
+
+        private List<LookupEntry> _Choices;
+        public IReadOnlyCollection<LookupEntry> Choices
+        {
+            get
+            {
+                return _Choices.AsReadOnly();
+            }
+            internal set
+            {
+                _Choices = (List<LookupEntry>)value;
+            }
+        }
         public int TenantID { get; private set; }
 
         [NonSerialized]
@@ -53,9 +87,69 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public LookupCollection(int LookupID)
+        public LookupCollection()
+        {
+            this.Dirty = true;
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+        }
+
+        public LookupCollection(int LookupCollectionID)
         {
             this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            LoadById(LookupCollectionID);
+        }
+
+        public LookupCollection(Db.LookupType DbLookupType)
+        {
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            if (this.TenantID != DbLookupType.TenantID)
+            {
+                Log.Fatal("Tenant ID does not match. Global Tenant ID: {0}, Db Lookup Type: {1}",
+                    TenantID, DbLookupType.TenantID);
+                throw new FatalException("Data error.");
+            }
+
+            this.Name = DbLookupType.Name;
+            this.LookupTypeID = DbLookupType.LookupTypeID;
+            this.Guid = DbLookupType.Guid;
+
+            this.Choices = PersistenceService.GetLookupEntries(this.LookupTypeID.Value, this).ToList();
+
+            this.Dirty = false;
+
+            RefreshOriginalValues();
+        }
+
+        private void LoadById(int LookupCollectionID)
+        {
+            bool ShouldReplaceCache = false;
+            LookupCollection LookupFromDatabase = (LookupCollection)CacheService.GetObject(string.Format("LookupCollection:{0}", LookupCollectionID));
+            if (LookupFromDatabase == null)
+            {
+                LookupFromDatabase = PersistenceService.GetLookupCollectionById(LookupCollectionID);
+                ShouldReplaceCache = true;
+            }
+
+            this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            if (this.TenantID != LookupFromDatabase.TenantID)
+            {
+                Log.Fatal("Tenant ID does not match. Global Tenant ID: {0}, Other Lookup Type: {1}",
+                    TenantID, LookupFromDatabase.TenantID);
+                throw new FatalException("Data error.");
+            }
+
+            this.Name = LookupFromDatabase.Name;
+            this.LookupTypeID = LookupFromDatabase.LookupTypeID;
+            this.Guid = LookupFromDatabase.Guid;
+            this.Choices = PersistenceService.GetLookupEntries(this.LookupTypeID.Value, this).ToList();
+            this.Dirty = false;
+
+            RefreshOriginalValues();
+
+            if (ShouldReplaceCache)
+            {
+                CacheService.StoreObject(string.Format("LookupCollection:{0}", LookupCollectionID), LookupFromDatabase);
+            }
         }
 
         public bool PersistToDatabase(Db.IDbContext ctx = null)
@@ -67,7 +161,48 @@ namespace EffectFramework.Core.Models.Fields
                 throw new FatalException("Invalid data exception.");
             }
 
-            throw new NotImplementedException();
+            ObjectIdentity Identity = null;
+            if (this.FlagForDeletion)
+            {
+                PersistenceService.SaveAndDeleteLookupCollection(this, ctx);
+            }
+            else
+            {
+                Identity = PersistenceService.SaveLookupCollection(this, ctx);
+            }
+
+            if (Identity != null)
+            {
+                this.LookupTypeID = Identity.ObjectID;
+                this.Guid = Identity.ObjectGuid;
+            }
+            else
+            {
+                this.LookupTypeID = null;
+                this.Guid = default(Guid);
+            }
+
+            foreach (var Choice in Choices)
+            {
+                if (Choice.Dirty)
+                {
+                    Choice.PersistToDatabase(ctx);
+                }
+            }
+            
+            foreach (var Choice in _Choices.Where(c => c.FlagForDeletion))
+            {
+                _Choices.Remove(Choice);
+            }
+
+            this.Dirty = false;
+
+            if (Identity == null || Identity.DidUpdate)
+            {
+                CacheService.DeleteObject(string.Format("LookupCollection:{0}", LookupTypeID));
+            }
+
+            return Identity == null ? false : Identity.DidUpdate;
         }
 
         public bool PerformSanityCheck()
@@ -80,6 +215,33 @@ namespace EffectFramework.Core.Models.Fields
             }
 
             return true;
+        }
+
+        public void AddLookupEntry(string Value)
+        {
+            if (Value == null)
+            {
+                Log.Error("Lookup entry value is null. LookupCollectionID: {0}", this.LookupTypeID);
+                throw new ArgumentNullException(nameof(Value));
+            }
+
+            LookupEntry LookupEntry = new LookupEntry(this);
+            LookupEntry.Value = Value;
+
+            this._Choices.Add(LookupEntry);
+        }
+
+        private void RefreshOriginalValues()
+        {
+            if (!this.Dirty) {
+                this.OriginalName = this.Name;
+            }
+        }
+
+        public void Delete()
+        {
+            this.Dirty = true;
+            this.FlagForDeletion = true;
         }
     }
 }

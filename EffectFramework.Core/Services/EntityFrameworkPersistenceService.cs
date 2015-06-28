@@ -838,7 +838,7 @@ namespace EffectFramework.Core.Services
             }
 
             using (var db = new EntityFramework7DBContext(ConnectionString))
-            using (db.Database.AsRelational().Connection.BeginTransaction())
+            using (db.BeginTransaction())
             {
 
                 var DbEntityPossibilities = db.Entities
@@ -905,7 +905,7 @@ namespace EffectFramework.Core.Services
             return new EntityFramework7DBContext(ConnectionString);
         }
 
-        public IEnumerable<LookupEntry> GetChoicesForLookupField(FieldLookup Field, IDbContext ctx = null)
+        public LookupCollection GetLookupCollectionById(int LookupTypeID, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
             try
@@ -919,31 +919,330 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                if (!Field.Type.LookupTypeID.HasValue)
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                var DbLookupType = db.LookupTypes.Where(lt => lt.LookupTypeID == LookupTypeID && lt.IsDeleted == false).FirstOrDefault();
+
+                if (DbLookupType == null)
                 {
-                    return new LookupEntry[0];
+                    Log.Error("The passed LookupTypeID is not valid. LookupTypeID: {0}", LookupTypeID);
+                    throw new ArgumentException("The passed LookupTypeID is not valid.");
                 }
 
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
-                if (TenantID != Field.TenantID)
+                if (DbLookupType.TenantID != TenantID)
                 {
-                    Log.Fatal("Tenant ID Does not match. Field Tenant ID: {0}, Global Tenant ID: {1}",
-                        Field.TenantID, TenantID);
+                    Log.Fatal("Tenant ID Does not match. Field Type Tenant ID: {0}, Global Tenant ID: {1}",
+                        DbLookupType.TenantID, TenantID);
                     throw new Exceptions.FatalException("Data error.");
                 }
 
-                var Lookups = db.Lookups.Where(l => l.LookupTypeID == (int)Field.Type.LookupTypeID.Value);
+                return new LookupCollection(DbLookupType);
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+
+        public ObjectIdentity SaveLookupCollection(LookupCollection LookupCollection, Models.Db.IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                Models.Db.LookupType DbLookupType = null;
+                bool CreatedAnew = false;
+                if (!LookupCollection.LookupTypeID.HasValue)
+                {
+                    DbLookupType = new Models.Db.LookupType()
+                    {
+                        IsDeleted = false,
+                        Guid = Guid.NewGuid(),
+                        Name = LookupCollection.Name,
+                        TenantID = LookupCollection.TenantID,
+                    };
+                    db.LookupTypes.Add(DbLookupType);
+                    db.SaveChanges();
+
+                    CreatedAnew = true;
+                }
+                else
+                {
+                    DbLookupType = db.LookupTypes.Where(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value).FirstOrDefault();
+                }
+
+
+                if (DbLookupType == null)
+                {
+                    throw new ArgumentException("The passed Lookup ID is not valid.");
+                }
+
+                if (!CreatedAnew && DbLookupType.Guid != LookupCollection.Guid)
+                {
+                    throw new Exceptions.GuidMismatchException();
+                }
+
+                if (DbLookupType.TenantID != LookupCollection.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Database: {0}, Lookup Object: {1}", DbLookupType.TenantID, LookupCollection.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
+                if (!LookupCollection.Dirty)
+                {
+                    return new ObjectIdentity()
+                    {
+                        ObjectID = DbLookupType.LookupTypeID,
+                        ObjectGuid = DbLookupType.Guid,
+                        DidUpdate = false,
+                    };
+                }
+
+                DbLookupType.Guid = Guid.NewGuid();
+                DbLookupType.Name = LookupCollection.Name;
+
+                db.SaveChanges();
+
+                return new ObjectIdentity()
+                {
+                    ObjectID = DbLookupType.LookupTypeID,
+                    ObjectGuid = DbLookupType.Guid,
+                    DidUpdate = true,
+                };
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+
+        public ObjectIdentity SaveSingleLookupEntry(LookupEntry LookupEntry, IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                Models.Db.Lookup DbLookup = null;
+                bool CreatedAnew = false;
+                if (!LookupEntry.ID.HasValue)
+                {
+                    DbLookup = new Models.Db.Lookup()
+                    {
+                        IsDeleted = false,
+                        Guid = Guid.NewGuid(),
+                        TenantID = LookupEntry.TenantID,
+                        Value = LookupEntry.Value,
+                    };
+                    db.Lookups.Add(DbLookup);
+                    db.SaveChanges();
+
+                    CreatedAnew = true;
+                }
+                else
+                {
+                    DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value).FirstOrDefault();
+                }
+
+                if (DbLookup == null)
+                {
+                    throw new ArgumentException("The passed Lookup ID is not valid.");
+                }
+
+                if (!CreatedAnew && DbLookup.Guid != LookupEntry.Guid)
+                {
+                    throw new Exceptions.GuidMismatchException();
+                }
+
+                if (DbLookup.TenantID != LookupEntry.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Database: {0}, Lookup Object: {1}", DbLookup.TenantID, LookupEntry.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
+                if (!LookupEntry.Dirty)
+                {
+                    return new ObjectIdentity()
+                    {
+                        ObjectID = DbLookup.LookupTypeID,
+                        ObjectGuid = DbLookup.Guid,
+                        DidUpdate = false,
+                    };
+                }
+
+                DbLookup.Guid = Guid.NewGuid();
+                DbLookup.Value = LookupEntry.Value;
+
+                db.SaveChanges();
+
+                return new ObjectIdentity()
+                {
+                    ObjectID = DbLookup.LookupTypeID,
+                    ObjectGuid = DbLookup.Guid,
+                    DidUpdate = true,
+                };
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+
+        public void SaveAndDeleteLookupEntry(LookupEntry LookupEntry, IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                if (!LookupEntry.ID.HasValue)
+                {
+                    throw new InvalidOperationException("Cannot delete Lookup with a null ID.");
+                }
+                var DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value).FirstOrDefault();
+
+                if (DbLookup == null)
+                {
+                    throw new ArgumentException("The passed Lookup ID is not valid.");
+                }
+
+                if (DbLookup.Guid != LookupEntry.Guid)
+                {
+                    throw new Exceptions.GuidMismatchException();
+                }
+
+                if (DbLookup.TenantID != LookupEntry.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Database: {0}, Lookup Object: {1}", DbLookup.TenantID, LookupEntry.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
+
+                DbLookup.Guid = Guid.NewGuid();
+                DbLookup.Value = LookupEntry.Value;
+                DbLookup.IsDeleted = true;
+
+                db.SaveChanges();
+
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+        public void SaveAndDeleteLookupCollection(LookupCollection LookupCollection, IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                if (!LookupCollection.LookupTypeID.HasValue)
+                {
+                    throw new InvalidOperationException("Cannot delete Lookup Collection with a null ID.");
+                }
+                var DbLookupType = db.LookupTypes.Where(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value).FirstOrDefault();
+
+                if (DbLookupType == null)
+                {
+                    throw new ArgumentException("The passed Lookup Type ID is not valid.");
+                }
+
+                if (DbLookupType.Guid != LookupCollection.Guid)
+                {
+                    throw new Exceptions.GuidMismatchException();
+                }
+
+                if (DbLookupType.TenantID != LookupCollection.TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Database: {0}, Lookup Object: {1}", DbLookupType.TenantID, LookupCollection.TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
+
+                DbLookupType.Guid = Guid.NewGuid();
+                DbLookupType.Name = LookupCollection.Name;
+                DbLookupType.IsDeleted = true;
+
+                db.SaveChanges();
+
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+
+        public IEnumerable<LookupEntry> GetLookupEntries(int LookupTypeID, LookupCollection LookupCollection, IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                var DbLookups = db.Lookups.Where(l => l.LookupTypeID == LookupTypeID && l.IsDeleted == false);
 
                 List<LookupEntry> Output = new List<LookupEntry>();
-                foreach (var Lookup in Lookups)
+                foreach (var DbLookup in DbLookups)
                 {
-                    if (TenantID != Lookup.TenantID)
+                    if (DbLookup.TenantID != TenantID)
                     {
-                        Log.Fatal("Tenant ID Does not match. Field Tenant ID: {0}, Global Tenant ID: {1}",
-                            Field.TenantID, TenantID);
+                        Log.Fatal("TenantID does not match. Lookup TenantID: {0}, Global TenantID: {0}",
+                            DbLookup.TenantID, TenantID);
                         throw new Exceptions.FatalException("Data error.");
                     }
-                    Output.Add(new LookupEntry(Lookup.LookupID, Lookup.Value, Lookup.TenantID));
+                    Output.Add(new LookupEntry(DbLookup.LookupID, DbLookup.Value, DbLookup.TenantID, DbLookup.Guid, LookupCollection));
                 }
 
                 return Output;
