@@ -41,6 +41,8 @@ namespace EffectFramework.Core.Services
         /// <returns>A LookupCollection instance populated by the database.</returns>
         LookupCollection GetLookupCollectionById(int LookupTypeID, Models.Db.IDbContext ctx = null);
 
+        IEnumerable<LookupCollection> GetAllLookupCollections(Models.Db.IDbContext ctx = null);
+
         Models.Db.ObjectIdentity SaveLookupCollection(LookupCollection LookupCollection, Models.Db.IDbContext ctx = null);
 
         IEnumerable<LookupEntry> GetLookupEntries(int LookupTypeID, LookupCollection LookupCollection, Models.Db.IDbContext ctx = null);

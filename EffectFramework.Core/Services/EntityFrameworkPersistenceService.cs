@@ -905,6 +905,38 @@ namespace EffectFramework.Core.Services
             return new EntityFramework7DBContext(ConnectionString);
         }
 
+        public IEnumerable<LookupCollection> GetAllLookupCollections(IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                var LookupTypes = db.LookupTypes.Where(lt => lt.IsDeleted == false && lt.TenantID == TenantID);
+                List<LookupCollection> Output = new List<LookupCollection>();
+                foreach (var LookupType in LookupTypes)
+                {
+                    Output.Add(new LookupCollection(LookupType.LookupTypeID));
+                }
+
+                return Output;
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
         public LookupCollection GetLookupCollectionById(int LookupTypeID, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
@@ -978,7 +1010,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbLookupType = db.LookupTypes.Where(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value).FirstOrDefault();
+                    DbLookupType = db.LookupTypes.Where(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value && i.IsDeleted == false).FirstOrDefault();
                 }
 
 
@@ -1061,7 +1093,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value).FirstOrDefault();
+                    DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value && i.IsDeleted == false).FirstOrDefault();
                 }
 
                 if (DbLookup == null)
@@ -1129,7 +1161,7 @@ namespace EffectFramework.Core.Services
                 {
                     throw new InvalidOperationException("Cannot delete Lookup with a null ID.");
                 }
-                var DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value).FirstOrDefault();
+                var DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value && i.IsDeleted == false).FirstOrDefault();
 
                 if (DbLookup == null)
                 {
@@ -1181,7 +1213,7 @@ namespace EffectFramework.Core.Services
                 {
                     throw new InvalidOperationException("Cannot delete Lookup Collection with a null ID.");
                 }
-                var DbLookupType = db.LookupTypes.Where(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value).FirstOrDefault();
+                var DbLookupType = db.LookupTypes.Where(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value && i.IsDeleted == false).FirstOrDefault();
 
                 if (DbLookupType == null)
                 {

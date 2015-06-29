@@ -51,11 +51,18 @@ namespace EffectFramework.Core.Models.Fields
         {
             get
             {
+                if (_Choices == null)
+                {
+                    if (this.LookupTypeID.HasValue)
+                    {
+                        _Choices = PersistenceService.GetLookupEntries(this.LookupTypeID.Value, this).ToList();
+                    }
+                    else
+                    {
+                        _Choices = new List<LookupEntry>();
+                    }
+                }
                 return _Choices.AsReadOnly();
-            }
-            internal set
-            {
-                _Choices = (List<LookupEntry>)value;
             }
         }
         public int TenantID { get; private set; }
@@ -112,9 +119,6 @@ namespace EffectFramework.Core.Models.Fields
             this.Name = DbLookupType.Name;
             this.LookupTypeID = DbLookupType.LookupTypeID;
             this.Guid = DbLookupType.Guid;
-
-            this.Choices = PersistenceService.GetLookupEntries(this.LookupTypeID.Value, this).ToList();
-
             this.Dirty = false;
 
             RefreshOriginalValues();
@@ -141,7 +145,6 @@ namespace EffectFramework.Core.Models.Fields
             this.Name = LookupFromDatabase.Name;
             this.LookupTypeID = LookupFromDatabase.LookupTypeID;
             this.Guid = LookupFromDatabase.Guid;
-            this.Choices = PersistenceService.GetLookupEntries(this.LookupTypeID.Value, this).ToList();
             this.Dirty = false;
 
             RefreshOriginalValues();
@@ -242,6 +245,11 @@ namespace EffectFramework.Core.Models.Fields
         {
             this.Dirty = true;
             this.FlagForDeletion = true;
+        }
+
+        public static IEnumerable<LookupCollection> GetAllLookupCollections()
+        {
+            return Configure.GetPersistenceService().GetAllLookupCollections();
         }
     }
 }
