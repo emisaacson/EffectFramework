@@ -46,40 +46,40 @@ namespace EffectFramework.Core.Models.Db
         {
             base.OnModelCreating(builder);
 
-            builder.ForSqlServer().UseIdentity();
+            builder.UseSqlServerIdentityColumns();
 
             builder.Entity<CompleteItem>(e =>
             {
-                e.Table("CompleteItems");
+                e.ToTable("CompleteItems");
 
                 e.Key(i => new { i.ItemID, i.EntityID, i.FieldID });
             });
 
             builder.Entity<FieldTypeMeta>(e =>
             {
-                e.Table("FieldTypeMeta");
+                e.ToTable("FieldTypeMeta");
 
                 e.Key(i => i.FieldTypeMetaID);
 
-                e.Property(i => i.FieldTypeID).ForSqlServer().UseIdentity();
+                e.Property(i => i.FieldTypeID).UseSqlServerIdentityColumn();
             });
 
             builder.Entity<AuditLog>(e =>
             {
-                e.Table("AuditLog");
+                e.ToTable("AuditLog");
 
                 e.Key(i => i.AuditLogID);
 
-                e.Property(i => i.AuditLogID).ForSqlServer().UseIdentity();
+                e.Property(i => i.AuditLogID).UseSqlServerIdentityColumn();
             });
 
             builder.Entity<Item>(e =>
             {
-                e.Table("Items");
+                e.ToTable("Items");
 
                 e.Key(i => i.ItemID);
 
-                e.Property(i => i.ItemID).ForSqlServer().UseIdentity();
+                e.Property(i => i.ItemID).UseSqlServerIdentityColumn();
 
                 e.Collection(i => i.Entities)
                     .InverseReference(en => en.Item)
@@ -88,32 +88,32 @@ namespace EffectFramework.Core.Models.Db
 
             builder.Entity<Lookup>(l =>
             {
-                l.Table("Lookups");
+                l.ToTable("Lookups");
 
                 l.Key(e => e.LookupID);
 
-                l.Property(e => e.LookupID).ForSqlServer().UseIdentity();
+                l.Property(e => e.LookupID).UseSqlServerIdentityColumn();
 
                 l.Reference<Field>().InverseReference(e => e.Lookup).ForeignKey<Field>(e => e.ValueLookup);
             });
 
             builder.Entity<LookupType>(lt =>
             {
-                lt.Table("LookupTypes");
+                lt.ToTable("LookupTypes");
 
                 lt.Key(e => e.LookupTypeID);
 
-                lt.Property(l => l.LookupTypeID).ForSqlServer().UseIdentity();
+                lt.Property(l => l.LookupTypeID).UseSqlServerIdentityColumn();
 
             });
 
             builder.Entity<Entity>(e =>
             {
-                e.Table("Entities");
+                e.ToTable("Entities");
 
                 e.Key(en => en.EntityID);
 
-                e.Property(en => en.EntityID).ForSqlServer().UseIdentity();
+                e.Property(en => en.EntityID).UseSqlServerIdentityColumn();
 
                 e.Collection(en => en.EntityFields)
                     .InverseReference(ef => ef.Entity)
@@ -122,38 +122,38 @@ namespace EffectFramework.Core.Models.Db
 
             builder.Entity<Field>(e =>
             {
-                e.Table("Fields");
+                e.ToTable("Fields");
 
                 e.Key(ef => ef.FieldID);
 
-                e.Property(ef => ef.FieldID).ForSqlServer().UseIdentity();
+                e.Property(ef => ef.FieldID).UseSqlServerIdentityColumn();
             });
 
             builder.Entity<ItemType>(e =>
             {
-                e.Table("ItemTypes");
+                e.ToTable("ItemTypes");
 
                 e.Key(it => it.ItemTypeID);
 
-                e.Property(it => it.ItemTypeID).ForSqlServer().UseIdentity();
+                e.Property(it => it.ItemTypeID).UseSqlServerIdentityColumn();
             });
 
             builder.Entity<EntityType>(e =>
             {
-                e.Table("EntityTypes");
+                e.ToTable("EntityTypes");
 
                 e.Key(et => et.EntityTypeID);
 
-                e.Property(et => et.EntityTypeID).ForSqlServer().UseIdentity();
+                e.Property(et => et.EntityTypeID).UseSqlServerIdentityColumn();
             });
 
             builder.Entity<FieldType>(e =>
             {
-                e.Table("FieldTypes");
+                e.ToTable("FieldTypes");
 
                 e.Key(ft => ft.FieldTypeID);
 
-                e.Property(ft => ft.FieldTypeID).ForSqlServer().UseIdentity();
+                e.Property(ft => ft.FieldTypeID).UseSqlServerIdentityColumn();
             });
         }
 

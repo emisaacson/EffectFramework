@@ -5,7 +5,6 @@ using System.Reflection;
 using EffectFramework.Core.Models;
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Models.Fields;
-using Ninject;
 
 namespace EffectFramework.Core.Forms
 {

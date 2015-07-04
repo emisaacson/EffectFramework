@@ -2,7 +2,6 @@
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Services;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
 using EffectFramework.Core.Models.Db;
 using System.Collections.Generic;
 using EffectFramework.Core.Exceptions;

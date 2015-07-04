@@ -5,7 +5,6 @@ using EffectFramework.Core.Models;
 using EffectFramework.Core.Models.Db;
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Models.Fields;
-using Microsoft.Data.Entity;
 
 namespace EffectFramework.Core.Services
 {

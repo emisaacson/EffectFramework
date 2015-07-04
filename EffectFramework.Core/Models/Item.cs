@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using EffectFramework.Core.Models.Entities;
 using EffectFramework.Core.Services;
 using EffectFramework.Core.Exceptions;
-using Ninject;
-using Ninject.Parameters;
 
 namespace EffectFramework.Core.Models
 {

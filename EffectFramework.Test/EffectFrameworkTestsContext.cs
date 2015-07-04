@@ -1,5 +1,4 @@
 ﻿using EffectFramework.Core.Models.Db;
-using Microsoft.Data.Entity;
 using Microsoft.Framework.Configuration;
 using System;
 using System.Collections.Generic;

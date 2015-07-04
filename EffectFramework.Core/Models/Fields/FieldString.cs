@@ -1,5 +1,4 @@
 ﻿using System;
-using EffectFramework.Core.Services;
 using EffectFramework.Core.Models.Entities;
 
 namespace EffectFramework.Core.Models.Fields
