@@ -33,6 +33,10 @@ namespace EffectFramework.Core.Models.Fields
             }
             set
             {
+                if (value == null)
+                {
+                    throw new ValidationFailedException("Lookup name cannot be empty.");
+                }
                 if (value != _Name)
                 {
                     Dirty = true;
@@ -51,17 +55,7 @@ namespace EffectFramework.Core.Models.Fields
         {
             get
             {
-                if (_Choices == null)
-                {
-                    if (this.LookupTypeID.HasValue)
-                    {
-                        _Choices = PersistenceService.GetLookupEntries(this.LookupTypeID.Value, this).ToList();
-                    }
-                    else
-                    {
-                        _Choices = new List<LookupEntry>();
-                    }
-                }
+                RefreshChoices();
                 return _Choices.AsReadOnly();
             }
         }
@@ -98,6 +92,7 @@ namespace EffectFramework.Core.Models.Fields
         {
             this.Dirty = true;
             this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            RefreshChoices();
         }
 
         public LookupCollection(int LookupCollectionID)
@@ -120,6 +115,7 @@ namespace EffectFramework.Core.Models.Fields
             this.LookupTypeID = DbLookupType.LookupTypeID;
             this.Guid = DbLookupType.Guid;
             this.Dirty = false;
+            RefreshChoices();
 
             RefreshOriginalValues();
         }
@@ -146,6 +142,7 @@ namespace EffectFramework.Core.Models.Fields
             this.LookupTypeID = LookupFromDatabase.LookupTypeID;
             this.Guid = LookupFromDatabase.Guid;
             this.Dirty = false;
+            RefreshChoices();
 
             RefreshOriginalValues();
 
@@ -164,20 +161,33 @@ namespace EffectFramework.Core.Models.Fields
                 throw new FatalException("Invalid data exception.");
             }
 
-            ObjectIdentity Identity = null;
-            if (this.FlagForDeletion)
+            IDbContext db;
+            if (ctx == null)
             {
-                PersistenceService.SaveAndDeleteLookupCollection(this, ctx);
+                db = Configure.GetPersistenceService().GetDbContext();
+                db.BeginTransaction();
             }
             else
             {
-                Identity = PersistenceService.SaveLookupCollection(this, ctx);
+                db = ctx;
+            }
+
+            ObjectIdentity Identity = null;
+            bool DidUpdate = false;
+            if (this.FlagForDeletion)
+            {
+                PersistenceService.SaveAndDeleteLookupCollection(this, db);
+            }
+            else
+            {
+                Identity = PersistenceService.SaveLookupCollection(this, db);
             }
 
             if (Identity != null)
             {
                 this.LookupTypeID = Identity.ObjectID;
                 this.Guid = Identity.ObjectGuid;
+                DidUpdate = Identity.DidUpdate;
             }
             else
             {
@@ -189,23 +199,28 @@ namespace EffectFramework.Core.Models.Fields
             {
                 if (Choice.Dirty)
                 {
-                    Choice.PersistToDatabase(ctx);
+                    if (Choice.PersistToDatabase(db))
+                    {
+                        DidUpdate = true;
+                    }
                 }
             }
             
-            foreach (var Choice in _Choices.Where(c => c.FlagForDeletion))
+            _Choices.RemoveAll(c => c.FlagForDeletion);
+
+            if (ctx == null)
             {
-                _Choices.Remove(Choice);
+                db.Commit();
             }
 
             this.Dirty = false;
 
-            if (Identity == null || Identity.DidUpdate)
+            if (Identity == null || DidUpdate)
             {
                 CacheService.DeleteObject(string.Format("LookupCollection:{0}", LookupTypeID));
             }
 
-            return Identity == null ? false : Identity.DidUpdate;
+            return Identity == null ? false : DidUpdate;
         }
 
         public bool PerformSanityCheck()
@@ -222,10 +237,10 @@ namespace EffectFramework.Core.Models.Fields
 
         public void AddLookupEntry(string Value)
         {
-            if (Value == null)
+            if (string.IsNullOrWhiteSpace(Value))
             {
                 Log.Error("Lookup entry value is null. LookupCollectionID: {0}", this.LookupTypeID);
-                throw new ArgumentNullException(nameof(Value));
+                throw new ValidationFailedException("Lookup value cannot be empty.");
             }
 
             LookupEntry LookupEntry = new LookupEntry(this);
@@ -245,6 +260,21 @@ namespace EffectFramework.Core.Models.Fields
         {
             this.Dirty = true;
             this.FlagForDeletion = true;
+        }
+
+        private void RefreshChoices()
+        {
+            if (_Choices == null)
+            {
+                if (this.LookupTypeID.HasValue)
+                {
+                    _Choices = PersistenceService.GetLookupEntries(this.LookupTypeID.Value, this).ToList();
+                }
+                else
+                {
+                    _Choices = new List<LookupEntry>();
+                }
+            }
         }
 
         public static IEnumerable<LookupCollection> GetAllLookupCollections()

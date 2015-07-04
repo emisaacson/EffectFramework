@@ -1,5 +1,6 @@
 ﻿using EffectFramework.Core.Models.Db;
 using EffectFramework.Core.Services;
+using EffectFramework.Core.Exceptions;
 using System;
 
 namespace EffectFramework.Core.Models.Fields
@@ -63,6 +64,10 @@ namespace EffectFramework.Core.Models.Fields
             {
                 if (value != _Value)
                 {
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        throw new ValidationFailedException("Cannot set an empty value for a Lookup Entry.");
+                    }
                     this.Dirty = true;
                     this._Value = value;
                 }

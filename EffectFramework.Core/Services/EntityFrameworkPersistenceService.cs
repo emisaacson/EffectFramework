@@ -1079,12 +1079,19 @@ namespace EffectFramework.Core.Services
                 bool CreatedAnew = false;
                 if (!LookupEntry.ID.HasValue)
                 {
+                    if (LookupEntry.LookupCollection == null || !LookupEntry.LookupCollection.LookupTypeID.HasValue)
+                    {
+                        Log.Error("No lookup collection set on lookup entry.");
+                        throw new InvalidOperationException("Cannot create a lookup entry without a Lookup Collection with an ID.");
+                    }
+
                     DbLookup = new Models.Db.Lookup()
                     {
                         IsDeleted = false,
                         Guid = Guid.NewGuid(),
                         TenantID = LookupEntry.TenantID,
                         Value = LookupEntry.Value,
+                        LookupTypeID = LookupEntry.LookupCollection.LookupTypeID.Value
                     };
                     db.Lookups.Add(DbLookup);
                     db.SaveChanges();
