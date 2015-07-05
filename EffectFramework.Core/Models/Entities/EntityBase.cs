@@ -510,7 +510,7 @@ namespace EffectFramework.Core.Models.Entities
                 throw new ArgumentOutOfRangeException("Cannot create an entity from a type that isn't a subclass of EntityBase.");
             }
 
-            return (EntityBase)Activator.CreateInstance(SystemType, new object[] { Item, (object)null }, ctx);
+            return (EntityBase)Activator.CreateInstance(SystemType, new object[] { Item, (object)null, ctx });
         }
 
         /// <summary>
@@ -536,7 +536,7 @@ namespace EffectFramework.Core.Models.Entities
                 throw new InvalidOperationException("The entity type from the database object does not match the type parameter.");
             }
 
-            return (EntityT)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity }, ctx);
+            return (EntityT)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity, ctx });
         }
 
         /// <summary>
@@ -561,7 +561,7 @@ namespace EffectFramework.Core.Models.Entities
                 throw new InvalidOperationException("Cannot create entity from this type.");
             }
 
-            return (EntityBase)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity }, ctx);
+            return (EntityBase)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity, ctx });
         }
 
         /// <summary>
