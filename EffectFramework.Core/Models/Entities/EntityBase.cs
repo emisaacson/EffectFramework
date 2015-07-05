@@ -177,7 +177,7 @@ namespace EffectFramework.Core.Models.Entities
 
         protected abstract void WireUpFields();
 
-        public EntityBase(Item Item, Db.Entity DbEntity)
+        public EntityBase(Item Item, Db.Entity DbEntity, Db.IDbContext ctx = null)
         {
             Log.Trace("Creating new EntityBase with PersistenceService and CacheService. Entity Type: {0}", this.Type.Name);
 
@@ -190,11 +190,11 @@ namespace EffectFramework.Core.Models.Entities
 
             if (DbEntity != null)
             {
-                LoadUpEntity(DbEntity);
+                LoadUpEntity(DbEntity, ctx);
             }
         }
 
-        protected void LoadUpEntity(Db.Entity DbEntity)
+        protected void LoadUpEntity(Db.Entity DbEntity, Db.IDbContext ctx = null)
         {
             Log.Trace("Loading up entity fields from database. EntityID: {0}", DbEntity.EntityID);
 
@@ -216,7 +216,7 @@ namespace EffectFramework.Core.Models.Entities
 
             foreach (var FieldObject in FieldObjects)
             {
-                FieldObject.FillFromDatabase(this, FieldObject);
+                FieldObject.FillFromDatabase(this, FieldObject, ctx);
             }
 
             this.Dirty = false;
@@ -496,9 +496,10 @@ namespace EffectFramework.Core.Models.Entities
         /// </summary>
         /// <param name="SystemType">The System Type</param>
         /// <param name="Item">An optional Item to bind to the Entity.</param>
+        /// <param name="ctx">Database context (Optional)</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the passed SystemType is not a subclass of EntityBase</exception>
         /// <returns>The newly created Entity</returns>
-        public static EntityBase GetEntityBySystemType(Type SystemType, Item Item = null)
+        public static EntityBase GetEntityBySystemType(Type SystemType, Item Item = null, Db.IDbContext ctx = null)
         {
             if (SystemType == null)
             {
@@ -509,7 +510,7 @@ namespace EffectFramework.Core.Models.Entities
                 throw new ArgumentOutOfRangeException("Cannot create an entity from a type that isn't a subclass of EntityBase.");
             }
 
-            return (EntityBase)Activator.CreateInstance(SystemType, new object[] { Item, (object)null });
+            return (EntityBase)Activator.CreateInstance(SystemType, new object[] { Item, (object)null }, ctx);
         }
 
         /// <summary>
@@ -518,8 +519,9 @@ namespace EffectFramework.Core.Models.Entities
         /// <typeparam name="EntityT">The type of the Entity.</typeparam>
         /// <param name="DbEntity">The entity database object.</param>
         /// <param name="Item">An optional parent Item.</param>
+        /// <param name="ctx">Database context (optional)</param>
         /// <returns>The generated Entity object.</returns>
-        public static EntityT GenerateEntityFromDbObject<EntityT>(Db.Entity DbEntity, Item Item = null) where EntityT : EntityBase
+        public static EntityT GenerateEntityFromDbObject<EntityT>(Db.Entity DbEntity, Item Item = null, Db.IDbContext ctx = null) where EntityT : EntityBase
         {
             if (DbEntity == null)
             {
@@ -534,7 +536,7 @@ namespace EffectFramework.Core.Models.Entities
                 throw new InvalidOperationException("The entity type from the database object does not match the type parameter.");
             }
 
-            return (EntityT)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity });
+            return (EntityT)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity }, ctx);
         }
 
         /// <summary>
@@ -542,8 +544,9 @@ namespace EffectFramework.Core.Models.Entities
         /// </summary>
         /// <param name="DbEntity">The entity from the database. Can be null.</param>
         /// <param name="Item">An optional parent Item.</param>
+        /// <param name="ctx">Database context (optional)</param>
         /// <returns>The generated Entity object.</returns>
-        public static EntityBase GenerateEntityFromDbObject(Db.Entity DbEntity, Item Item = null)
+        public static EntityBase GenerateEntityFromDbObject(Db.Entity DbEntity, Item Item = null, Db.IDbContext ctx = null)
         {
             if (DbEntity == null)
             {
@@ -558,7 +561,7 @@ namespace EffectFramework.Core.Models.Entities
                 throw new InvalidOperationException("Cannot create entity from this type.");
             }
 
-            return (EntityBase)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity });
+            return (EntityBase)Activator.CreateInstance(EntityType.Type, new object[] { Item, DbEntity }, ctx);
         }
 
         /// <summary>
@@ -566,14 +569,15 @@ namespace EffectFramework.Core.Models.Entities
         /// </summary>
         /// <param name="Type">The EntityType</param>
         /// <param name="Item">An optional Item to bind to the Entity</param>
+        /// <param name="ctx">Database context (optional)</param>
         /// <returns>The newly created Entity</returns>
-        public static EntityBase GetEntityByType(EntityType Type, Item Item = null)
+        public static EntityBase GetEntityByType(EntityType Type, Item Item = null, Db.IDbContext ctx = null)
         {
             if (Type == null)
             {
                 throw new ArgumentNullException(nameof(Type));
             }
-            return GetEntityBySystemType(Type.Type, Item);
+            return GetEntityBySystemType(Type.Type, Item, ctx);
         }
 
         /// <summary>

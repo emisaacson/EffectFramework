@@ -89,16 +89,20 @@ namespace EffectFramework.Core.Services
         /// </summary>
         /// <param name="Entity">An entity to which the field may belong.</param>
         /// <param name="FieldType">Type of the field.</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
         /// <returns>An instance of the field, or null if one cannot be found.</returns>
-        FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, FieldType FieldType);
+        FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, FieldType FieldType, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Retreives a single field from the database of the specified type ID.
         /// </summary>
         /// <param name="Entity">The entity.</param>
         /// <param name="FieldTypeID">The field type identifier.</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
         /// <returns>An instance of the field, or null if one cannot be found.</returns>
-        FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, int FieldTypeID);
+        FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, int FieldTypeID, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Retreives a single field from the database by field ID.
@@ -114,8 +118,10 @@ namespace EffectFramework.Core.Services
         /// </summary>
         /// <typeparam name="FieldT">The type of the field</typeparam>
         /// <param name="Entity">An entity to which the field may belong.</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
         /// <returns>An instance of the field, or null if one cannot be found.</returns>
-        FieldBase RetreiveSingleFieldOrDefault<FieldT>(EntityBase Entity) where FieldT : IField, new();
+        FieldBase RetreiveSingleFieldOrDefault<FieldT>(EntityBase Entity, Models.Db.IDbContext ctx = null) where FieldT : IField, new();
 
         /* Consider removing this
         /// <summary>
@@ -148,8 +154,10 @@ namespace EffectFramework.Core.Services
         /// Retreives the GUID for the item.
         /// </summary>
         /// <param name="Item">The item.</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
         /// <returns>The GUID for the item.</returns>
-        Guid RetreiveGuidForItem(Item Item);
+        Guid RetreiveGuidForItem(Item Item, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Retreives all entities for the given item.
@@ -158,8 +166,10 @@ namespace EffectFramework.Core.Services
         /// <param name="EffectiveDate">An optional effective date. If none is provided, all
         /// entities are returned. Otherwise, only entities overlapping with the effective
         /// date are returned.</param>
+        /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
+        /// a new one will be created.</param>
         /// <returns>A list of all non-deleted entities.</returns>
-        List<EntityBase> RetreiveAllEntities(Item Item, DateTime? EffectiveDate = null);
+        List<EntityBase> RetreiveAllEntities(Item Item, DateTime? EffectiveDate = null, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Retreives complete items from the view for the specified ItemIDs

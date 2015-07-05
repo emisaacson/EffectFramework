@@ -164,8 +164,8 @@ namespace EffectFramework.Core.Models.Fields
 
         }
 
-        public FieldItemReference(FieldType Type, FieldBase Base, EntityBase Entity)
-            : base(Type, Base, Entity)
+        public FieldItemReference(FieldType Type, FieldBase Base, EntityBase Entity, Db.IDbContext ctx = null)
+            : base(Type, Base, Entity, ctx)
         {
             if (Type.DataType != DataType.ItemReference)
             {

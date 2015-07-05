@@ -133,8 +133,8 @@ namespace EffectFramework.Core.Models.Fields
 
         }
 
-        public FieldString(FieldType Type, FieldBase Base, EntityBase Entity)
-            : base(Type, Base, Entity)
+        public FieldString(FieldType Type, FieldBase Base, EntityBase Entity, Db.IDbContext ctx = null)
+            : base(Type, Base, Entity, ctx)
         {
             if (Type.DataType != DataType.Text)
             {

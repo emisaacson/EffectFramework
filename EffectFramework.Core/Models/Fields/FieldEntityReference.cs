@@ -163,8 +163,8 @@ namespace EffectFramework.Core.Models.Fields
 
         }
 
-        public FieldEntityReference(FieldType Type, FieldBase Base, EntityBase Entity)
-            : base(Type, Base, Entity)
+        public FieldEntityReference(FieldType Type, FieldBase Base, EntityBase Entity, Db.IDbContext ctx = null)
+            : base(Type, Base, Entity, ctx)
         {
             if (Type.DataType != DataType.EntityReference)
             {

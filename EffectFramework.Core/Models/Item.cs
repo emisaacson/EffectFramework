@@ -147,6 +147,7 @@ namespace EffectFramework.Core.Models
         /// dirty and has no item ID. When persisted, an ItemID will be added to the class.
         /// </summary>
         /// <param name="Sparse">If set to <c>true</c>, only load entities for the current EffectiveRecord.</param>
+        /// <param name="ctx">Database context (optional)</param>
         public Item(bool Sparse = false)
         {
             this.Dirty = true;
@@ -161,7 +162,8 @@ namespace EffectFramework.Core.Models
         /// <param name="PersistenceService">The persistence service.</param>
         /// <param name="LoadItem">If set to <c>true</c>, retreive all data for this item from the PersistenceService.</param>
         /// <param name="Sparse">If set to <c>true</c>, only load entities for the current EffectiveRecord.</param>
-        public Item(int ItemID, bool LoadItem = true, bool Sparse = false)
+        /// <param name="ctx">Database context (optional)</param>
+        public Item(int ItemID, bool LoadItem = true, bool Sparse = false, Db.IDbContext ctx = null)
         {
             this.ItemID = ItemID;
             this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
@@ -169,7 +171,7 @@ namespace EffectFramework.Core.Models
 
             if (LoadItem)
             {
-                this.LoadByID(ItemID);
+                this.LoadByID(ItemID, ctx);
             }
         }
 
@@ -187,8 +189,9 @@ namespace EffectFramework.Core.Models
         /// Reload all data from the database, getting a fresh copy. This method will fail if the Item
         /// has not yet been persisted to the data store.
         /// </summary>
+        /// <param name="ctx">Database context (optional)</param>
         /// <exception cref="System.InvalidOperationException">Cannot reload an item with a null ID.</exception>
-        public void Load()
+        public void Load(Db.IDbContext ctx = null)
         {
             if (!ItemID.HasValue)
             {
@@ -201,7 +204,7 @@ namespace EffectFramework.Core.Models
                 Log.Fatal("TenantID Does not match. Global TenantID: {0}, Item TenantID: {1}", TenantID, this.TenantID);
                 throw new FatalException("Data error.");
             }
-            LoadByID(ItemID.Value);
+            LoadByID(ItemID.Value, ctx);
         }
 
         public void LoadByView(int ItemID, IEnumerable<Db.CompleteItem> View)
@@ -350,7 +353,7 @@ namespace EffectFramework.Core.Models
             return new ValidationSummary(Errors);
         }
 
-        protected void LoadByID(int ItemID)
+        protected void LoadByID(int ItemID, Db.IDbContext ctx = null)
         {
             if (this.ItemID.HasValue && ItemID != this.ItemID.Value)
             {
@@ -365,24 +368,24 @@ namespace EffectFramework.Core.Models
                 throw new FatalException("Data error.");
             }
 
-            this.Guid = PersistenceService.RetreiveGuidForItem(this);
+            this.Guid = PersistenceService.RetreiveGuidForItem(this, ctx);
 
             DateTime? DateToSend = EffectiveDate;
 
-            _AllEntities = PersistenceService.RetreiveAllEntities(this, Sparse ? DateToSend : null);
+            _AllEntities = PersistenceService.RetreiveAllEntities(this, Sparse ? DateToSend : null, ctx);
 
             this.Dirty = false;
         }
 
-        public static Item GetItemByID(int ItemID)
+        public static Item GetItemByID(int ItemID, Db.IDbContext ctx = null)
         {
             IPersistenceService PersistenceService = Configure.GetPersistenceService();
-            var ViewResult = PersistenceService.RetreiveCompleteItems(new int [] { ItemID });
+            var ViewResult = PersistenceService.RetreiveCompleteItems(new int [] { ItemID }, ctx);
             var Items = GetItemsFromView(ViewResult);
             return Items.FirstOrDefault();
         }
 
-        public static List<Item> GetItemsByID(IEnumerable<int> ItemIDs)
+        public static List<Item> GetItemsByID(IEnumerable<int> ItemIDs, Db.IDbContext ctx = null)
         {
 
             ICacheService CacheService = Configure.GetCacheService();
@@ -408,7 +411,7 @@ namespace EffectFramework.Core.Models
 
             if (MissingItemIDs.Count() > 0)
             {
-                var ViewResult = PersistenceService.RetreiveCompleteItems(MissingItemIDs);
+                var ViewResult = PersistenceService.RetreiveCompleteItems(MissingItemIDs, ctx);
                 NotCachedItems = GetItemsFromView(ViewResult);
                 foreach (Item Item in NotCachedItems)
                 {
@@ -482,7 +485,7 @@ namespace EffectFramework.Core.Models
             }
         }
 
-        public static Item CreateItem(Type ItemType, bool Sparse = false)
+        public static Item CreateItem(Type ItemType, bool Sparse = false, Db.IDbContext ctx = null)
         {
             if (ItemType == null)
             {
@@ -493,25 +496,25 @@ namespace EffectFramework.Core.Models
                 throw new ArgumentOutOfRangeException("Cannot create an item from this system type.");
             }
 
-            return (Item)Activator.CreateInstance(ItemType, Sparse);
+            return (Item)Activator.CreateInstance(ItemType, Sparse, ctx);
         }
 
-        public static Item CreateItem(ItemType Type, bool Sparse = false)
+        public static Item CreateItem(ItemType Type, bool Sparse = false, Db.IDbContext ctx = null)
         {
             if (Type == null)
             {
                 throw new ArgumentNullException(nameof(Type));
             }
 
-            return CreateItem(Type.Type, Sparse);
+            return CreateItem(Type.Type, Sparse, ctx);
         }
 
-        public static TItem CreateItem<TItem>(bool Sparse = false)
+        public static TItem CreateItem<TItem>(bool Sparse = false, Db.IDbContext ctx = null)
             where TItem : Item, new()
         {
             TItem Instance = new TItem();
 
-            return (TItem)CreateItem(Instance.Type, Sparse);
+            return (TItem)CreateItem(Instance.Type, Sparse, ctx);
         }
 
         public bool PerformSanityCheck()

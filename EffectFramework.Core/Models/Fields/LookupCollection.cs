@@ -95,10 +95,10 @@ namespace EffectFramework.Core.Models.Fields
             RefreshChoices();
         }
 
-        public LookupCollection(int LookupCollectionID)
+        public LookupCollection(int LookupCollectionID, IDbContext ctx = null)
         {
             this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
-            LoadById(LookupCollectionID);
+            LoadById(LookupCollectionID, ctx);
         }
 
         public LookupCollection(Db.LookupType DbLookupType)
@@ -120,13 +120,13 @@ namespace EffectFramework.Core.Models.Fields
             RefreshOriginalValues();
         }
 
-        private void LoadById(int LookupCollectionID)
+        private void LoadById(int LookupCollectionID, IDbContext ctx = null)
         {
             bool ShouldReplaceCache = false;
             LookupCollection LookupFromDatabase = (LookupCollection)CacheService.GetObject(string.Format("LookupCollection:{0}", LookupCollectionID));
             if (LookupFromDatabase == null)
             {
-                LookupFromDatabase = PersistenceService.GetLookupCollectionById(LookupCollectionID);
+                LookupFromDatabase = PersistenceService.GetLookupCollectionById(LookupCollectionID, ctx);
                 ShouldReplaceCache = true;
             }
 
@@ -262,13 +262,13 @@ namespace EffectFramework.Core.Models.Fields
             this.FlagForDeletion = true;
         }
 
-        private void RefreshChoices()
+        private void RefreshChoices(IDbContext ctx = null)
         {
             if (_Choices == null)
             {
                 if (this.LookupTypeID.HasValue)
                 {
-                    _Choices = PersistenceService.GetLookupEntries(this.LookupTypeID.Value, this).ToList();
+                    _Choices = PersistenceService.GetLookupEntries(this.LookupTypeID.Value, this, ctx).ToList();
                 }
                 else
                 {
@@ -277,9 +277,9 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public static IEnumerable<LookupCollection> GetAllLookupCollections()
+        public static IEnumerable<LookupCollection> GetAllLookupCollections(IDbContext ctx = null)
         {
-            return Configure.GetPersistenceService().GetAllLookupCollections();
+            return Configure.GetPersistenceService().GetAllLookupCollections(ctx);
         }
     }
 }

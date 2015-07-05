@@ -150,14 +150,14 @@ namespace EffectFramework.Core.Models.Fields
             LoadUpValues(Base);
         }
 
-        public FieldBase(FieldType Type, FieldBase Base, EntityBase Entity)
+        public FieldBase(FieldType Type, FieldBase Base, EntityBase Entity, IDbContext ctx = null)
         {
             this.Type = Type;
             this.Name = Type.Name;
             this.Entity = Entity;
             this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             LoadUpValues(Base);
-            TryLoadFieldMeta();
+            TryLoadFieldMeta(ctx);
         }
 
         public FieldBase(Db.Field Field)
@@ -188,7 +188,7 @@ namespace EffectFramework.Core.Models.Fields
 
         }
 
-        protected void TryLoadFieldMeta()
+        protected void TryLoadFieldMeta(IDbContext ctx = null)
         {
             if (Entity == null || Entity.Item == null)
             {
@@ -204,7 +204,7 @@ namespace EffectFramework.Core.Models.Fields
             if (RawMeta == null)
             {
                 Log.Trace("Cache returned null FieldMetaData. Getting from Database. Cache Key: {0}", FieldTypeMetaKey);
-                var FieldMeta = PersistenceService.GetFieldTypeMeta(Entity.Item.Type.Value, Entity.Type.Value, Type.Value);
+                var FieldMeta = PersistenceService.GetFieldTypeMeta(Entity.Item.Type.Value, Entity.Type.Value, Type.Value, ctx);
                 CacheService.StoreObject(FieldTypeMetaKey, FieldMeta);
 
                 MetaToUse = FieldMeta;
@@ -272,7 +272,7 @@ namespace EffectFramework.Core.Models.Fields
         }
 
 
-        public void FillFromDatabase(EntityBase Entity, FieldBase Field)
+        public void FillFromDatabase(EntityBase Entity, FieldBase Field, IDbContext ctx = null)
         {
             if (Entity.TenantID != this.TenantID ||
                 Field.TenantID != this.TenantID)
@@ -281,14 +281,14 @@ namespace EffectFramework.Core.Models.Fields
                     Entity.EntityID, Entity.TenantID, Field.FieldID, Field.TenantID, this.FieldID, this.TenantID);
                 throw new FatalException("Data error.");
             }
-            FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(Entity, Field.Type);
+            FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(Entity, Field.Type, ctx);
             LoadUpValues(Base);
         }
 
-        public void FillFromDatabase(int FieldID)
+        public void FillFromDatabase(int FieldID, IDbContext ctx = null)
         {
             this.FieldID = FieldID;
-            FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(FieldID);
+            FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(FieldID, ctx);
 
             if (Base.TenantID != this.TenantID)
             {

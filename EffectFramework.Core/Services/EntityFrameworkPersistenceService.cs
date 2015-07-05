@@ -570,15 +570,15 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, Models.Fields.FieldType FieldType)
+        public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, Models.Fields.FieldType FieldType, IDbContext ctx = null)
         {
 
             int FieldTypeID = FieldType.Value;
 
-            return RetreiveSingleFieldOrDefault(Entity, FieldTypeID);
+            return RetreiveSingleFieldOrDefault(Entity, FieldTypeID, ctx);
         }
 
-        public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, int FieldTypeID)
+        public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, int FieldTypeID, IDbContext ctx = null)
         {
             if (Entity == null)
             {
@@ -589,8 +589,17 @@ namespace EffectFramework.Core.Services
                 throw new ArgumentException("Cannot retrieve a field without an EntityID");
             }
 
-            using (var db = new EntityFramework7DBContext(ConnectionString))
+            EntityFramework7DBContext db = null;
+            try
             {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
                 var DbField = db.Fields.Where(f => f.EntityID == Entity.EntityID.Value &&
                                               f.FieldTypeID == FieldTypeID &&
                                               !f.IsDeleted).FirstOrDefault();
@@ -611,6 +620,13 @@ namespace EffectFramework.Core.Services
                 FieldBase Base = new FieldBase(DbField);
 
                 return Base;
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
             }
         }
 
@@ -653,13 +669,13 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public FieldBase RetreiveSingleFieldOrDefault<FieldT>(EntityBase Entity) where FieldT : IField, new()
+        public FieldBase RetreiveSingleFieldOrDefault<FieldT>(EntityBase Entity, IDbContext ctx = null) where FieldT : IField, new()
         {
 
             FieldT Instance = new FieldT();
             int FieldTypeID = Instance.Type.DataType.Value;
 
-            return RetreiveSingleFieldOrDefault(Entity, FieldTypeID);
+            return RetreiveSingleFieldOrDefault(Entity, FieldTypeID, ctx);
         }
 
         /*
@@ -816,7 +832,7 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public List<EntityBase> RetreiveAllEntities(Models.Item Item, DateTime? EffectiveDate = null)
+        public List<EntityBase> RetreiveAllEntities(Models.Item Item, DateTime? EffectiveDate = null, IDbContext ctx = null)
         {
             if (Item == null)
             {
@@ -836,46 +852,73 @@ namespace EffectFramework.Core.Services
                     throw new Exceptions.FatalException("Data error.");
             }
 
-            using (var db = new EntityFramework7DBContext(ConnectionString))
-            using (db.BeginTransaction())
+            EntityFramework7DBContext db = null;
+            try
             {
-
-                var DbEntityPossibilities = db.Entities
-                    .Where(e =>
-                        e.ItemID == Item.ItemID.Value &&
-                        !e.IsDeleted);
-
-
-                if (EffectiveDate.HasValue)
+                if (ctx == null)
                 {
-                    DbEntityPossibilities = DbEntityPossibilities.Where(e =>
-                        e.EffectiveDate <= EffectiveDate.Value &&
-                        (!e.EndEffectiveDate.HasValue || e.EndEffectiveDate.Value > EffectiveDate.Value)
-                    );
+                    db = new EntityFramework7DBContext(ConnectionString);
                 }
-
-                var DbEntities = DbEntityPossibilities.ToList();
-
-                List<EntityBase> Output = new List<EntityBase>();
-                foreach (var DbEntity in DbEntities)
+                else
                 {
-                    if (DbEntity.TenantID != TenantID)
+                    db = (EntityFramework7DBContext)ctx;
+                }
+                using (db.BeginTransaction())
+                {
+
+                    var DbEntityPossibilities = db.Entities
+                        .Where(e =>
+                            e.ItemID == Item.ItemID.Value &&
+                            !e.IsDeleted);
+
+
+                    if (EffectiveDate.HasValue)
                     {
-                        Log.Fatal("Tenant ID Does not match. Entity Tenant ID: {0}, Global Tenant ID: {1}",
-                            DbEntity.TenantID, TenantID);
-                        throw new Exceptions.FatalException("Data error.");
+                        DbEntityPossibilities = DbEntityPossibilities.Where(e =>
+                            e.EffectiveDate <= EffectiveDate.Value &&
+                            (!e.EndEffectiveDate.HasValue || e.EndEffectiveDate.Value > EffectiveDate.Value)
+                        );
                     }
-                    Output.Add(EntityBase.GenerateEntityFromDbObject(DbEntity, Item));
-                }
 
-                return Output;
+                    var DbEntities = DbEntityPossibilities.ToList();
+
+                    List<EntityBase> Output = new List<EntityBase>();
+                    foreach (var DbEntity in DbEntities)
+                    {
+                        if (DbEntity.TenantID != TenantID)
+                        {
+                            Log.Fatal("Tenant ID Does not match. Entity Tenant ID: {0}, Global Tenant ID: {1}",
+                                DbEntity.TenantID, TenantID);
+                            throw new Exceptions.FatalException("Data error.");
+                        }
+                        Output.Add(EntityBase.GenerateEntityFromDbObject(DbEntity, Item));
+                    }
+
+                    return Output;
+                }
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
             }
         }
 
-        public Guid RetreiveGuidForItem(Models.Item Item)
+        public Guid RetreiveGuidForItem(Models.Item Item, IDbContext ctx = null)
         {
-            using (var db = new EntityFramework7DBContext(ConnectionString))
+            EntityFramework7DBContext db = null;
+            try
             {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
                 int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
                 if (Item.TenantID != TenantID)
                 {
@@ -896,6 +939,13 @@ namespace EffectFramework.Core.Services
                 }
 
                 throw new ArgumentException("Invalid item ID passed.");
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
             }
         }
 
@@ -977,7 +1027,7 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public ObjectIdentity SaveLookupCollection(LookupCollection LookupCollection, Models.Db.IDbContext ctx = null)
+        public ObjectIdentity SaveLookupCollection(LookupCollection LookupCollection, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
             try
