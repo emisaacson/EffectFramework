@@ -12,7 +12,7 @@ namespace EffectFramework.Core.Models.Fields
     /// The base class of all Fields
     /// </summary>
     [Serializable]
-    public class FieldBase
+    public class FieldBase : ICacheable
     {
         [NonSerialized]
         protected Logger _Log;
@@ -196,7 +196,7 @@ namespace EffectFramework.Core.Models.Fields
                 return;
             }
 
-            string FieldTypeMetaKey = string.Format("FieldTypeMeta:{0}:{1}:{2}", Entity.Item.Type.Value, Entity.Type.Value, Type.Value);
+            string FieldTypeMetaKey = CacheUtility.GetCacheString<FieldTypeMetaBase>(Entity.Item.Type.Value, Entity.Type.Value, Type.Value);
 
             IFieldTypeMeta RawMeta = (IFieldTypeMeta)CacheService.GetObject(FieldTypeMetaKey);
             IFieldTypeMeta MetaToUse;
@@ -417,7 +417,7 @@ namespace EffectFramework.Core.Models.Fields
 
             if (Identity != null && Identity.DidUpdate)
             {
-                CacheService.DeleteObject(string.Format("Field:{0}", FieldID));
+                CacheService.DeleteObject(GetCacheKey());
             }
 
             RefreshOriginalValues();
@@ -530,5 +530,17 @@ namespace EffectFramework.Core.Models.Fields
                 this.OriginalValueItemReference = this.ValueItemReference;
             }
         }
+
+        public string GetCacheKey()
+        {
+            if (!this.FieldID.HasValue)
+            {
+                throw new InvalidOperationException("Cannot get cache key for an unpersisted field.");
+            }
+
+            return string.Format(CacheKeyFormatString, this.FieldID.Value);
+        }
+
+        public const string CacheKeyFormatString = "Field:{0}";
     }
 }

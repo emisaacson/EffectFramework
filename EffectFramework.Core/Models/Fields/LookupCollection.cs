@@ -8,7 +8,7 @@ using System.Linq;
 namespace EffectFramework.Core.Models.Fields
 {
     [Serializable]
-    public class LookupCollection
+    public class LookupCollection : ICacheable
     {
         [NonSerialized]
         private Logger _Log;
@@ -123,7 +123,7 @@ namespace EffectFramework.Core.Models.Fields
         private void LoadById(int LookupCollectionID, IDbContext ctx = null)
         {
             bool ShouldReplaceCache = false;
-            LookupCollection LookupFromDatabase = (LookupCollection)CacheService.GetObject(string.Format("LookupCollection:{0}", LookupCollectionID));
+            LookupCollection LookupFromDatabase = (LookupCollection)CacheService.GetObject(CacheUtility.GetCacheString<LookupCollection>(LookupCollectionID));
             if (LookupFromDatabase == null)
             {
                 LookupFromDatabase = PersistenceService.GetLookupCollectionById(LookupCollectionID, ctx);
@@ -148,7 +148,7 @@ namespace EffectFramework.Core.Models.Fields
 
             if (ShouldReplaceCache)
             {
-                CacheService.StoreObject(string.Format("LookupCollection:{0}", LookupCollectionID), LookupFromDatabase);
+                CacheService.StoreObject(LookupFromDatabase.GetCacheKey(), LookupFromDatabase);
             }
         }
 
@@ -217,7 +217,7 @@ namespace EffectFramework.Core.Models.Fields
 
             if (Identity == null || DidUpdate)
             {
-                CacheService.DeleteObject(string.Format("LookupCollection:{0}", LookupTypeID));
+                CacheService.DeleteObject(CacheUtility.GetCacheString<LookupCollection>(LookupTypeID));
             }
 
             return Identity == null ? false : DidUpdate;
@@ -281,5 +281,17 @@ namespace EffectFramework.Core.Models.Fields
         {
             return Configure.GetPersistenceService().GetAllLookupCollections(ctx);
         }
+
+        public string GetCacheKey()
+        {
+            if (!this.LookupTypeID.HasValue)
+            {
+                throw new InvalidOperationException("Cannot get a cache key for an unpersisted LookupCollection.");
+            }
+
+            return string.Format(CacheKeyFormatString, this.LookupTypeID.Value);
+        }
+
+        public const string CacheKeyFormatString = "LookupCollection:{0}";
     }
 }

@@ -8,7 +8,7 @@ namespace EffectFramework.Core.Models.Fields
     /// Base class for all FieldTypeMeta classes
     /// </summary>
     [Serializable]
-    public class FieldTypeMetaBase
+    public class FieldTypeMetaBase : ICacheable
     {
         [NonSerialized]
         protected Logger _Log;
@@ -194,5 +194,17 @@ namespace EffectFramework.Core.Models.Fields
                 this.IsRequiredQuery.QueryText = OtherMeta.IsRequiredQuery.QueryText;
             }
         }
+
+        public string GetCacheKey()
+        {
+            if (!this.FieldTypeMetaID.HasValue)
+            {
+                throw new InvalidOperationException("Cannot get cache key for an unpersisted FieldTypeMeta.");
+            }
+
+            return string.Format(CacheKeyFormatString, this.FieldTypeMetaID.Value);
+        }
+
+        public const string CacheKeyFormatString = "FieldTypeMeta:{0}:{1}:{2}";
     }
 }

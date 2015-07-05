@@ -2,7 +2,7 @@
 
 namespace EffectFramework.Core.Models.Fields
 {
-    public interface IFieldTypeMeta
+    public interface IFieldTypeMeta : ICacheable
     {
         FieldBase Field { get; set; }
         bool HasRange { get; }

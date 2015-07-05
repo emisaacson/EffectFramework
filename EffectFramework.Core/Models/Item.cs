@@ -11,7 +11,7 @@ namespace EffectFramework.Core.Models
     /// All items must inherit this base class.
     /// </summary>
     [Serializable]
-    public abstract class Item
+    public abstract class Item : ICacheable
     {
         [NonSerialized]
         protected Logger _Log;
@@ -147,7 +147,6 @@ namespace EffectFramework.Core.Models
         /// dirty and has no item ID. When persisted, an ItemID will be added to the class.
         /// </summary>
         /// <param name="Sparse">If set to <c>true</c>, only load entities for the current EffectiveRecord.</param>
-        /// <param name="ctx">Database context (optional)</param>
         public Item(bool Sparse = false)
         {
             this.Dirty = true;
@@ -316,7 +315,7 @@ namespace EffectFramework.Core.Models
 
                 if (ThisDidChange)
                 {
-                    CacheService.DeleteObject(string.Format("Item:{0}", ItemID));
+                    CacheService.DeleteObject(GetCacheKey());
                 }
 
                 return ThisDidChange;
@@ -380,6 +379,14 @@ namespace EffectFramework.Core.Models
         public static Item GetItemByID(int ItemID, Db.IDbContext ctx = null)
         {
             IPersistenceService PersistenceService = Configure.GetPersistenceService();
+            ICacheService CacheService = Configure.GetCacheService();
+
+            var MaybeCompleteItem = (Item)CacheService.GetObject(CacheUtility.GetCacheString<Item>(ItemID));
+
+            if (MaybeCompleteItem != null)
+            {
+                return MaybeCompleteItem;
+            }
             var ViewResult = PersistenceService.RetreiveCompleteItems(new int [] { ItemID }, ctx);
             var Items = GetItemsFromView(ViewResult);
             return Items.FirstOrDefault();
@@ -396,8 +403,7 @@ namespace EffectFramework.Core.Models
             List<Item> NotCachedItems = new List<Item>();
             foreach (var ItemID in ItemIDs)
             {
-                string Key = string.Format("Item:{0}", ItemID);
-                var MaybeCompleteItem = (Item)CacheService.GetObject(Key);
+                var MaybeCompleteItem = (Item)CacheService.GetObject(CacheUtility.GetCacheString<Item>(ItemID));
 
                 if (MaybeCompleteItem != null)
                 {
@@ -415,8 +421,7 @@ namespace EffectFramework.Core.Models
                 NotCachedItems = GetItemsFromView(ViewResult);
                 foreach (Item Item in NotCachedItems)
                 {
-                    string Key = string.Format("Item:{0}", Item.ItemID);
-                    CacheService.StoreObject(Key, Item);
+                    CacheService.StoreObject(Item.GetCacheKey(), Item);
                 }
             }
 
@@ -437,8 +442,8 @@ namespace EffectFramework.Core.Models
             List<Item> NotCachedItems = new List<Item>();
             foreach (var ItemID in ItemIDs)
             {
-                string Key = string.Format("Item:{0}", ItemID);
-                var MaybeCompleteItem = (Item)CacheService.GetObject(Key);
+
+                var MaybeCompleteItem = (Item)CacheService.GetObject(CacheUtility.GetCacheString<Item>(ItemID));
 
                 if (MaybeCompleteItem != null)
                 {
@@ -456,8 +461,7 @@ namespace EffectFramework.Core.Models
                 {
                     var Item = GetItemFromView(ItemID, ViewResult);
                     NotCachedItems.Add(Item);
-                    string Key = string.Format("Item:{0}", ItemID);
-                    CacheService.StoreObject(Key, Item);
+                    CacheService.StoreObject(Item.GetCacheKey(), Item);
                 }
             }
 
@@ -485,7 +489,7 @@ namespace EffectFramework.Core.Models
             }
         }
 
-        public static Item CreateItem(Type ItemType, bool Sparse = false, Db.IDbContext ctx = null)
+        public static Item CreateItem(Type ItemType, bool Sparse = false)
         {
             if (ItemType == null)
             {
@@ -496,25 +500,25 @@ namespace EffectFramework.Core.Models
                 throw new ArgumentOutOfRangeException("Cannot create an item from this system type.");
             }
 
-            return (Item)Activator.CreateInstance(ItemType, Sparse, ctx);
+            return (Item)Activator.CreateInstance(ItemType, Sparse);
         }
 
-        public static Item CreateItem(ItemType Type, bool Sparse = false, Db.IDbContext ctx = null)
+        public static Item CreateItem(ItemType Type, bool Sparse = false)
         {
             if (Type == null)
             {
                 throw new ArgumentNullException(nameof(Type));
             }
 
-            return CreateItem(Type.Type, Sparse, ctx);
+            return CreateItem(Type.Type, Sparse);
         }
 
-        public static TItem CreateItem<TItem>(bool Sparse = false, Db.IDbContext ctx = null)
+        public static TItem CreateItem<TItem>(bool Sparse = false)
             where TItem : Item, new()
         {
             TItem Instance = new TItem();
 
-            return (TItem)CreateItem(Instance.Type, Sparse, ctx);
+            return (TItem)CreateItem(Instance.Type, Sparse);
         }
 
         public bool PerformSanityCheck()
@@ -557,5 +561,24 @@ namespace EffectFramework.Core.Models
         {
             _AllEntities.RemoveAll(x => x.FlagForRemoval);
         }
+
+        internal static void ReseedCache(int ItemID)
+        {
+            ICacheService CacheService = Configure.GetCacheService();
+            CacheService.DeleteObject(CacheUtility.GetCacheString<Item>(ItemID));
+            Item Item = Item.GetItemByID(ItemID);
+        }
+
+        public string GetCacheKey()
+        {
+            if (!this.ItemID.HasValue)
+            {
+                throw new InvalidOperationException("Cannot get cache key of an unpersisted value.");
+            }
+
+            return string.Format(CacheKeyFormatString, this.ItemID.Value);
+        }
+
+        public const string CacheKeyFormatString = "Item:{0}";
     }
 }
