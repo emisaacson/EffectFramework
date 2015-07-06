@@ -10,7 +10,7 @@ using EffectFramework.Core.Exceptions;
 namespace EffectFramework.Core.Models.Entities
 {
     [Serializable]
-    public abstract class EntityBase
+    public abstract class EntityBase : ICacheable
     {
         [NonSerialized]
         protected Logger _Log;
@@ -436,7 +436,7 @@ namespace EffectFramework.Core.Models.Entities
 
             if (ThisDidUpdate)
             {
-                CacheService.DeleteObject(string.Format("Entity:{0}", EntityID));
+                CacheService.DeleteObject(GetCacheKey());
             }
 
             RefreshOriginalValues();
@@ -591,5 +591,12 @@ namespace EffectFramework.Core.Models.Entities
                 this.OriginalEndEffectiveDate = this.EndEffectiveDate;
             }
         }
+
+        public string GetCacheKey()
+        {
+            return string.Format(CacheKeyFormatString, EntityID);
+        }
+
+        public const string CacheKeyFormatString = "Entity:{0}";
     }
 }

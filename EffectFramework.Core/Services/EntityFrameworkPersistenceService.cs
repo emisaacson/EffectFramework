@@ -23,6 +23,7 @@ namespace EffectFramework.Core.Services
         public ObjectIdentity SaveSingleField(EntityBase Entity, FieldBase Field, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            Field DbField = null;
             try
             {
                 if (ctx == null)
@@ -39,7 +40,6 @@ namespace EffectFramework.Core.Services
                     throw new ArgumentNullException(nameof(Entity));
                 }
 
-                Field DbField = null;
                 bool CreatedAnew = false;
                 if (!Field.FieldID.HasValue)
                 {
@@ -110,6 +110,7 @@ namespace EffectFramework.Core.Services
                     DbField.Guid = Guid.NewGuid();
                     DbField.DeleteDate = DateTime.Now;
                     db.SaveChanges();
+
                     return null;
                 }
 
@@ -159,6 +160,7 @@ namespace EffectFramework.Core.Services
 
                 db.SaveChanges();
 
+
                 return new ObjectIdentity()
                 {
                     ObjectID = DbField.FieldID,
@@ -172,11 +174,22 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbField != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
         public ObjectIdentity SaveSingleField(FieldBase Field, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            Field DbField = null;
             try {
                 if (ctx == null)
                 {
@@ -192,7 +205,7 @@ namespace EffectFramework.Core.Services
                     throw new InvalidOperationException("Must create a new field in the context of an entity.");
                 }
 
-                Field DbField = db.Fields.Where(ef => ef.FieldID == Field.FieldID.Value).FirstOrDefault();
+                DbField = db.Fields.Where(ef => ef.FieldID == Field.FieldID.Value).FirstOrDefault();
                 if (DbField == null)
                 {
                     throw new ArgumentException("The passed field ID is not valid.");
@@ -287,12 +300,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbField != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public ObjectIdentity SaveSingleEntity(Models.Item Item, EntityBase Entity, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            Entity DbEntity = null;
             try
             {
                 if (ctx == null)
@@ -309,7 +333,6 @@ namespace EffectFramework.Core.Services
                     throw new ArgumentNullException(nameof(Item));
                 }
 
-                Entity DbEntity = null;
                 bool CreatedAnew = false;
                 if (!Entity.EntityID.HasValue)
                 {
@@ -395,12 +418,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbEntity != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntity).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public ObjectIdentity SaveSingleEntity(EntityBase Entity, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            Entity DbEntity = null;
             try
             {
                 if (ctx == null)
@@ -412,7 +446,6 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                Entity DbEntity = null;
                 if (!Entity.EntityID.HasValue)
                 {
                     throw new InvalidOperationException("Must create a new entity in the context of an item record.");
@@ -480,12 +513,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbEntity != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntity).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public ObjectIdentity SaveSingleItem(Models.Item Item, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            Models.Db.Item DbItem = null;
             try
             {
                 if (ctx == null)
@@ -497,7 +541,6 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                Models.Db.Item DbItem = null;
                 bool CreatedAnew = false;
                 if (!Item.ItemID.HasValue)
                 {
@@ -567,6 +610,16 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbItem != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Models.Db.Item>().Where(e => e.Entity == DbItem).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
@@ -590,6 +643,7 @@ namespace EffectFramework.Core.Services
             }
 
             EntityFramework7DBContext db = null;
+            Field DbField = null;
             try
             {
                 if (ctx == null)
@@ -600,7 +654,7 @@ namespace EffectFramework.Core.Services
                 {
                     db = (EntityFramework7DBContext)ctx;
                 }
-                var DbField = db.Fields.Where(f => f.EntityID == Entity.EntityID.Value &&
+                DbField = db.Fields.Where(f => f.EntityID == Entity.EntityID.Value &&
                                               f.FieldTypeID == FieldTypeID &&
                                               !f.IsDeleted).FirstOrDefault();
 
@@ -627,6 +681,16 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+                
+                // EITODO: No idea why this is necessary
+                if (db != null && DbField != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
@@ -634,6 +698,7 @@ namespace EffectFramework.Core.Services
         {
 
             EntityFramework7DBContext db = null;
+            Field DbField = null;
             try
             {
                 if (ctx == null)
@@ -647,7 +712,7 @@ namespace EffectFramework.Core.Services
 
                 int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
-                var DbField = db.Fields.Where(f => f.FieldID == FieldID &&
+                DbField = db.Fields.Where(f => f.FieldID == FieldID &&
                                               f.TenantID == TenantID &&
                                               !f.IsDeleted).FirstOrDefault();
 
@@ -665,6 +730,16 @@ namespace EffectFramework.Core.Services
                 if (db != null && ctx == null)
                 {
                     db.Dispose();
+                }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbField != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
                 }
             }
         }
@@ -729,6 +804,7 @@ namespace EffectFramework.Core.Services
                 throw new ArgumentException("Must pass an Item with a valid ID.");
             }
             EntityFramework7DBContext db = null;
+            Entity DbEntityPossibility = null;
             try
             {
                 if (ctx == null)
@@ -742,7 +818,7 @@ namespace EffectFramework.Core.Services
 
                 int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
-                var DbEntityPossibility = db.Entities
+                DbEntityPossibility = db.Entities
                     .Where(e =>
                         e.EntityID == EntityID &&
                         e.TenantID == TenantID &&
@@ -761,12 +837,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbEntityPossibility != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntityPossibility).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public void SaveAndDeleteSingleEntity(EntityBase Entity, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            Entity DbEntity = null;
             try
             {
                 if (ctx == null)
@@ -783,7 +870,6 @@ namespace EffectFramework.Core.Services
                     throw new ArgumentNullException(nameof(Entity));
                 }
 
-                Entity DbEntity = null;
                 if (!Entity.EntityID.HasValue)
                 {
                     throw new InvalidOperationException("Cannot delete an entity without an ID.");
@@ -829,6 +915,16 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbEntity != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntity).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
@@ -853,6 +949,7 @@ namespace EffectFramework.Core.Services
             }
 
             EntityFramework7DBContext db = null;
+            List<Entity> DbEntities = null;
             try
             {
                 if (ctx == null)
@@ -880,7 +977,7 @@ namespace EffectFramework.Core.Services
                         );
                     }
 
-                    var DbEntities = DbEntityPossibilities.ToList();
+                    DbEntities = DbEntityPossibilities.ToList();
 
                     List<EntityBase> Output = new List<EntityBase>();
                     foreach (var DbEntity in DbEntities)
@@ -903,12 +1000,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbEntities != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Entity>().Where(e => DbEntities.Contains(e.Entity)).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public Guid RetreiveGuidForItem(Models.Item Item, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            Models.Db.Item DbItemRecord = null;
             try
             {
                 if (ctx == null)
@@ -926,7 +1034,7 @@ namespace EffectFramework.Core.Services
                         Item.TenantID, TenantID);
                     throw new Exceptions.FatalException("Data error.");
                 }
-                var DbItemRecord = db.Items
+                DbItemRecord = db.Items
                     .Where(e =>
                         e.ItemID == Item.ItemID &&
                         e.ItemTypeID == Item.Type.Value &&
@@ -946,6 +1054,16 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbItemRecord != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Models.Db.Item>().Where(e => e.Entity == DbItemRecord).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
@@ -957,6 +1075,7 @@ namespace EffectFramework.Core.Services
         public IEnumerable<LookupCollection> GetAllLookupCollections(IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            IEnumerable<LookupType> LookupTypes = null;
             try
             {
                 if (ctx == null)
@@ -969,7 +1088,7 @@ namespace EffectFramework.Core.Services
                 }
 
                 int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
-                var LookupTypes = db.LookupTypes.Where(lt => lt.IsDeleted == false && lt.TenantID == TenantID);
+                LookupTypes = db.LookupTypes.Where(lt => lt.IsDeleted == false && lt.TenantID == TenantID);
                 List<LookupCollection> Output = new List<LookupCollection>();
                 foreach (var LookupType in LookupTypes)
                 {
@@ -984,11 +1103,22 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && LookupTypes != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => LookupTypes.Contains(e.Entity)).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
         public LookupCollection GetLookupCollectionById(int LookupTypeID, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            LookupType DbLookupType = null;
             try
             {
                 if (ctx == null)
@@ -1001,7 +1131,7 @@ namespace EffectFramework.Core.Services
                 }
 
                 int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
-                var DbLookupType = db.LookupTypes.Where(lt => lt.LookupTypeID == LookupTypeID && lt.IsDeleted == false).FirstOrDefault();
+                DbLookupType = db.LookupTypes.Where(lt => lt.LookupTypeID == LookupTypeID && lt.IsDeleted == false).FirstOrDefault();
 
                 if (DbLookupType == null)
                 {
@@ -1024,12 +1154,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbLookupType != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public ObjectIdentity SaveLookupCollection(LookupCollection LookupCollection, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            Models.Db.LookupType DbLookupType = null;
             try
             {
                 if (ctx == null)
@@ -1041,7 +1182,6 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                Models.Db.LookupType DbLookupType = null;
                 bool CreatedAnew = false;
                 if (!LookupCollection.LookupTypeID.HasValue)
                 {
@@ -1107,12 +1247,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbLookupType != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public ObjectIdentity SaveSingleLookupEntry(LookupEntry LookupEntry, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            Models.Db.Lookup DbLookup = null;
             try
             {
                 if (ctx == null)
@@ -1124,7 +1275,6 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                Models.Db.Lookup DbLookup = null;
                 bool CreatedAnew = false;
                 if (!LookupEntry.ID.HasValue)
                 {
@@ -1172,7 +1322,7 @@ namespace EffectFramework.Core.Services
                 {
                     return new ObjectIdentity()
                     {
-                        ObjectID = DbLookup.LookupTypeID,
+                        ObjectID = DbLookup.LookupID,
                         ObjectGuid = DbLookup.Guid,
                         DidUpdate = false,
                     };
@@ -1185,7 +1335,7 @@ namespace EffectFramework.Core.Services
 
                 return new ObjectIdentity()
                 {
-                    ObjectID = DbLookup.LookupTypeID,
+                    ObjectID = DbLookup.LookupID,
                     ObjectGuid = DbLookup.Guid,
                     DidUpdate = true,
                 };
@@ -1196,12 +1346,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbLookup != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Lookup>().Where(e => e.Entity == DbLookup).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public void SaveAndDeleteLookupEntry(LookupEntry LookupEntry, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            Lookup DbLookup = null;
             try
             {
                 if (ctx == null)
@@ -1217,7 +1378,7 @@ namespace EffectFramework.Core.Services
                 {
                     throw new InvalidOperationException("Cannot delete Lookup with a null ID.");
                 }
-                var DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value && i.IsDeleted == false).FirstOrDefault();
+                DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value && i.IsDeleted == false).FirstOrDefault();
 
                 if (DbLookup == null)
                 {
@@ -1249,11 +1410,22 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbLookup != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Lookup>().Where(e => e.Entity == DbLookup).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
         public void SaveAndDeleteLookupCollection(LookupCollection LookupCollection, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            LookupType DbLookupType = null;
             try
             {
                 if (ctx == null)
@@ -1269,7 +1441,7 @@ namespace EffectFramework.Core.Services
                 {
                     throw new InvalidOperationException("Cannot delete Lookup Collection with a null ID.");
                 }
-                var DbLookupType = db.LookupTypes.Where(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value && i.IsDeleted == false).FirstOrDefault();
+                DbLookupType = db.LookupTypes.Where(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value && i.IsDeleted == false).FirstOrDefault();
 
                 if (DbLookupType == null)
                 {
@@ -1301,12 +1473,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbLookupType != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public IEnumerable<LookupEntry> GetLookupEntries(int LookupTypeID, LookupCollection LookupCollection, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            IEnumerable<Lookup> DbLookups = null;
             try
             {
                 if (ctx == null)
@@ -1319,7 +1502,7 @@ namespace EffectFramework.Core.Services
                 }
 
                 int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
-                var DbLookups = db.Lookups.Where(l => l.LookupTypeID == LookupTypeID && l.IsDeleted == false);
+                DbLookups = db.Lookups.Where(l => l.LookupTypeID == LookupTypeID && l.IsDeleted == false);
 
                 List<LookupEntry> Output = new List<LookupEntry>();
                 foreach (var DbLookup in DbLookups)
@@ -1341,12 +1524,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbLookups != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<Lookup>().Where(e => DbLookups.Contains(e.Entity)).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public IEnumerable<CompleteItem> RetreiveCompleteItems(IEnumerable<int> ItemIDs, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            CompleteItem[] Items = null; 
             try
             {
                 if (ctx == null)
@@ -1359,7 +1553,7 @@ namespace EffectFramework.Core.Services
                 }
                 int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
-                CompleteItem[] Items = db.CompleteItems.Where(i => ItemIDs.Contains(i.ItemID)).ToArray();
+                Items = db.CompleteItems.Where(i => ItemIDs.Contains(i.ItemID)).ToArray();
 
                 foreach (var Item in Items)
                 {
@@ -1384,12 +1578,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && Items != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<CompleteItem>().Where(e => Items.Contains(e.Entity)).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public void RecordAudit(FieldBase Field, int? ItemID, string Comment, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            AuditLog Audit = null;
             try
             {
                 if (ctx == null)
@@ -1426,7 +1631,7 @@ namespace EffectFramework.Core.Services
                     throw new Exceptions.FatalException("Data error.");
                 }
 
-                AuditLog Audit = new AuditLog()
+                Audit = new AuditLog()
                 {
                     ItemID = Field.Entity.ItemID.Value,
                     EntityID = Field.Entity.EntityID.Value,
@@ -1462,12 +1667,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && Audit != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<AuditLog>().Where(e => e.Entity == Audit).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public void RecordAudit(EntityBase Entity, int? ItemID, string Comment, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            AuditLog Audit = null;
             try
             {
                 if (ctx == null)
@@ -1504,7 +1720,7 @@ namespace EffectFramework.Core.Services
                     throw new InvalidOperationException("Item not yet persisted for this Entity.");
                 }
 
-                AuditLog Audit = new AuditLog()
+                Audit = new AuditLog()
                 {
                     ItemID = Entity.ItemID.Value,
                     EntityID = Entity.EntityID.Value,
@@ -1529,12 +1745,23 @@ namespace EffectFramework.Core.Services
                 {
                     db.Dispose();
                 }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && Audit != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<AuditLog>().Where(e => e.Entity == Audit).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
             }
         }
 
         public IFieldTypeMeta GetFieldTypeMeta(int ItemTypeID, int EntityTypeID, int FieldTypeID, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
+            FieldTypeMeta DbFieldTypeMeta = null;
             try
             {
                 if (ctx == null)
@@ -1550,7 +1777,7 @@ namespace EffectFramework.Core.Services
                 Type SystemMetaType = FieldType.DataType.MetaType;
 
                 int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
-                var DbFieldTypeMeta = db.FieldTypeMetas.Where(f => f.ItemTypeID == ItemTypeID && f.EntityTypeID == EntityTypeID && f.FieldTypeID == FieldTypeID).FirstOrDefault();
+                DbFieldTypeMeta = db.FieldTypeMetas.Where(f => f.ItemTypeID == ItemTypeID && f.EntityTypeID == EntityTypeID && f.FieldTypeID == FieldTypeID).FirstOrDefault();
 
                 if (DbFieldTypeMeta != null && TenantID != DbFieldTypeMeta.TenantID)
                 {
@@ -1565,6 +1792,16 @@ namespace EffectFramework.Core.Services
                 if (db != null && ctx == null)
                 {
                     db.Dispose();
+                }
+
+                // EITODO: No idea why this is necessary
+                if (db != null && DbFieldTypeMeta != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<FieldTypeMeta>().Where(e => e.Entity == DbFieldTypeMeta).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
                 }
             }
         }

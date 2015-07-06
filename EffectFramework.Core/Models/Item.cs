@@ -255,12 +255,13 @@ namespace EffectFramework.Core.Models
         /// Persist the item and all of its entities to database.
         /// </summary>
         /// <param name="ctx">The database context. If one is not provided, a new one will be created with a transaction.</param>
+        /// <param name="SkipValidation">If set to true, do not validate any of the input for Dirty fields.</param>
         /// <exception cref="ValidationFailedException">Thrown if the submitted item fails field validation.</exception>
         /// <returns>True if the Item or any of its entites were changed.</returns>
-        public bool PersistToDatabase(Db.IDbContext ctx = null)
+        public bool PersistToDatabase(Db.IDbContext ctx = null, bool SkipValidation = false)
         {
             ValidationSummary Summary = Validate();
-            if (!Summary.IsValid)
+            if (!Summary.IsValid && !SkipValidation)
             {
                 throw new ValidationFailedException(Summary);
             }

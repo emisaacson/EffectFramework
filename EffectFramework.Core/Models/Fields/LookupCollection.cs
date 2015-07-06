@@ -142,13 +142,13 @@ namespace EffectFramework.Core.Models.Fields
             this.LookupTypeID = LookupFromDatabase.LookupTypeID;
             this.Guid = LookupFromDatabase.Guid;
             this.Dirty = false;
-            RefreshChoices();
+            RefreshChoices(ctx);
 
             RefreshOriginalValues();
 
             if (ShouldReplaceCache)
             {
-                CacheService.StoreObject(LookupFromDatabase.GetCacheKey(), LookupFromDatabase);
+                CacheService.StoreObject(GetCacheKey(), this);
             }
         }
 
