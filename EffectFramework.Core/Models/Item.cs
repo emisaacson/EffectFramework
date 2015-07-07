@@ -267,6 +267,7 @@ namespace EffectFramework.Core.Models
             }
 
             Db.IDbContext db = null;
+            bool ThisDidChange = false;
             try {
                 if (ctx == null)
                 {
@@ -303,7 +304,7 @@ namespace EffectFramework.Core.Models
                 {
                     Results.Add(Entity.PersistToDatabase(db));
                 }
-                bool ThisDidChange = Identity.DidUpdate || Results.Any(r => r == true);
+                ThisDidChange = Identity.DidUpdate || Results.Any(r => r == true);
 
                 RemoveDeadEntities();
 
@@ -323,8 +324,12 @@ namespace EffectFramework.Core.Models
             }
             catch (GuidMismatchException e)
             {
+                // If there's a GUID mismatch exception it might be stale cache.
+                // Clear it so it has a better chance of working next time.
                 Log.Error(string.Format("Guid Mismatch exception occurred. Item ID: {0}", ItemID), e);
                 CacheService.DeleteObject(GetCacheKey());
+
+                return ThisDidChange;
             }
             finally
             {
