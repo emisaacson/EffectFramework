@@ -329,7 +329,7 @@ namespace EffectFramework.Core.Models
                 Log.Error(string.Format("Guid Mismatch exception occurred. Item ID: {0}", ItemID), e);
                 CacheService.DeleteObject(GetCacheKey());
 
-                return ThisDidChange;
+                throw;
             }
             finally
             {
