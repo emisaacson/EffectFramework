@@ -321,6 +321,11 @@ namespace EffectFramework.Core.Models
 
                 return ThisDidChange;
             }
+            catch (GuidMismatchException e)
+            {
+                Log.Error(string.Format("Guid Mismatch exception occurred. Item ID: {0}", ItemID), e);
+                CacheService.DeleteObject(GetCacheKey());
+            }
             finally
             {
                 if (db != null && ctx == null)
