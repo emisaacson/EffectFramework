@@ -11,5 +11,6 @@
         string GetObjectAsString(string Key);
         void StoreObject(string Key, object Value);
         void DeleteObject(string Key);
+        void Flush();
     }
 }

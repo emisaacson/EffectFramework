@@ -1,5 +1,8 @@
 ﻿namespace EffectFramework.Core.Services
 {
+    /// <summary>
+    /// Takes your objects and drops them on the floor
+    /// </summary>
     public class NullCacheService : ICacheService
     {
         public string ConnectionString
@@ -53,6 +56,11 @@
         public void StoreObject(string Key, object Value)
         {
             
+        }
+
+        public void Flush()
+        {
+
         }
     }
 }
