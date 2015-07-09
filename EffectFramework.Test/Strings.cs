@@ -10,5 +10,7 @@
         public static readonly string General_Info = "General Info";
         public static readonly string First_Name = "First Name";
         public static readonly string Last_Name = "Last Name";
+        public static readonly string Dictionary = "Dictionary";
+        public static readonly string Static_User_Data = "Static User Data";
     }
 }

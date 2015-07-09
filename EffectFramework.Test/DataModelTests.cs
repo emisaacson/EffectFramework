@@ -13,6 +13,7 @@ using EffectFramework.Core;
 using Microsoft.Framework.Configuration;
 using EffectFramework.Core.Exceptions;
 using EffectFramework.Core.Models.Annotations;
+using System.Collections.Generic;
 
 namespace EffectFramework.Test
 {
@@ -443,6 +444,23 @@ namespace EffectFramework.Test
             Assert.Equal("John", Entity.First_Name.Value);
         }
 
+        [Fact]
+        public void TestObjectField()
+        {
+            User User = new User(Ef.TempItems.First().ItemID.Value);
+
+            var Entity = User.EffectiveRecord.CreateEntity<StaticUserDataEntity>();
+            Entity.Dictionary.Value = new Dictionary<string, object>()
+            {
+                { "TestKey", "TestValue" }
+            };
+
+            User.PersistToDatabase();
+            User.Load();
+            Entity = User.EffectiveRecord.GetFirstEntityOrDefault<StaticUserDataEntity>();
+            Assert.Equal("TestValue", (string)Entity.Dictionary.Value["TestKey"]);
+        }
+
         public void Dispose()
         {
             //ef.TearDownEF7Database();
@@ -468,6 +486,7 @@ namespace EffectFramework.Test
         public static readonly TestEntityType User_Role = new TestEntityType(Strings.Job, 1, typeof(UserTypeEntity));
         public static readonly TestEntityType Address = new TestEntityType(Strings.Address, 2, typeof(AddressEntity));
         public static readonly TestEntityType General_Info = new TestEntityType(Strings.General_Info, 3, typeof(GeneralInfoEntity));
+        public static readonly TestEntityType Static_User_Data = new TestEntityType(Strings.Static_User_Data, 6, typeof(StaticUserDataEntity));
 
         protected TestEntityType(string Name, int Value, Type Type) : base(Name, Value, Type) { }
     }
@@ -481,6 +500,7 @@ namespace EffectFramework.Test
         public static readonly TestFieldType User_Start_Date = new TestFieldType(Strings.Start_Date, 3, DataType.Date);
         public static readonly TestFieldType First_Name = new TestFieldType(Strings.First_Name, 4, DataType.Text);
         public static readonly TestFieldType Last_Name = new TestFieldType(Strings.Last_Name, 5, DataType.Text);
+        public static readonly TestFieldType Dict = new TestFieldType(Strings.Dictionary, 26, DataType.Object);
 
     }
 
@@ -527,6 +547,30 @@ namespace EffectFramework.Test
         {
 
         }
+    }
+
+    [ApplyPolicy(typeof(SingletonPolicy))]
+    public class StaticUserDataEntity : EntityBase
+    {
+        public override Core.Models.Entities.EntityType Type {
+            get
+            {
+                return TestEntityType.Static_User_Data;
+            }
+        }
+
+        public StaticUserDataEntity(Core.Models.Item Item, Entity DbEntity, IDbContext ctx = null)
+            : base(Item, DbEntity, ctx)
+        {
+
+        }
+
+        protected override void WireUpFields()
+        {
+            Dictionary = new FieldObject<Dictionary<string, object>>(TestFieldType.Dict, this);
+        }
+
+        public FieldObject<Dictionary<string, object>> Dictionary { get; private set; }
     }
 
     [ApplyPolicy(typeof(NoOverlapPolicy))]

@@ -149,6 +149,10 @@ namespace EffectFramework.Core.Services
                 {
                     DbField.ValueBinary = (byte[])((IField)Field).Value;
                 }
+                else if (Field.Type.DataType == DataType.Object)
+                {
+                    DbField.ValueBinary = (byte[])((IField)Field).DereferencedValue;
+                }
                 else if (Field.Type.DataType == DataType.EntityReference)
                 {
                     DbField.ValueEntityReference = (int?)((IField)Field).Value;
@@ -275,6 +279,14 @@ namespace EffectFramework.Core.Services
                 else if (Field.Type.DataType == DataType.Text)
                 {
                     DbField.ValueText = (string)((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.Binary)
+                {
+                    DbField.ValueBinary = (byte[])((IField)Field).Value;
+                }
+                else if (Field.Type.DataType == DataType.Object)
+                {
+                    DbField.ValueBinary = (byte[])((IField)Field).DereferencedValue;
                 }
                 else if (Field.Type.DataType == DataType.EntityReference)
                 {
@@ -1169,6 +1181,10 @@ namespace EffectFramework.Core.Services
 
         public ObjectIdentity SaveLookupCollection(LookupCollection LookupCollection, IDbContext ctx = null)
         {
+            if (LookupCollection.IsReadOnly)
+            {
+                throw new InvalidOperationException("Cannot save a read only collection.");
+            }
             EntityFramework7DBContext db = null;
             Models.Db.LookupType DbLookupType = null;
             try
@@ -1284,6 +1300,11 @@ namespace EffectFramework.Core.Services
                         throw new InvalidOperationException("Cannot create a lookup entry without a Lookup Collection with an ID.");
                     }
 
+                    if (LookupEntry.LookupCollection.IsReadOnly)
+                    {
+                        throw new InvalidOperationException("Cannot save a read-only collection entry.");
+                    }
+
                     DbLookup = new Models.Db.Lookup()
                     {
                         IsDeleted = false,
@@ -1299,6 +1320,10 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
+                    if (LookupEntry.LookupCollection.IsReadOnly)
+                    {
+                        throw new InvalidOperationException("Cannot save read-only collection entry.");
+                    }
                     DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value && i.IsDeleted == false).FirstOrDefault();
                 }
 
@@ -1424,6 +1449,10 @@ namespace EffectFramework.Core.Services
         }
         public void SaveAndDeleteLookupCollection(LookupCollection LookupCollection, IDbContext ctx = null)
         {
+            if (LookupCollection.IsReadOnly)
+            {
+                throw new InvalidOperationException("Cannot save a read only collection.");
+            }
             EntityFramework7DBContext db = null;
             LookupType DbLookupType = null;
             try
@@ -1642,8 +1671,10 @@ namespace EffectFramework.Core.Services
                     ValueDateNew = Field is FieldDate ? ((FieldDate)Field).Value : null,
                     ValueBooleanOld = Field is FieldBool ? ((FieldBool)Field).OriginalValue : null,
                     ValueBooleanNew = Field is FieldBool ? ((FieldBool)Field).Value : null,
-                    ValueBinaryOld = Field is FieldBinary ? ((FieldBinary)Field).OriginalValue : null,
-                    ValueBinaryNew = Field is FieldBinary ? ((FieldBinary)Field).Value : null,
+                    ValueBinaryOld = Field is FieldBinary ? ((FieldBinary)Field).OriginalValue : 
+                                     Field.Type.DataType == DataType.Object ? (byte[])((IField)Field).OriginalDereferencedValue : null,
+                    ValueBinaryNew = Field is FieldBinary ? ((FieldBinary)Field).Value :
+                                     Field.Type.DataType == DataType.Object ? (byte[])((IField)Field).DereferencedValue : null,
                     ValueLookupOld = Field is FieldLookup ? ((FieldLookup)Field).OriginalValue : null,
                     ValueLookupNew = Field is FieldLookup ? ((FieldLookup)Field).Value : null,
                     ValueEntityReferenceOld = Field is FieldEntityReference ? ((FieldEntityReference)Field).OriginalValue : null,

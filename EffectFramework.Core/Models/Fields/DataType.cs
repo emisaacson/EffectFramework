@@ -55,6 +55,7 @@ namespace EffectFramework.Core.Models.Fields
         public static readonly DataType Binary = new DataType(6, typeof(byte[]), typeof(byte[]));
         public static readonly DataType ItemReference = new DataType(7, typeof(int?), typeof(Item));
         public static readonly DataType EntityReference = new DataType(8, typeof(int?), typeof(EntityBase));
+        public static readonly DataType Object = new DataType(9, typeof(object), typeof(object));
 
         public static implicit operator int (DataType dt)
         {
@@ -81,6 +82,8 @@ namespace EffectFramework.Core.Models.Fields
                     return ItemReference;
                 case 8:
                     return EntityReference;
+                case 9:
+                    return Object;
                 default:
                     throw new InvalidCastException(string.Format("Cannot convert the int value {0} to a DataType instance.", i));
             }

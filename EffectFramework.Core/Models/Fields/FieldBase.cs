@@ -268,6 +268,11 @@ namespace EffectFramework.Core.Models.Fields
             }
             this.Dirty = false;
 
+            if (this is ISerializableField)
+            {
+                ((ISerializableField)this).DeserializeField();
+            }
+
             RefreshOriginalValues();
         }
 
@@ -322,6 +327,11 @@ namespace EffectFramework.Core.Models.Fields
 
             this.Guid         = View.EntityFieldGuid;
             this.Dirty        = false;
+
+            if (this is ISerializableField)
+            {
+                ((ISerializableField)this).DeserializeField();
+            }
 
             RefreshOriginalValues();
         }
@@ -387,6 +397,11 @@ namespace EffectFramework.Core.Models.Fields
                 Log.Fatal("TenantID mismatch. Global TenantID: {0}, Field TenantID: {1}, Entity TenantID: {2}",
                     Configure.GetTenantResolutionProvider().GetTenantID(), this.TenantID, this.Entity?.TenantID);
                 throw new FatalException("Invalid data exception.");
+            }
+
+            if (this is ISerializableField)
+            {
+                ((ISerializableField)this).SerializeField();
             }
 
             PersistenceService.RecordAudit(this, null, null, ctx);

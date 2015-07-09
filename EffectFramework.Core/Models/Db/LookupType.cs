@@ -9,5 +9,6 @@ namespace EffectFramework.Core.Models.Db
         public bool IsDeleted { get; set; }
         public Guid Guid { get; set; }
         public int TenantID { get; set; }
+        public bool IsReadOnly { get; set; } = false;
     }
 }

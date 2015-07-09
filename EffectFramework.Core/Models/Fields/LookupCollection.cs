@@ -47,6 +47,7 @@ namespace EffectFramework.Core.Models.Fields
         }
         public string OriginalName { get; private set; }
         public int? LookupTypeID { get; private set; }
+        public bool IsReadOnly { get; private set; }
 
         public bool FlagForDeletion { get; private set; } = false;
 
@@ -115,6 +116,7 @@ namespace EffectFramework.Core.Models.Fields
             this.LookupTypeID = DbLookupType.LookupTypeID;
             this.Guid = DbLookupType.Guid;
             this.Dirty = false;
+            this.IsReadOnly = DbLookupType.IsReadOnly;
             RefreshChoices();
 
             RefreshOriginalValues();
@@ -142,6 +144,7 @@ namespace EffectFramework.Core.Models.Fields
             this.LookupTypeID = LookupFromDatabase.LookupTypeID;
             this.Guid = LookupFromDatabase.Guid;
             this.Dirty = false;
+            this.IsReadOnly = LookupFromDatabase.IsReadOnly;
             RefreshChoices(ctx);
 
             RefreshOriginalValues();
@@ -154,6 +157,11 @@ namespace EffectFramework.Core.Models.Fields
 
         public bool PersistToDatabase(Db.IDbContext ctx = null)
         {
+            if (IsReadOnly)
+            {
+                Log.Error("Cannot save read only collection.");
+                throw new FatalException("Cannot save read only collection.");
+            }
             if (!PerformSanityCheck())
             {
                 Log.Fatal("TenantID mismatch. Global TenantID: {0}, Lookup TenantID: {1}",

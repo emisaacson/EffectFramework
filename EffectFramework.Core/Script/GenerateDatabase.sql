@@ -290,6 +290,7 @@ CREATE TABLE [dbo].[LookupTypes](
 	[IsDeleted] [bit] NOT NULL,
 	[Guid] [uniqueidentifier] NOT NULL,
 	[TenantID] [int] NOT NULL,
+	[IsReadOnly] [bit] NOT NULL CONSTRAINT [DF_LookupTypes_IsReadOnly]  DEFAULT ((0)),
  CONSTRAINT [PK_LookupTypes] PRIMARY KEY CLUSTERED 
 (
 	[LookupTypeID] ASC
@@ -614,4 +615,6 @@ GO
 INSERT [dbo].[DataTypes] ([DataTypeID], [Name]) VALUES (7, N'Item Reference')
 GO
 INSERT [dbo].[DataTypes] ([DataTypeID], [Name]) VALUES (8, N'Entity Reference')
+GO
+INSERT [dbo].[DataTypes] ([DataTypeID], [Name]) VALUES (9, N'Object')
 GO
