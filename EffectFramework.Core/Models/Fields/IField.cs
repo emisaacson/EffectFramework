@@ -9,7 +9,7 @@
         object DereferencedValue { get; }
         object OriginalValue { get; }
         object OriginalDereferencedValue { get; }
-        int? FieldID { get; }
+        long? FieldID { get; }
         FieldType Type { get; }
         IFieldTypeMeta Meta { get; }
         bool ValueEquals(object Value);

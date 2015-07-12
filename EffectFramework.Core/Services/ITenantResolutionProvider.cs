@@ -2,7 +2,7 @@
 {
     public interface ITenantResolutionProvider
     {
-        int GetTenantID();
+        long GetTenantID();
         string GetTenantDatabase();
     }
 }

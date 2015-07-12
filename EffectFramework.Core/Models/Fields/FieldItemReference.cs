@@ -6,7 +6,7 @@ namespace EffectFramework.Core.Models.Fields
     [Serializable]
     public class FieldItemReference : FieldBase, IField
     {
-        public int? Value
+        public long? Value
         {
             get
             {
@@ -14,8 +14,8 @@ namespace EffectFramework.Core.Models.Fields
             }
             set
             {
-                int? _Value = value;
-                if (_Value.HasValue && _Value.Value == default(int))
+                long? _Value = value;
+                if (_Value.HasValue && _Value.Value == default(long))
                 {
                     _Value = null;
                 }
@@ -36,12 +36,12 @@ namespace EffectFramework.Core.Models.Fields
 
             set
             {
-                if (value != null && !typeof(int?).IsAssignableFrom(value.GetType()))
+                if (value != null && !typeof(long?).IsAssignableFrom(value.GetType()))
                 {
-                    throw new InvalidCastException("Must assign a int key to an entity reference field.");
+                    throw new InvalidCastException("Must assign a long key to an entity reference field.");
                 }
-                int? _Value = (int?)value;
-                if (_Value.HasValue && _Value.Value == default(int))
+                long? _Value = (int?)value;
+                if (_Value.HasValue && _Value.Value == default(long))
                 {
                     _Value = null;
                 }
@@ -96,7 +96,7 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public int? OriginalValue
+        public long? OriginalValue
         {
             get
             {
@@ -141,9 +141,9 @@ namespace EffectFramework.Core.Models.Fields
             {
                 return ((Item)Value).ItemID.HasValue && this.Value.Value == ((Item)Value).ItemID.Value;
             }
-            else if (Value is int)
+            else if (Value is long || Value is int)
             {
-                return this.Value.Value == (int)Value;
+                return this.Value.Value == (long)Value;
             }
             return false;
         }

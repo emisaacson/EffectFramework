@@ -34,10 +34,10 @@ GO
 SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[AuditLog](
-	[AuditLogID] [int] IDENTITY(1,1) NOT NULL,
-	[ItemID] [int] NOT NULL,
-	[EntityID] [int] NOT NULL,
-	[FieldID] [int] NULL,
+	[AuditLogID] [bigint] IDENTITY(1,1) NOT NULL,
+	[ItemID] [bigint] NOT NULL,
+	[EntityID] [bigint] NOT NULL,
+	[FieldID] [bigint] NULL,
 	[EffectiveDateOld] [datetime] NULL,
 	[EffectiveDateNew] [datetime] NULL,
 	[EndEffectiveDateOld] [datetime] NULL,
@@ -50,18 +50,18 @@ CREATE TABLE [dbo].[AuditLog](
 	[ValueDecimalNew] [decimal](18, 4) NULL,
 	[ValueBooleanOld] [bit] NULL,
 	[ValueBooleanNew] [bit] NULL,
-	[ValueLookupOld] [int] NULL,
-	[ValueLookupNew] [int] NULL,
+	[ValueLookupOld] [bigint] NULL,
+	[ValueLookupNew] [bigint] NULL,
 	[ValueBinaryOld] [varbinary](max) NULL,
 	[ValueBinaryNew] [varbinary](max) NULL,
-	[ValueItemReferenceOld] [int] NULL,
-	[ValueItemReferenceNew] [int] NULL,
-	[ValueEntityReferenceOld] [int] NULL,
-	[ValueEntityReferenceNew] [int] NULL,
+	[ValueItemReferenceOld] [bigint] NULL,
+	[ValueItemReferenceNew] [bigint] NULL,
+	[ValueEntityReferenceOld] [bigint] NULL,
+	[ValueEntityReferenceNew] [bigint] NULL,
 	[CreateDate] [datetime] NOT NULL,
-	[ItemReference] [int] NULL,
+	[ItemReference] [bigint] NULL,
 	[Comment] [nvarchar](max) NULL,
-	[TenantID] [int] NOT NULL,
+	[TenantID] [bigint] NOT NULL,
  CONSTRAINT [PK_AuditLog] PRIMARY KEY CLUSTERED 
 (
 	[AuditLogID] ASC
@@ -77,7 +77,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[DataTypes](
-	[DataTypeID] [int] NOT NULL,
+	[DataTypeID] [bigint] NOT NULL,
 	[Name] [nvarchar](1024) NOT NULL,
  CONSTRAINT [PK_DataTypes] PRIMARY KEY CLUSTERED 
 (
@@ -92,20 +92,20 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Entities](
-	[EntityID] [int] IDENTITY(1,1) NOT NULL,
-	[EntityTypeID] [int] NOT NULL,
-	[ItemID] [int] NOT NULL,
+	[EntityID] [bigint] IDENTITY(1,1) NOT NULL,
+	[EntityTypeID] [bigint] NOT NULL,
+	[ItemID] [bigint] NOT NULL,
 	[EffectiveDate] [datetime] NOT NULL,
 	[EndEffectiveDate] [datetime] NULL,
 	[IsDeleted] [bit] NOT NULL,
 	[Guid] [uniqueidentifier] NOT NULL,
 	[CreateDate] [datetime] NULL,
-	[CreateItemReference] [int] NULL,
+	[CreateItemReference] [bigint] NULL,
 	[CreateComment] [nvarchar](max) NULL,
 	[DeleteDate] [datetime] NULL,
-	[DeleteItemReference] [int] NULL,
+	[DeleteItemReference] [bigint] NULL,
 	[DeleteItemComment] [nvarchar](max) NULL,
-	[TenantID] [int] NOT NULL,
+	[TenantID] [bigint] NOT NULL,
  CONSTRAINT [PK_Entities] PRIMARY KEY CLUSTERED 
 (
 	[EntityID] ASC
@@ -119,9 +119,9 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[EntityTypes](
-	[EntityTypeID] [int] NOT NULL,
+	[EntityTypeID] [bigint] NOT NULL,
 	[Name] [nvarchar](1024) NOT NULL,
-	[TenantID] [int] NOT NULL,
+	[TenantID] [bigint] NOT NULL,
  CONSTRAINT [PK_EntityTypes] PRIMARY KEY CLUSTERED 
 (
 	[EntityTypeID] ASC
@@ -137,26 +137,26 @@ GO
 SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[Fields](
-	[FieldID] [int] IDENTITY(1,1) NOT NULL,
-	[FieldTypeID] [int] NOT NULL,
-	[EntityID] [int] NOT NULL,
+	[FieldID] [bigint] IDENTITY(1,1) NOT NULL,
+	[FieldTypeID] [bigint] NOT NULL,
+	[EntityID] [bigint] NOT NULL,
 	[ValueText] [nvarchar](max) NULL,
 	[ValueDate] [datetime] NULL,
 	[ValueDecimal] [decimal](18, 4) NULL,
 	[ValueBoolean] [bit] NULL,
-	[ValueLookup] [int] NULL,
+	[ValueLookup] [bigint] NULL,
 	[ValueBinary] [varbinary](max) NULL,
-	[ValueItemReference] [int] NULL,
-	[ValueEntityReference] [int] NULL,
+	[ValueItemReference] [bigint] NULL,
+	[ValueEntityReference] [bigint] NULL,
 	[IsDeleted] [bit] NOT NULL,
 	[Guid] [uniqueidentifier] NOT NULL,
 	[CreateDate] [datetime] NOT NULL,
-	[CreateItemReference] [int] NULL,
+	[CreateItemReference] [bigint] NULL,
 	[CreateComment] [nvarchar](max) NULL,
 	[DeleteDate] [datetime] NULL,
-	[DeleteItemReference] [int] NULL,
+	[DeleteItemReference] [bigint] NULL,
 	[DeleteItemComment] [nvarchar](max) NULL,
-	[TenantID] [int] NOT NULL,
+	[TenantID] [bigint] NOT NULL,
  CONSTRAINT [PK_Fields] PRIMARY KEY CLUSTERED 
 (
 	[FieldID] ASC
@@ -172,10 +172,10 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[FieldTypeMeta](
-	[FieldTypeMetaID] [int] IDENTITY(1,1) NOT NULL,
-	[ItemTypeID] [int] NOT NULL,
-	[EntityTypeID] [int] NOT NULL,
-	[FieldTypeID] [int] NOT NULL,
+	[FieldTypeMetaID] [bigint] IDENTITY(1,1) NOT NULL,
+	[ItemTypeID] [bigint] NOT NULL,
+	[EntityTypeID] [bigint] NOT NULL,
+	[FieldTypeID] [bigint] NOT NULL,
 	[IsRequired] [bit] NULL,
 	[IsRequiredQuery] [nvarchar](max) NULL,
 	[DecimalMin] [decimal](18, 4) NULL,
@@ -188,7 +188,7 @@ CREATE TABLE [dbo].[FieldTypeMeta](
 	[DatetimeMaxQuery] [nvarchar](max) NULL,
 	[TextRegex] [nvarchar](max) NULL,
 	[TextRegexQuery] [nvarchar](max) NULL,
-	[TenantID] [int] NOT NULL,
+	[TenantID] [bigint] NOT NULL,
  CONSTRAINT [PK_FieldTypeMeta] PRIMARY KEY CLUSTERED 
 (
 	[FieldTypeMetaID] ASC
@@ -208,11 +208,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[FieldTypes](
-	[FieldTypeID] [int] NOT NULL,
+	[FieldTypeID] [bigint] NOT NULL,
 	[Name] [nvarchar](1024) NOT NULL,
-	[DataTypeID] [int] NOT NULL,
-	[LookupTypeID] [int] NULL,
-	[TenantID] [int] NOT NULL,
+	[DataTypeID] [bigint] NOT NULL,
+	[LookupTypeID] [bigint] NULL,
+	[TenantID] [bigint] NOT NULL,
  CONSTRAINT [PK_FieldTypes] PRIMARY KEY CLUSTERED 
 (
 	[FieldTypeID] ASC
@@ -226,11 +226,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Items](
-	[ItemID] [int] IDENTITY(1,1) NOT NULL,
+	[ItemID] [bigint] IDENTITY(1,1) NOT NULL,
 	[IsDeleted] [bit] NOT NULL,
 	[Guid] [uniqueidentifier] NOT NULL,
-	[ItemTypeID] [int] NOT NULL,
-	[TenantID] [int] NOT NULL,
+	[ItemTypeID] [bigint] NOT NULL,
+	[TenantID] [bigint] NOT NULL,
  CONSTRAINT [PK_Items] PRIMARY KEY CLUSTERED 
 (
 	[ItemID] ASC
@@ -244,9 +244,9 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[ItemTypes](
-	[ItemTypeID] [int] NOT NULL,
+	[ItemTypeID] [bigint] NOT NULL,
 	[Name] [nvarchar](1024) NOT NULL,
-	[TenantID] [int] NOT NULL,
+	[TenantID] [bigint] NOT NULL,
  CONSTRAINT [PK_ItemTypes] PRIMARY KEY CLUSTERED 
 (
 	[ItemTypeID] ASC
@@ -262,12 +262,12 @@ GO
 SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[Lookups](
-	[LookupID] [int] IDENTITY(1,1) NOT NULL,
+	[LookupID] [bigint] IDENTITY(1,1) NOT NULL,
 	[Value] [varchar](max) NOT NULL,
-	[LookupTypeID] [int] NOT NULL,
+	[LookupTypeID] [bigint] NOT NULL,
 	[IsDeleted] [bit] NOT NULL,
 	[Guid] [uniqueidentifier] NOT NULL,
-	[TenantID] [int] NOT NULL,
+	[TenantID] [bigint] NOT NULL,
  CONSTRAINT [PK_Lookups] PRIMARY KEY CLUSTERED 
 (
 	[LookupID] ASC
@@ -285,11 +285,11 @@ GO
 SET ANSI_PADDING ON
 GO
 CREATE TABLE [dbo].[LookupTypes](
-	[LookupTypeID] [int] IDENTITY(1,1) NOT NULL,
+	[LookupTypeID] [bigint] IDENTITY(1,1) NOT NULL,
 	[Name] [varchar](1024) NOT NULL,
 	[IsDeleted] [bit] NOT NULL,
 	[Guid] [uniqueidentifier] NOT NULL,
-	[TenantID] [int] NOT NULL,
+	[TenantID] [bigint] NOT NULL,
 	[IsReadOnly] [bit] NOT NULL CONSTRAINT [DF_LookupTypes_IsReadOnly]  DEFAULT ((0)),
  CONSTRAINT [PK_LookupTypes] PRIMARY KEY CLUSTERED 
 (
@@ -306,7 +306,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Tenants](
-	[TenantID] [int] IDENTITY(1,1) NOT NULL,
+	[TenantID] [bigint] IDENTITY(1,1) NOT NULL,
 	[Name] [nvarchar](1000) NOT NULL,
 	[IsDeleted] [bit] NOT NULL,
  CONSTRAINT [PK_Tenants] PRIMARY KEY CLUSTERED 

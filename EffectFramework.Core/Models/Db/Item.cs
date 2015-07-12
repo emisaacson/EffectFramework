@@ -5,11 +5,11 @@ namespace EffectFramework.Core.Models.Db
 {
     public class Item
     {
-        public int? ItemID { get; set; }
-        public int ItemTypeID { get; set; }
+        public long? ItemID { get; set; }
+        public long ItemTypeID { get; set; }
         public bool IsDeleted { get; set; }
         public Guid Guid { get; set; }
-        public int TenantID { get; set; }
+        public long TenantID { get; set; }
 
         public List<Entity> Entities { get; set; }
     }

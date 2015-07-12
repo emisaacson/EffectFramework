@@ -4,7 +4,7 @@
     {
         object GetObject(string Key);
         byte[] GetObjectAsByteArray(string Key);
-        int? GetObjectAsInt(string Key);
+        long? GetObjectAsInt(string Key);
         bool? GetObjectAsBool(string Key);
         long? GetObjectAsLong(string Key);
         double? GetObjectAsDouble(string Key);

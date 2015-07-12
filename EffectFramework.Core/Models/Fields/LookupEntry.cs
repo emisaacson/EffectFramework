@@ -52,7 +52,7 @@ namespace EffectFramework.Core.Models.Fields
                 return _CacheService;
             }
         }
-        public int? ID { get; private set; }
+        public long? ID { get; private set; }
         private string _Value;
         public string Value
         {
@@ -73,7 +73,7 @@ namespace EffectFramework.Core.Models.Fields
                 }
             }
         }
-        public int TenantID { get; private set; }
+        public long TenantID { get; private set; }
         public Guid Guid { get; private set; }
         public bool Dirty { get; private set; }
 
@@ -92,9 +92,9 @@ namespace EffectFramework.Core.Models.Fields
             this.LookupCollection = LookupCollection;
         }
 
-        public LookupEntry(int ID, string Value, int TenantID, Guid Guid, LookupCollection LookupCollection)
+        public LookupEntry(long ID, string Value, long TenantID, Guid Guid, LookupCollection LookupCollection)
         {
-            int _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            long _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
             if (_TenantID != TenantID)
             {
@@ -152,7 +152,7 @@ namespace EffectFramework.Core.Models.Fields
 
         public bool PerformSanityCheck()
         {
-            int _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            long _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
             if (_TenantID != this.TenantID)
             {

@@ -2,11 +2,11 @@
 {
     public class FieldType
     {
-        public int FieldTypeID { get; set; }
+        public long FieldTypeID { get; set; }
         public string Name { get; set; }
-        public int DataTypeID { get; set; }
-        public int? LookupTypeID { get; set; }
-        public int TenantID { get; set; }
+        public long DataTypeID { get; set; }
+        public long? LookupTypeID { get; set; }
+        public long TenantID { get; set; }
 
     }
 }

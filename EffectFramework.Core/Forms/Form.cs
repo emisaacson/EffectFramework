@@ -41,7 +41,7 @@ namespace EffectFramework.Core.Forms
         /// done by pulling it from the supplied EntityID instead of from the
         /// value on the form.
         /// </remarks>
-        protected Dictionary<string, int> FormMembersNotToChange = new Dictionary<string, int>();
+        protected Dictionary<string, long> FormMembersNotToChange = new Dictionary<string, long>();
         protected Dictionary<Type, Item> BoundItems { get; set; }
 
 
@@ -558,8 +558,8 @@ namespace EffectFramework.Core.Forms
                     if (BoundItem.GetType() == MemberItemType)
                     {
                         // Get the entity ID. If 0 is found, assume null.
-                        int? EntityIDFromForm = (int?)this.GetType().GetProperty(MemberIDMemberName).GetValue(this);
-                        if (EntityIDFromForm.HasValue && EntityIDFromForm.Value == default(int))
+                        long? EntityIDFromForm = (long?)this.GetType().GetProperty(MemberIDMemberName).GetValue(this);
+                        if (EntityIDFromForm.HasValue && EntityIDFromForm.Value == default(long))
                         {
                             EntityIDFromForm = null;
                         }
@@ -656,7 +656,7 @@ namespace EffectFramework.Core.Forms
                                 else
                                 {
                                     // If an EntityID was sent to copy from, get it and try to copy the value from it.
-                                    int PreviousEntityID = FormMembersNotToChange[MemberName];
+                                    long PreviousEntityID = FormMembersNotToChange[MemberName];
                                     EntityBase PreviousEntity = BoundItem.AllEntities.Where(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID).FirstOrDefault();
                                     if (PreviousEntity != null)
                                     {
@@ -685,7 +685,7 @@ namespace EffectFramework.Core.Forms
                                 else
                                 {
                                     // If an EntityID was sent to copy from, get it and try to copy the value from it.
-                                    int PreviousEntityID = FormMembersNotToChange[MemberName];
+                                    long PreviousEntityID = FormMembersNotToChange[MemberName];
                                     EntityBase PreviousEntity = BoundItem.AllEntities.Where(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID).FirstOrDefault();
                                     if (PreviousEntity != null)
                                     {
@@ -726,7 +726,7 @@ namespace EffectFramework.Core.Forms
                                 else
                                 {
                                     // If an EntityID was sent to copy from, get it and try to copy the value from it.
-                                    int PreviousEntityID = FormMembersNotToChange[MemberName];
+                                    long PreviousEntityID = FormMembersNotToChange[MemberName];
                                     EntityBase PreviousEntity = BoundItem.AllEntities.Where(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID).FirstOrDefault();
                                     if (PreviousEntity != null)
                                     {

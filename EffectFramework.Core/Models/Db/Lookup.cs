@@ -4,11 +4,11 @@ namespace EffectFramework.Core.Models.Db
 {
     public class Lookup
     {
-        public int LookupID { get; set; }
+        public long LookupID { get; set; }
         public string Value { get; set; }
-        public int LookupTypeID { get; set; }
+        public long LookupTypeID { get; set; }
         public bool IsDeleted { get; set; }
         public Guid Guid { get; set; }
-        public int TenantID { get; set; }
+        public long TenantID { get; set; }
     }
 }

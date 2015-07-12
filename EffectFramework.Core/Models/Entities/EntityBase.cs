@@ -27,11 +27,11 @@ namespace EffectFramework.Core.Models.Entities
         }
 
         public abstract EntityType Type { get; }
-        public int? EntityID { get; protected set; }
-        public int? ItemID { get; protected set; }
+        public long? EntityID { get; protected set; }
+        public long? ItemID { get; protected set; }
         public Guid Guid { get; protected set; }
         public bool Dirty { get; protected set; }
-        public virtual int TenantID { get; protected set; }
+        public virtual long TenantID { get; protected set; }
 
         private Item _Item;
         public Item Item {
@@ -477,7 +477,7 @@ namespace EffectFramework.Core.Models.Entities
 
         public bool PerformSanityCheck()
         {
-            int _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            long _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
             if (_TenantID != this.TenantID)
             {
@@ -528,7 +528,7 @@ namespace EffectFramework.Core.Models.Entities
                 throw new ArgumentNullException(nameof(DbEntity));
             }
 
-            int EntityTypeID = DbEntity.EntityTypeID;
+            long EntityTypeID = DbEntity.EntityTypeID;
             EntityType EntityType = (EntityType)EntityTypeID;
 
             if (typeof(EntityT) != EntityType.Type)
@@ -553,7 +553,7 @@ namespace EffectFramework.Core.Models.Entities
                 throw new ArgumentNullException(nameof(DbEntity));
             }
 
-            int EntityTypeID = DbEntity.EntityTypeID;
+            long EntityTypeID = DbEntity.EntityTypeID;
             EntityType EntityType = (EntityType)EntityTypeID;
 
             if (!typeof(EntityBase).IsAssignableFrom(EntityType.Type))

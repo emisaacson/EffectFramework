@@ -2,8 +2,8 @@
 {
     public class ItemType
     {
-        public int ItemTypeID { get; set; }
+        public long ItemTypeID { get; set; }
         public string Name { get; set; }
-        public int TenantID { get; set; }
+        public long TenantID { get; set; }
     }
 }

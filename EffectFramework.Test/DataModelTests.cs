@@ -479,7 +479,7 @@ namespace EffectFramework.Test
 
         [EffectiveDate]
         public DateTime Effective_Date { get; set; }
-        public int? GeneralInfoID { get; set; }
+        public long? GeneralInfoID { get; set; }
     }
     public class TestEntityType : Core.Models.Entities.EntityType
     {
@@ -488,12 +488,12 @@ namespace EffectFramework.Test
         public static readonly TestEntityType General_Info = new TestEntityType(Strings.General_Info, 3, typeof(GeneralInfoEntity));
         public static readonly TestEntityType Static_User_Data = new TestEntityType(Strings.Static_User_Data, 6, typeof(StaticUserDataEntity));
 
-        protected TestEntityType(string Name, int Value, Type Type) : base(Name, Value, Type) { }
+        protected TestEntityType(string Name, long Value, Type Type) : base(Name, Value, Type) { }
     }
 
     public class TestFieldType : Core.Models.Fields.FieldType
     {
-        protected TestFieldType(string Name, int Value, DataType DataType) : base(Name, Value, DataType) { }
+        protected TestFieldType(string Name, long Value, DataType DataType) : base(Name, Value, DataType) { }
 
         public static readonly TestFieldType User_Type = new TestFieldType(Strings.Job_Title, 1, DataType.Text);
         public static readonly TestFieldType Job_Start_Date = new TestFieldType(Strings.Job_Start_Date, 2, DataType.Date);
@@ -506,7 +506,7 @@ namespace EffectFramework.Test
 
     public class TestItemType : Core.Models.ItemType
     {
-        protected TestItemType(string Name, int Value, Type Type) : base(Name, Value, Type) { }
+        protected TestItemType(string Name, long Value, Type Type) : base(Name, Value, Type) { }
 
         public static readonly TestItemType User = new TestItemType("User", 1, typeof(User));
 
@@ -524,7 +524,7 @@ namespace EffectFramework.Test
 
         public User() : base() { }
 
-        public User(int UserID, bool LoadItem = true, IDbContext ctx = null) : base(UserID, LoadItem, ctx: ctx) { }
+        public User(long UserID, bool LoadItem = true, IDbContext ctx = null) : base(UserID, LoadItem, ctx: ctx) { }
     }
 
     public class AddressEntity : EntityBase

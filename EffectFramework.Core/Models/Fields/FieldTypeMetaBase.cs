@@ -42,9 +42,9 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public int? FieldTypeMetaID { get; protected set; }
+        public long? FieldTypeMetaID { get; protected set; }
 
-        public int TenantID { get; protected set; }
+        public long TenantID { get; protected set; }
 
         protected bool? __IsRequired;
         protected bool? _IsRequired

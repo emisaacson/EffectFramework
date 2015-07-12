@@ -23,12 +23,12 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
-        public int Value { get; private set; }
+        public long Value { get; private set; }
         public Type ValueType { get; private set; }
         public Type DereferencedType { get; private set; }
         public Type MetaType { get; private set; }
 
-        private DataType(int Value, Type ValueType, Type DereferencedType, Type MetaType = null)
+        private DataType(long Value, Type ValueType, Type DereferencedType, Type MetaType = null)
         {
             this.Value = Value;
             this.ValueType = ValueType;
@@ -51,18 +51,18 @@ namespace EffectFramework.Core.Models.Fields
         public static readonly DataType Date = new DataType(2, typeof(DateTime?), typeof(DateTime?), typeof(FieldTypeMetaDate));
         public static readonly DataType Decimal = new DataType(3, typeof(decimal?), typeof(decimal?), typeof(FieldTypeMetaDecimal));
         public static readonly DataType Boolean = new DataType(4, typeof(bool?), typeof(bool?));
-        public static readonly DataType Lookup = new DataType(5, typeof(int?), typeof(string));
+        public static readonly DataType Lookup = new DataType(5, typeof(long?), typeof(string));
         public static readonly DataType Binary = new DataType(6, typeof(byte[]), typeof(byte[]));
-        public static readonly DataType ItemReference = new DataType(7, typeof(int?), typeof(Item));
-        public static readonly DataType EntityReference = new DataType(8, typeof(int?), typeof(EntityBase));
+        public static readonly DataType ItemReference = new DataType(7, typeof(long?), typeof(Item));
+        public static readonly DataType EntityReference = new DataType(8, typeof(long?), typeof(EntityBase));
         public static readonly DataType Object = new DataType(9, typeof(object), typeof(object));
 
-        public static implicit operator int (DataType dt)
+        public static implicit operator long (DataType dt)
         {
             return dt.Value;
         }
 
-        public static explicit operator DataType(int i)
+        public static explicit operator DataType(long i)
         {
             switch (i)
             {
@@ -85,7 +85,7 @@ namespace EffectFramework.Core.Models.Fields
                 case 9:
                     return Object;
                 default:
-                    throw new InvalidCastException(string.Format("Cannot convert the int value {0} to a DataType instance.", i));
+                    throw new InvalidCastException(string.Format("Cannot convert the long value {0} to a DataType instance.", i));
             }
         }
 

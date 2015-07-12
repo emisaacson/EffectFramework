@@ -46,7 +46,7 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
         public string OriginalName { get; private set; }
-        public int? LookupTypeID { get; private set; }
+        public long? LookupTypeID { get; private set; }
         public bool IsReadOnly { get; private set; }
 
         public bool FlagForDeletion { get; private set; } = false;
@@ -60,7 +60,7 @@ namespace EffectFramework.Core.Models.Fields
                 return _Choices.AsReadOnly();
             }
         }
-        public int TenantID { get; private set; }
+        public long TenantID { get; private set; }
 
         [NonSerialized]
         private IPersistenceService _PersistenceService;
@@ -96,7 +96,7 @@ namespace EffectFramework.Core.Models.Fields
             RefreshChoices();
         }
 
-        public LookupCollection(int LookupCollectionID, IDbContext ctx = null)
+        public LookupCollection(long LookupCollectionID, IDbContext ctx = null)
         {
             this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             LoadById(LookupCollectionID, ctx);
@@ -122,7 +122,7 @@ namespace EffectFramework.Core.Models.Fields
             RefreshOriginalValues();
         }
 
-        private void LoadById(int LookupCollectionID, IDbContext ctx = null)
+        private void LoadById(long LookupCollectionID, IDbContext ctx = null)
         {
             bool ShouldReplaceCache = false;
             LookupCollection LookupFromDatabase = (LookupCollection)CacheService.GetObject(CacheUtility.GetCacheString<LookupCollection>(LookupCollectionID));
@@ -233,7 +233,7 @@ namespace EffectFramework.Core.Models.Fields
 
         public bool PerformSanityCheck()
         {
-            int _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            long _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
             if (_TenantID != this.TenantID)
             {

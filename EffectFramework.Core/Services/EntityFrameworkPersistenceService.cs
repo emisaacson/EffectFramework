@@ -50,7 +50,7 @@ namespace EffectFramework.Core.Services
 
                     if (((IField)Field).Value == null ||
                         (Field.Type.DataType == DataType.Date && (DateTime)((IField)Field).Value == default(DateTime)) ||
-                        (Field.Type.DataType == DataType.Lookup && (int)((IField)Field).Value == default(int)))
+                        (Field.Type.DataType == DataType.Lookup && (long)((IField)Field).Value == default(long)))
                     {
                         return null;
                     }
@@ -104,7 +104,7 @@ namespace EffectFramework.Core.Services
 
                 if (((IField)Field).Value == null ||
                         (Field.Type.DataType == DataType.Date && (DateTime)((IField)Field).Value == default(DateTime)) ||
-                        (Field.Type.DataType == DataType.Lookup && (int)((IField)Field).Value == default(int)))
+                        (Field.Type.DataType == DataType.Lookup && (long)((IField)Field).Value == default(long)))
                 {
                     DbField.IsDeleted = true;
                     DbField.Guid = Guid.NewGuid();
@@ -139,7 +139,7 @@ namespace EffectFramework.Core.Services
                 }
                 else if (Field.Type.DataType == DataType.Lookup)
                 {
-                    DbField.ValueLookup = (int?)((IField)Field).Value;
+                    DbField.ValueLookup = (long?)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Text)
                 {
@@ -155,11 +155,11 @@ namespace EffectFramework.Core.Services
                 }
                 else if (Field.Type.DataType == DataType.EntityReference)
                 {
-                    DbField.ValueEntityReference = (int?)((IField)Field).Value;
+                    DbField.ValueEntityReference = (long?)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.ItemReference)
                 {
-                    DbField.ValueItemReference = (int?)((IField)Field).Value;
+                    DbField.ValueItemReference = (long?)((IField)Field).Value;
                 }
 
                 db.SaveChanges();
@@ -274,7 +274,7 @@ namespace EffectFramework.Core.Services
                 }
                 else if (Field.Type.DataType == DataType.Lookup)
                 {
-                    DbField.ValueLookup = (int)((IField)Field).Value;
+                    DbField.ValueLookup = (long)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.Text)
                 {
@@ -290,11 +290,11 @@ namespace EffectFramework.Core.Services
                 }
                 else if (Field.Type.DataType == DataType.EntityReference)
                 {
-                    DbField.ValueEntityReference = (int)((IField)Field).Value;
+                    DbField.ValueEntityReference = (long)((IField)Field).Value;
                 }
                 else if (Field.Type.DataType == DataType.ItemReference)
                 {
-                    DbField.ValueItemReference = (int)((IField)Field).Value;
+                    DbField.ValueItemReference = (long)((IField)Field).Value;
                 }
 
                 db.SaveChanges();
@@ -638,12 +638,12 @@ namespace EffectFramework.Core.Services
         public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, Models.Fields.FieldType FieldType, IDbContext ctx = null)
         {
 
-            int FieldTypeID = FieldType.Value;
+            long FieldTypeID = FieldType.Value;
 
             return RetreiveSingleFieldOrDefault(Entity, FieldTypeID, ctx);
         }
 
-        public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, int FieldTypeID, IDbContext ctx = null)
+        public FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, long FieldTypeID, IDbContext ctx = null)
         {
             if (Entity == null)
             {
@@ -706,7 +706,7 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public FieldBase RetreiveSingleFieldOrDefault(int FieldID, IDbContext ctx = null)
+        public FieldBase RetreiveSingleFieldOrDefault(long FieldID, IDbContext ctx = null)
         {
 
             EntityFramework7DBContext db = null;
@@ -722,7 +722,7 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
                 DbField = db.Fields.Where(f => f.FieldID == FieldID &&
                                               f.TenantID == TenantID &&
@@ -760,7 +760,7 @@ namespace EffectFramework.Core.Services
         {
 
             FieldT Instance = new FieldT();
-            int FieldTypeID = Instance.Type.DataType.Value;
+            long FieldTypeID = Instance.Type.DataType.Value;
 
             return RetreiveSingleFieldOrDefault(Entity, FieldTypeID, ctx);
         }
@@ -809,7 +809,7 @@ namespace EffectFramework.Core.Services
             }
         }*/
 
-        public EntityBase RetreiveSingleEntityOrDefault(int EntityID, IDbContext ctx = null)
+        public EntityBase RetreiveSingleEntityOrDefault(long EntityID, IDbContext ctx = null)
         {
             if (EntityID < 1)
             {
@@ -828,7 +828,7 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
                 DbEntityPossibility = db.Entities
                     .Where(e =>
@@ -952,7 +952,7 @@ namespace EffectFramework.Core.Services
                 throw new ArgumentException("Record must have an ID.");
             }
 
-            int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             if (Item.TenantID != TenantID)
             {
                     Log.Fatal("Tenant ID Does not match. ItemID: {0}, Item Tenant ID: {1}, Global Tenant ID: {2}",
@@ -1039,7 +1039,7 @@ namespace EffectFramework.Core.Services
                 {
                     db = (EntityFramework7DBContext)ctx;
                 }
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
                 if (Item.TenantID != TenantID)
                 {
                     Log.Fatal("Tenant ID Does not match. Item Tenant ID: {0}, Global Tenant ID: {1}",
@@ -1099,7 +1099,7 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
                 LookupTypes = db.LookupTypes.Where(lt => lt.IsDeleted == false && lt.TenantID == TenantID);
                 List<LookupCollection> Output = new List<LookupCollection>();
                 foreach (var LookupType in LookupTypes)
@@ -1127,7 +1127,7 @@ namespace EffectFramework.Core.Services
                 }
             }
         }
-        public LookupCollection GetLookupCollectionById(int LookupTypeID, IDbContext ctx = null)
+        public LookupCollection GetLookupCollectionById(long LookupTypeID, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
             LookupType DbLookupType = null;
@@ -1142,7 +1142,7 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
                 DbLookupType = db.LookupTypes.Where(lt => lt.LookupTypeID == LookupTypeID && lt.IsDeleted == false).FirstOrDefault();
 
                 if (DbLookupType == null)
@@ -1515,7 +1515,7 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public IEnumerable<LookupEntry> GetLookupEntries(int LookupTypeID, LookupCollection LookupCollection, IDbContext ctx = null)
+        public IEnumerable<LookupEntry> GetLookupEntries(long LookupTypeID, LookupCollection LookupCollection, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
             IEnumerable<Lookup> DbLookups = null;
@@ -1530,7 +1530,7 @@ namespace EffectFramework.Core.Services
                     db = (EntityFramework7DBContext)ctx;
                 }
 
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
                 DbLookups = db.Lookups.Where(l => l.LookupTypeID == LookupTypeID && l.IsDeleted == false);
 
                 List<LookupEntry> Output = new List<LookupEntry>();
@@ -1566,7 +1566,7 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public IEnumerable<CompleteItem> RetreiveCompleteItems(IEnumerable<int> ItemIDs, IDbContext ctx = null)
+        public IEnumerable<CompleteItem> RetreiveCompleteItems(IEnumerable<long> ItemIDs, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
             CompleteItem[] Items = null; 
@@ -1580,7 +1580,7 @@ namespace EffectFramework.Core.Services
                 {
                     db = (EntityFramework7DBContext)ctx;
                 }
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
                 Items = db.CompleteItems.Where(i => ItemIDs.Contains(i.ItemID)).ToArray();
 
@@ -1620,7 +1620,7 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public void RecordAudit(FieldBase Field, int? ItemID, string Comment, IDbContext ctx = null)
+        public void RecordAudit(FieldBase Field, long? ItemID, string Comment, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
             AuditLog Audit = null;
@@ -1653,7 +1653,7 @@ namespace EffectFramework.Core.Services
                     throw new InvalidOperationException("Entity or Item not yet persisted for this field.");
                 }
 
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
                 if (TenantID != Field.TenantID)
                 {
                     Log.Fatal("TenantID Does not match. Global TenantID {0}, Field TenantID: {0}", TenantID, Field.TenantID);
@@ -1711,7 +1711,7 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public void RecordAudit(EntityBase Entity, int? ItemID, string Comment, IDbContext ctx = null)
+        public void RecordAudit(EntityBase Entity, long? ItemID, string Comment, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
             AuditLog Audit = null;
@@ -1738,7 +1738,7 @@ namespace EffectFramework.Core.Services
                     return;
                 }
 
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
                 if (TenantID != Entity.TenantID)
                 {
                     Log.Fatal("TenantID Does not match. Global TenantID {0}, Entity TenantID: {0}", TenantID, Entity.TenantID);
@@ -1789,7 +1789,7 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public IFieldTypeMeta GetFieldTypeMeta(int ItemTypeID, int EntityTypeID, int FieldTypeID, IDbContext ctx = null)
+        public IFieldTypeMeta GetFieldTypeMeta(long ItemTypeID, long EntityTypeID, long FieldTypeID, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
             FieldTypeMeta DbFieldTypeMeta = null;
@@ -1807,7 +1807,7 @@ namespace EffectFramework.Core.Services
                 Models.Fields.FieldType FieldType = (Models.Fields.FieldType)FieldTypeID;
                 Type SystemMetaType = FieldType.DataType.MetaType;
 
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
                 DbFieldTypeMeta = db.FieldTypeMetas.Where(f => f.ItemTypeID == ItemTypeID && f.EntityTypeID == EntityTypeID && f.FieldTypeID == FieldTypeID).FirstOrDefault();
 
                 if (DbFieldTypeMeta != null && TenantID != DbFieldTypeMeta.TenantID)

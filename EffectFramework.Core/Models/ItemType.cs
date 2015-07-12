@@ -35,7 +35,7 @@ namespace EffectFramework.Core.Models
         /// <value>
         /// The Item Type ID.
         /// </value>
-        public int Value { get; private set; }
+        public long Value { get; private set; }
 
         /// <summary>
         /// Gets the name of the item type.
@@ -45,7 +45,7 @@ namespace EffectFramework.Core.Models
         /// </value>
         public string Name { get; private set; }
 
-        public virtual int TenantID
+        public virtual long TenantID
         {
             get
             {
@@ -54,7 +54,7 @@ namespace EffectFramework.Core.Models
         }
 
         public Type Type { get; private set; }
-        private static Dictionary<int, ItemType> TypeRegistry = new Dictionary<int, ItemType>();
+        private static Dictionary<long, ItemType> TypeRegistry = new Dictionary<long, ItemType>();
         private static ReaderWriterLockSlim RegistryLock = new ReaderWriterLockSlim();
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace EffectFramework.Core.Models
         /// <param name="Name">The name of the item.</param>
         /// <param name="Value">The ItemTypeID in the data store.</param>
         /// <param name="Type">The type of the model class.</param>
-        protected ItemType(string Name, int Value, Type Type)
+        protected ItemType(string Name, long Value, Type Type)
         {
             this.Value = Value;
             this.Name = Name;
@@ -75,12 +75,12 @@ namespace EffectFramework.Core.Models
         }
 
 
-        public static implicit operator int (ItemType dt)
+        public static implicit operator long (ItemType dt)
         {
             return dt.Value;
         }
 
-        public static explicit operator ItemType(int i)
+        public static explicit operator ItemType(long i)
         {
             try
             {

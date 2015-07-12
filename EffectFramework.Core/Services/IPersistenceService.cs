@@ -39,13 +39,13 @@ namespace EffectFramework.Core.Services
         /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
         /// a new one will be created.</param>
         /// <returns>A LookupCollection instance populated by the database.</returns>
-        LookupCollection GetLookupCollectionById(int LookupTypeID, Models.Db.IDbContext ctx = null);
+        LookupCollection GetLookupCollectionById(long LookupTypeID, Models.Db.IDbContext ctx = null);
 
         IEnumerable<LookupCollection> GetAllLookupCollections(Models.Db.IDbContext ctx = null);
 
         Models.Db.ObjectIdentity SaveLookupCollection(LookupCollection LookupCollection, Models.Db.IDbContext ctx = null);
 
-        IEnumerable<LookupEntry> GetLookupEntries(int LookupTypeID, LookupCollection LookupCollection, Models.Db.IDbContext ctx = null);
+        IEnumerable<LookupEntry> GetLookupEntries(long LookupTypeID, LookupCollection LookupCollection, Models.Db.IDbContext ctx = null);
 
         Models.Db.ObjectIdentity SaveSingleLookupEntry(LookupEntry LookupEntry, Models.Db.IDbContext ctx = null);
 
@@ -72,7 +72,7 @@ namespace EffectFramework.Core.Services
         /// <returns>The EntityID and GUID of the saved entity.</returns>
         Models.Db.ObjectIdentity SaveSingleEntity(EntityBase Entity, Models.Db.IDbContext ctx = null);
 
-        IFieldTypeMeta GetFieldTypeMeta(int ItemTypeID, int EntityTypeID, int FieldTypeID, Models.Db.IDbContext ctx = null);
+        IFieldTypeMeta GetFieldTypeMeta(long ItemTypeID, long EntityTypeID, long FieldTypeID, Models.Db.IDbContext ctx = null);
 
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace EffectFramework.Core.Services
         /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
         /// a new one will be created.</param>
         /// <returns>An instance of the field, or null if one cannot be found.</returns>
-        FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, int FieldTypeID, Models.Db.IDbContext ctx = null);
+        FieldBase RetreiveSingleFieldOrDefault(EntityBase Entity, long FieldTypeID, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Retreives a single field from the database by field ID.
@@ -111,7 +111,7 @@ namespace EffectFramework.Core.Services
         /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
         /// a new one will be created.</param>
         /// <returns>An instance of the field, or null if it cannot be found.</returns>
-        FieldBase RetreiveSingleFieldOrDefault(int FieldID, Models.Db.IDbContext ctx = null);
+        FieldBase RetreiveSingleFieldOrDefault(long FieldID, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Retreives a single field from the database of the specified type.
@@ -140,7 +140,7 @@ namespace EffectFramework.Core.Services
         /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
         /// a new one will be created.</param>
         /// <returns>The Entity object</returns>
-        EntityBase RetreiveSingleEntityOrDefault(int EntityID, Models.Db.IDbContext ctx = null);
+        EntityBase RetreiveSingleEntityOrDefault(long EntityID, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Saves all fields of the entity and sets the delete flag.
@@ -178,7 +178,7 @@ namespace EffectFramework.Core.Services
         /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
         /// a new one will be created.</param>
         /// <returns>All matching rows from the CompleteItems view</returns>
-        IEnumerable<Models.Db.CompleteItem> RetreiveCompleteItems(IEnumerable<int> ItemIDs, Models.Db.IDbContext ctx = null);
+        IEnumerable<Models.Db.CompleteItem> RetreiveCompleteItems(IEnumerable<long> ItemIDs, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Records the field changes in the audit log
@@ -188,7 +188,7 @@ namespace EffectFramework.Core.Services
         /// <param name="Comment">A comment to save with the audit</param>
         /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
         /// a new one will be created.</param>
-        void RecordAudit(FieldBase Field, int? ItemID, string Comment, Models.Db.IDbContext ctx = null);
+        void RecordAudit(FieldBase Field, long? ItemID, string Comment, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Records the entity changes in the audit log
@@ -198,7 +198,7 @@ namespace EffectFramework.Core.Services
         /// <param name="Comment">A comment to save with the audit</param>
         /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
         /// a new one will be created.</param>
-        void RecordAudit(EntityBase Entity, int? ItemID, string Comment, Models.Db.IDbContext ctx = null);
+        void RecordAudit(EntityBase Entity, long? ItemID, string Comment, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Retreives an instance of the database context.

@@ -6,18 +6,18 @@ namespace EffectFramework.Core.Models.Entities
     [Serializable]
     public abstract class EntityType
     {
-        public int Value { get; protected set; }
+        public long Value { get; protected set; }
         public string Name { get; protected set; }
         public Type Type { get; protected set; }
-        public virtual int TenantID
+        public virtual long TenantID
         {
             get {
                 return Configure.GetTenantResolutionProvider().GetTenantID();
             }
         }
 
-        private static Dictionary<int, EntityType> TypeRegistry = new Dictionary<int, EntityType>();
-        protected EntityType(string Name, int Value, Type Type)
+        private static Dictionary<long, EntityType> TypeRegistry = new Dictionary<long, EntityType>();
+        protected EntityType(string Name, long Value, Type Type)
         {
             this.Value = Value;
             this.Name = Name;
@@ -25,18 +25,18 @@ namespace EffectFramework.Core.Models.Entities
             RegisterType(this);
         }
 
-        public static implicit operator int (EntityType dt)
+        public static implicit operator long (EntityType dt)
         {
             return dt.Value;
         }
 
-        public static explicit operator EntityType(int i)
+        public static explicit operator EntityType(long i)
         {
             if (TypeRegistry.ContainsKey(i))
             {
                 return TypeRegistry[i];
             }
-            throw new InvalidCastException(string.Format("Cannot convert the int value {0} to an EntityType instance.", i));
+            throw new InvalidCastException(string.Format("Cannot convert the long value {0} to an EntityType instance.", i));
         }
 
         private static void RegisterType(EntityType Type)

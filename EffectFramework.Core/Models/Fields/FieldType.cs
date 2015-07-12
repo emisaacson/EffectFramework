@@ -35,21 +35,21 @@ namespace EffectFramework.Core.Models.Fields
         /// <value>
         /// The value.
         /// </value>
-        public int Value { get; protected set; }
+        public long Value { get; protected set; }
         public DataType DataType { get; protected set; }
         public string Name { get; protected set; }
-        public int? LookupTypeID { get; protected set; }
-        public virtual int TenantID {
+        public long? LookupTypeID { get; protected set; }
+        public virtual long TenantID {
             get
             {
                 return Configure.GetTenantResolutionProvider().GetTenantID();
             }
         }
 
-        private static Dictionary<int, FieldType> TypeRegistry = new Dictionary<int, FieldType>();
+        private static Dictionary<long, FieldType> TypeRegistry = new Dictionary<long, FieldType>();
         private static ReaderWriterLockSlim RegistryLock = new ReaderWriterLockSlim();
 
-        protected FieldType(string Name, int Value, DataType DataType, int? LookupTypeID = null)
+        protected FieldType(string Name, long Value, DataType DataType, long? LookupTypeID = null)
         {
             this.Name = Name;
             this.Value = Value;
@@ -58,12 +58,12 @@ namespace EffectFramework.Core.Models.Fields
             RegisterType(this);
         }
 
-        public static implicit operator int (FieldType dt)
+        public static implicit operator long (FieldType dt)
         {
             return dt.Value;
         }
 
-        public static explicit operator FieldType(int i)
+        public static explicit operator FieldType(long i)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace EffectFramework.Core.Models.Fields
                     Log.Error("Hell froze over.", e);
                 }
             }
-            throw new InvalidCastException(string.Format("Cannot convert the int value {0} to a FieldType instance.", i));
+            throw new InvalidCastException(string.Format("Cannot convert the long value {0} to a FieldType instance.", i));
         }
 
         private static void RegisterType(FieldType Type)

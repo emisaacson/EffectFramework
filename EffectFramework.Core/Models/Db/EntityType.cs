@@ -2,9 +2,9 @@
 {
     public class EntityType
     {
-        public int EntityTypeID { get; set; }
+        public long EntityTypeID { get; set; }
         public string Name { get; set; }
-        public int TenantID { get; set; }
+        public long TenantID { get; set; }
 
     }
 }

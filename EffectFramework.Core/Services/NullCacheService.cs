@@ -38,7 +38,7 @@
             return null;
         }
 
-        public int? GetObjectAsInt(string Key)
+        public long? GetObjectAsInt(string Key)
         {
             return null;
         }

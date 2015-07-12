@@ -7,7 +7,7 @@
             return "HRMS";
         }
 
-        public int GetTenantID()
+        public long GetTenantID()
         {
             return 1;
         }

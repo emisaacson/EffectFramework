@@ -4,10 +4,10 @@ namespace EffectFramework.Core.Models.Db
 {
     public class FieldTypeMeta
     {
-        public int FieldTypeMetaID { get; set; }
-        public int ItemTypeID { get; set; }
-        public int EntityTypeID { get; set; }
-        public int FieldTypeID { get; set; }
+        public long FieldTypeMetaID { get; set; }
+        public long ItemTypeID { get; set; }
+        public long EntityTypeID { get; set; }
+        public long FieldTypeID { get; set; }
         public bool? IsRequired { get; set; }
         public string IsRequiredQuery { get; set; }
         public decimal? DecimalMin { get; set; }
@@ -20,7 +20,7 @@ namespace EffectFramework.Core.Models.Db
         public string DatetimeMaxQuery { get; set; }
         public string TextRegex { get; set; }
         public string TextRegexQuery { get; set; }
-        public int TenantID { get; set; }
+        public long TenantID { get; set; }
 
     }
 }

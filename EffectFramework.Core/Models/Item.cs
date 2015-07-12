@@ -48,7 +48,7 @@ namespace EffectFramework.Core.Models
         /// <value>
         /// The item identifier.
         /// </value>
-        public int? ItemID { get; protected set; }
+        public long? ItemID { get; protected set; }
         /// <summary>
         /// Gets or sets the unique identifier.
         /// </summary>
@@ -65,7 +65,7 @@ namespace EffectFramework.Core.Models
         /// </value>
         public bool Dirty { get; protected set; }
 
-        public virtual int TenantID { get; protected set; }
+        public virtual long TenantID { get; protected set; }
 
         /// <summary>
         /// Gets the type of this item.
@@ -162,7 +162,7 @@ namespace EffectFramework.Core.Models
         /// <param name="LoadItem">If set to <c>true</c>, retreive all data for this item from the PersistenceService.</param>
         /// <param name="Sparse">If set to <c>true</c>, only load entities for the current EffectiveRecord.</param>
         /// <param name="ctx">Database context (optional)</param>
-        public Item(int ItemID, bool LoadItem = true, bool Sparse = false, Db.IDbContext ctx = null)
+        public Item(long ItemID, bool LoadItem = true, bool Sparse = false, Db.IDbContext ctx = null)
         {
             this.ItemID = ItemID;
             this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
@@ -206,7 +206,7 @@ namespace EffectFramework.Core.Models
             LoadByID(ItemID.Value, ctx);
         }
 
-        public void LoadByView(int ItemID, IEnumerable<Db.CompleteItem> View)
+        public void LoadByView(long ItemID, IEnumerable<Db.CompleteItem> View)
         {
             if (this.ItemID.HasValue && this.ItemID.Value != ItemID)
             {
@@ -225,7 +225,7 @@ namespace EffectFramework.Core.Models
                 throw new InvalidOperationException("Item does not exist in the passed view.");
             }
 
-            int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             if (TenantID != Rows.First().ItemTenantID)
             {
                 Log.Fatal("TenantID Does not match. Global TenantID: {0}, Item TenantID: {1}", TenantID, this.TenantID);
@@ -279,7 +279,7 @@ namespace EffectFramework.Core.Models
                     db = ctx;
                 }
 
-                int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
                 if (TenantID != this.TenantID)
                 {
                     Log.Fatal("TenantID Does not match. Global TenantID: {0}, Item TenantID: {1}", TenantID, this.TenantID);
@@ -363,7 +363,7 @@ namespace EffectFramework.Core.Models
             return new ValidationSummary(Errors);
         }
 
-        protected void LoadByID(int ItemID, Db.IDbContext ctx = null)
+        protected void LoadByID(long ItemID, Db.IDbContext ctx = null)
         {
             if (this.ItemID.HasValue && ItemID != this.ItemID.Value)
             {
@@ -371,7 +371,7 @@ namespace EffectFramework.Core.Models
             }
             this.ItemID = ItemID;
 
-            int TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             if (TenantID != this.TenantID)
             {
                 Log.Fatal("TenantID Does not match. Global TenantID: {0}, Item Tenant ID: {1}", TenantID, this.TenantID);
@@ -387,7 +387,7 @@ namespace EffectFramework.Core.Models
             this.Dirty = false;
         }
 
-        public static Item GetItemByID(int ItemID, Db.IDbContext ctx = null)
+        public static Item GetItemByID(long ItemID, Db.IDbContext ctx = null)
         {
             IPersistenceService PersistenceService = Configure.GetPersistenceService();
             ICacheService CacheService = Configure.GetCacheService();
@@ -398,18 +398,18 @@ namespace EffectFramework.Core.Models
             {
                 return MaybeCompleteItem;
             }
-            var ViewResult = PersistenceService.RetreiveCompleteItems(new int [] { ItemID }, ctx);
+            var ViewResult = PersistenceService.RetreiveCompleteItems(new long [] { ItemID }, ctx);
             var Items = GetItemsFromView(ViewResult);
             return Items.FirstOrDefault();
         }
 
-        public static List<Item> GetItemsByID(IEnumerable<int> ItemIDs, Db.IDbContext ctx = null)
+        public static List<Item> GetItemsByID(IEnumerable<long> ItemIDs, Db.IDbContext ctx = null)
         {
 
             ICacheService CacheService = Configure.GetCacheService();
             IPersistenceService PersistenceService = Configure.GetPersistenceService();
 
-            List<int> MissingItemIDs = new List<int>();
+            List<long> MissingItemIDs = new List<long>();
             List<Item> CachedItems = new List<Item>();
             List<Item> NotCachedItems = new List<Item>();
             foreach (var ItemID in ItemIDs)
@@ -448,7 +448,7 @@ namespace EffectFramework.Core.Models
 
             var ItemIDs = ViewResult.Select(v => v.ItemID).Distinct();
 
-            List<int> MissingItemIDs = new List<int>();
+            List<long> MissingItemIDs = new List<long>();
             List<Item> CachedItems = new List<Item>();
             List<Item> NotCachedItems = new List<Item>();
             foreach (var ItemID in ItemIDs)
@@ -468,7 +468,7 @@ namespace EffectFramework.Core.Models
 
             if (MissingItemIDs.Count() > 0)
             {
-                foreach (int ItemID in MissingItemIDs)
+                foreach (long ItemID in MissingItemIDs)
                 {
                     var Item = GetItemFromView(ItemID, ViewResult);
                     NotCachedItems.Add(Item);
@@ -480,7 +480,7 @@ namespace EffectFramework.Core.Models
             return CachedItems;
         }
 
-        public static Item GetItemFromView(int ItemID, IEnumerable<Db.CompleteItem> ViewResult)
+        public static Item GetItemFromView(long ItemID, IEnumerable<Db.CompleteItem> ViewResult)
         {
             if (ViewResult == null)
             {
@@ -573,7 +573,7 @@ namespace EffectFramework.Core.Models
             _AllEntities.RemoveAll(x => x.FlagForRemoval);
         }
 
-        internal static void ReseedCache(int ItemID)
+        internal static void ReseedCache(long ItemID)
         {
             ICacheService CacheService = Configure.GetCacheService();
             CacheService.DeleteObject(CacheUtility.GetCacheString<Item>(ItemID));

@@ -86,27 +86,27 @@ namespace EffectFramework.Core.Models.Fields
         }
         public EntityBase Entity { get; protected set; }
         public Guid Guid { get; protected set; }
-        public int? FieldID { get; protected set; }
+        public long? FieldID { get; protected set; }
         public bool Dirty { get; protected set; }
         public string Name { get; protected set; }
-        public virtual int TenantID { get; protected set; }
+        public virtual long TenantID { get; protected set; }
 
         protected string ValueString { get; set; }
         protected DateTime? ValueDate { get; set; }
         protected decimal? ValueDecimal { get; set; }
         protected bool? ValueBool { get; set; }
-        protected int? ValueLookup { get; set; }
-        protected int? ValueEntityReference { get; set; }
-        protected int? ValueItemReference { get; set; }
+        protected long? ValueLookup { get; set; }
+        protected long? ValueEntityReference { get; set; }
+        protected long? ValueItemReference { get; set; }
         protected byte[] ValueBinary { get; set; }
 
         protected string OriginalValueString { get; set; }
         protected DateTime? OriginalValueDate { get; set; }
         protected decimal? OriginalValueDecimal { get; set; }
         protected bool? OriginalValueBool { get; set; }
-        protected int? OriginalValueLookup { get; set; }
-        protected int? OriginalValueEntityReference { get; set; }
-        protected int? OriginalValueItemReference { get; set; }
+        protected long? OriginalValueLookup { get; set; }
+        protected long? OriginalValueEntityReference { get; set; }
+        protected long? OriginalValueItemReference { get; set; }
         protected byte[] OriginalValueBinary { get; set; }
 
         [NonSerialized]
@@ -290,7 +290,7 @@ namespace EffectFramework.Core.Models.Fields
             LoadUpValues(Base);
         }
 
-        public void FillFromDatabase(int FieldID, IDbContext ctx = null)
+        public void FillFromDatabase(long FieldID, IDbContext ctx = null)
         {
             this.FieldID = FieldID;
             FieldBase Base = PersistenceService.RetreiveSingleFieldOrDefault(FieldID, ctx);
@@ -442,7 +442,7 @@ namespace EffectFramework.Core.Models.Fields
 
         public bool PerformSanityCheck()
         {
-            int _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+            long _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
             if (_TenantID != this.TenantID)
             {
