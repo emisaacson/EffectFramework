@@ -226,7 +226,7 @@ namespace EffectFramework.Test
 
             using (var db = new EntityFramework7DBContext(Ef.Configuration["Data:DefaultConnection:ConnectionString"]))
             {
-                Field Field = db.Fields.Where(ef => ef.FieldID == UserType.FieldID.Value).Single();
+                Field Field = db.Fields.Single(ef => ef.FieldID == UserType.FieldID.Value);
 
                 Assert.Equal(Field.Guid, UserType.Guid);
                 Assert.Equal("Code Monkey", UserType.Value);
@@ -259,7 +259,7 @@ namespace EffectFramework.Test
 
             using (var db = new EntityFramework7DBContext(Ef.Configuration["Data:DefaultConnection:ConnectionString"]))
             {
-                Ef.TempField.Add(db.Fields.Where(f => f.FieldID == Job.JobStartDate.FieldID.Value).Single());
+                Ef.TempField.Add(db.Fields.Single(f => f.FieldID == Job.JobStartDate.FieldID.Value));
             }
 
             NewUser = new User(Item.ItemID.Value);
@@ -399,21 +399,21 @@ namespace EffectFramework.Test
 
             User.PersistToDatabase();
 
-            Assert.Equal(1, User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+            Assert.Equal(1, User.AllEntities.Count(e => e.Type == TestEntityType.General_Info));
             User.Load();
 
-            Assert.Equal(1, User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+            Assert.Equal(1, User.AllEntities.Count(e => e.Type == TestEntityType.General_Info));
 
             User.EffectiveDate = new DateTime(2015, 7, 1);
 
             User.EffectiveRecord.CreateEntityAndApplyPolicy<GeneralInfoEntity>(new DateTime(2015, 9, 1), CopyValuesFromPrevious: true);
             User.PersistToDatabase();
 
-            Assert.Equal(1, User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
+            Assert.Equal(1, User.AllEntities.Count(e => e.Type == TestEntityType.General_Info));
             User.Load();
 
-            Assert.Equal(1, User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).Count());
-            Assert.Equal(new DateTime(2015, 9, 1), User.AllEntities.Where(e => e.Type == TestEntityType.General_Info).First().EndEffectiveDate);
+            Assert.Equal(1, User.AllEntities.Count(e => e.Type == TestEntityType.General_Info));
+            Assert.Equal(new DateTime(2015, 9, 1), User.AllEntities.First(e => e.Type == TestEntityType.General_Info).EndEffectiveDate);
         }
 
         [Fact]

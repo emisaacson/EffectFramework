@@ -85,7 +85,7 @@ namespace EffectFramework.Core.Models.Fields
             {
                 if (this.Value.HasValue)
                 {
-                    var Deref = Choices.Choices.Where(c => c.ID == this.Value.Value).FirstOrDefault();
+                    var Deref = Choices.Choices.FirstOrDefault(c => c.ID == this.Value.Value);
                     if (Deref != null)
                     {
                         return Deref.Value;
@@ -118,7 +118,7 @@ namespace EffectFramework.Core.Models.Fields
             {
                 if (this.OriginalValueLookup.HasValue)
                 {
-                    var Deref = Choices.Choices.Where(c => c.ID == this.OriginalValueLookup.Value).FirstOrDefault();
+                    var Deref = Choices.Choices.FirstOrDefault(c => c.ID == this.OriginalValueLookup.Value);
                     if (Deref != null)
                     {
                         return Deref.Value;

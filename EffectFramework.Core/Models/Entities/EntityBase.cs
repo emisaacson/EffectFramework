@@ -248,7 +248,7 @@ namespace EffectFramework.Core.Models.Entities
                 var Fields = GetAllEntityFields();
                 foreach (var Row in View)
                 {
-                    var Field = Fields.Where(f => f.Type.Value == Row.FieldTypeID).FirstOrDefault();
+                    var Field = Fields.FirstOrDefault(f => f.Type.Value == Row.FieldTypeID);
                     if (Field != null)
                     {
                         Field.FillFromView(Row);
@@ -384,7 +384,7 @@ namespace EffectFramework.Core.Models.Entities
 
             foreach (var OtherEntityField in OtherEntityFieldObjects)
             {
-                var CurrentEntityField = FieldObjects.Where(f => f.Type == OtherEntityField.Type).Single();
+                var CurrentEntityField = FieldObjects.Single(f => f.Type == OtherEntityField.Type);
                 if (!CurrentEntityField.IsIdenticalTo(OtherEntityField))
                 {
                     AreIdentical = false;

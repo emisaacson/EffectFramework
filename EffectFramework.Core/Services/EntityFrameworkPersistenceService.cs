@@ -69,7 +69,7 @@ namespace EffectFramework.Core.Services
                     CreatedAnew = true;
                 }
                 else {
-                    DbField = db.Fields.Where(ef => ef.FieldID == Field.FieldID.Value).FirstOrDefault();
+                    DbField = db.Fields.FirstOrDefault(ef => ef.FieldID == Field.FieldID.Value);
                 }
 
                 if (DbField == null)
@@ -209,7 +209,7 @@ namespace EffectFramework.Core.Services
                     throw new InvalidOperationException("Must create a new field in the context of an entity.");
                 }
 
-                DbField = db.Fields.Where(ef => ef.FieldID == Field.FieldID.Value).FirstOrDefault();
+                DbField = db.Fields.FirstOrDefault(ef => ef.FieldID == Field.FieldID.Value);
                 if (DbField == null)
                 {
                     throw new ArgumentException("The passed field ID is not valid.");
@@ -369,7 +369,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value).FirstOrDefault();
+                    DbEntity = db.Entities.FirstOrDefault(e => e.EntityID == Entity.EntityID.Value);
                 }
 
 
@@ -464,7 +464,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value).FirstOrDefault();
+                    DbEntity = db.Entities.FirstOrDefault(e => e.EntityID == Entity.EntityID.Value);
                 }
 
 
@@ -570,7 +570,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbItem = db.Items.Where(i => i.ItemID == Item.ItemID.Value).FirstOrDefault();
+                    DbItem = db.Items.FirstOrDefault(i => i.ItemID == Item.ItemID.Value);
                 }
 
 
@@ -666,9 +666,9 @@ namespace EffectFramework.Core.Services
                 {
                     db = (EntityFramework7DBContext)ctx;
                 }
-                DbField = db.Fields.Where(f => f.EntityID == Entity.EntityID.Value &&
+                DbField = db.Fields.FirstOrDefault(f => f.EntityID == Entity.EntityID.Value &&
                                               f.FieldTypeID == FieldTypeID &&
-                                              !f.IsDeleted).FirstOrDefault();
+                                              !f.IsDeleted);
 
                 if (DbField == null)
                 {
@@ -724,9 +724,9 @@ namespace EffectFramework.Core.Services
 
                 long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
-                DbField = db.Fields.Where(f => f.FieldID == FieldID &&
+                DbField = db.Fields.FirstOrDefault(f => f.FieldID == FieldID &&
                                               f.TenantID == TenantID &&
-                                              !f.IsDeleted).FirstOrDefault();
+                                              !f.IsDeleted);
 
                 if (DbField == null)
                 {
@@ -831,10 +831,10 @@ namespace EffectFramework.Core.Services
                 long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
                 DbEntityPossibility = db.Entities
-                    .Where(e =>
+                    .FirstOrDefault(e =>
                         e.EntityID == EntityID &&
                         e.TenantID == TenantID &&
-                        !e.IsDeleted).FirstOrDefault();
+                        !e.IsDeleted);
 
                 if (DbEntityPossibility == null)
                 {
@@ -888,7 +888,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbEntity = db.Entities.Where(e => e.EntityID == Entity.EntityID.Value).FirstOrDefault();
+                    DbEntity = db.Entities.FirstOrDefault(e => e.EntityID == Entity.EntityID.Value);
                 }
 
                 if (DbEntity == null)
@@ -1047,11 +1047,10 @@ namespace EffectFramework.Core.Services
                     throw new Exceptions.FatalException("Data error.");
                 }
                 DbItemRecord = db.Items
-                    .Where(e =>
+                    .FirstOrDefault(e =>
                         e.ItemID == Item.ItemID &&
                         e.ItemTypeID == Item.Type.Value &&
-                        e.IsDeleted == false)
-                    .FirstOrDefault();
+                        e.IsDeleted == false);
 
                 if (DbItemRecord != null)
                 {
@@ -1143,7 +1142,7 @@ namespace EffectFramework.Core.Services
                 }
 
                 long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
-                DbLookupType = db.LookupTypes.Where(lt => lt.LookupTypeID == LookupTypeID && lt.IsDeleted == false).FirstOrDefault();
+                DbLookupType = db.LookupTypes.FirstOrDefault(lt => lt.LookupTypeID == LookupTypeID && lt.IsDeleted == false);
 
                 if (DbLookupType == null)
                 {
@@ -1215,7 +1214,7 @@ namespace EffectFramework.Core.Services
                 }
                 else
                 {
-                    DbLookupType = db.LookupTypes.Where(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value && i.IsDeleted == false).FirstOrDefault();
+                    DbLookupType = db.LookupTypes.FirstOrDefault(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value && i.IsDeleted == false);
                 }
 
 
@@ -1324,7 +1323,7 @@ namespace EffectFramework.Core.Services
                     {
                         throw new InvalidOperationException("Cannot save read-only collection entry.");
                     }
-                    DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value && i.IsDeleted == false).FirstOrDefault();
+                    DbLookup = db.Lookups.FirstOrDefault(i => i.LookupID == LookupEntry.ID.Value && i.IsDeleted == false);
                 }
 
                 if (DbLookup == null)
@@ -1403,7 +1402,7 @@ namespace EffectFramework.Core.Services
                 {
                     throw new InvalidOperationException("Cannot delete Lookup with a null ID.");
                 }
-                DbLookup = db.Lookups.Where(i => i.LookupID == LookupEntry.ID.Value && i.IsDeleted == false).FirstOrDefault();
+                DbLookup = db.Lookups.FirstOrDefault(i => i.LookupID == LookupEntry.ID.Value && i.IsDeleted == false);
 
                 if (DbLookup == null)
                 {
@@ -1470,7 +1469,7 @@ namespace EffectFramework.Core.Services
                 {
                     throw new InvalidOperationException("Cannot delete Lookup Collection with a null ID.");
                 }
-                DbLookupType = db.LookupTypes.Where(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value && i.IsDeleted == false).FirstOrDefault();
+                DbLookupType = db.LookupTypes.FirstOrDefault(i => i.LookupTypeID == LookupCollection.LookupTypeID.Value && i.IsDeleted == false);
 
                 if (DbLookupType == null)
                 {
@@ -1808,7 +1807,7 @@ namespace EffectFramework.Core.Services
                 Type SystemMetaType = FieldType.DataType.MetaType;
 
                 long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
-                DbFieldTypeMeta = db.FieldTypeMetas.Where(f => f.ItemTypeID == ItemTypeID && f.EntityTypeID == EntityTypeID && f.FieldTypeID == FieldTypeID).FirstOrDefault();
+                DbFieldTypeMeta = db.FieldTypeMetas.FirstOrDefault(f => f.ItemTypeID == ItemTypeID && f.EntityTypeID == EntityTypeID && f.FieldTypeID == FieldTypeID);
 
                 if (DbFieldTypeMeta != null && TenantID != DbFieldTypeMeta.TenantID)
                 {

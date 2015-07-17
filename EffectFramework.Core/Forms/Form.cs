@@ -282,7 +282,6 @@ namespace EffectFramework.Core.Forms
                 var MemberItemType = MemberBinding.ItemType ?? FormItemType;
                 var MemberEntityType = MemberBinding.EntityType ?? FormEntityType;
                 var MemberIDMemberName = MemberBinding.IDPropertyName ?? FormIDMemberName;
-                Item BoundItem = BoundItems != null && BoundItems.ContainsKey(MemberItemType) ? BoundItems[MemberItemType] : Item.CreateItem(MemberItemType);
 
                 if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
                 {
@@ -290,12 +289,30 @@ namespace EffectFramework.Core.Forms
                     throw new InvalidOperationException("Binding is not configured properly.");
                 }
 
+                Item BoundItem = BoundItems != null && BoundItems.ContainsKey(MemberItemType) ? BoundItems[MemberItemType] : Item.CreateItem(MemberItemType);
+
+
                 return BoundItem;
             }
             else
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Gets the item bound on the form level, or null.
+        /// </summary>
+        /// <returns>A new instance of the bound entity, or null.</returns>
+        public Item GetBoundItem()
+        {
+            if (FormItemType == null)
+            {
+                return null;
+            }
+            Item BoundItem = BoundItems != null && BoundItems.ContainsKey(FormItemType) ? BoundItems[FormItemType] : Item.CreateItem(FormItemType);
+
+            return BoundItem;
         }
 
         /// <summary>
@@ -580,11 +597,11 @@ namespace EffectFramework.Core.Forms
                                 if (MemberEffectiveDateFieldName == null ||
                                     (MemberEffectiveDateFieldName != null && (DateTime)this.GetType().GetProperty(MemberEffectiveDateFieldName).GetValue(this) == default(DateTime)))
                                 {
-                                    Entity = BoundItem.AllEntities.Where(e => e.EntityID == EntityIDFromForm).FirstOrDefault();
+                                    Entity = BoundItem.AllEntities.FirstOrDefault(e => e.EntityID == EntityIDFromForm);
                                 }
                                 else
                                 {
-                                    Entity = EffectiveRecord.AllEntities.Where(e => e.EntityID == EntityIDFromForm).FirstOrDefault();
+                                    Entity = EffectiveRecord.AllEntities.FirstOrDefault(e => e.EntityID == EntityIDFromForm);
                                 }
                                 if (Entity == null)
                                 {
@@ -657,7 +674,7 @@ namespace EffectFramework.Core.Forms
                                 {
                                     // If an EntityID was sent to copy from, get it and try to copy the value from it.
                                     long PreviousEntityID = FormMembersNotToChange[MemberName];
-                                    EntityBase PreviousEntity = BoundItem.AllEntities.Where(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID).FirstOrDefault();
+                                    EntityBase PreviousEntity = BoundItem.AllEntities.FirstOrDefault(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID);
                                     if (PreviousEntity != null)
                                     {
                                         Entity.EffectiveDate = PreviousEntity.EffectiveDate;
@@ -686,7 +703,7 @@ namespace EffectFramework.Core.Forms
                                 {
                                     // If an EntityID was sent to copy from, get it and try to copy the value from it.
                                     long PreviousEntityID = FormMembersNotToChange[MemberName];
-                                    EntityBase PreviousEntity = BoundItem.AllEntities.Where(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID).FirstOrDefault();
+                                    EntityBase PreviousEntity = BoundItem.AllEntities.FirstOrDefault(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID);
                                     if (PreviousEntity != null)
                                     {
                                         Entity.EndEffectiveDate = PreviousEntity.EndEffectiveDate;
@@ -727,7 +744,7 @@ namespace EffectFramework.Core.Forms
                                 {
                                     // If an EntityID was sent to copy from, get it and try to copy the value from it.
                                     long PreviousEntityID = FormMembersNotToChange[MemberName];
-                                    EntityBase PreviousEntity = BoundItem.AllEntities.Where(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID).FirstOrDefault();
+                                    EntityBase PreviousEntity = BoundItem.AllEntities.FirstOrDefault(e => e.EntityID.HasValue && e.EntityID.Value == PreviousEntityID);
                                     if (PreviousEntity != null)
                                     {
                                         var PreviousEntityProperty = (IField)(MemberEntityType.GetProperty(MemberName).GetValue(PreviousEntity));

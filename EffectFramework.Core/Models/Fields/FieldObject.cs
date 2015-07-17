@@ -143,7 +143,7 @@ namespace EffectFramework.Core.Models.Fields
                     Log.Error("Must assign an object to an object field. Value Type: {0}, Field ID: {1}", value?.GetType()?.Name, FieldID);
                     throw new InvalidCastException("Must assign an object to a binary field.");
                 }
-                if (!_Value.Equals(value))
+                if ((_Value == null && value != null) || (_Value != null && value == null) || (_Value != null && !_Value.Equals(value)))
                 {
                     this.Dirty = true;
                     this._Value = (T)value;
