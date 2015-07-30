@@ -7,11 +7,10 @@
     "licenseUrl": "",
 
     "dependencies": {
-        "Ninject": "3.2.3-*",
         "EffectFramework.Core": "1.0.0-*",
-        "xunit.runner.dnx": "2.1.0-beta3-*",
-        "xunit": "2.1.0-beta3-*",
-        "Microsoft.Framework.Configuration.Json": "1.0.0-beta6-*"
+        "xunit.runner.dnx": "2.1.0-beta4-*",
+        "xunit": "2.1.0-beta4-*",
+        "Microsoft.Framework.Configuration.Json": "1.0.0-beta7-*"
     },
     "commands": {
         "test": "xunit.runner.dnx"

@@ -2,6 +2,9 @@
 
 namespace EffectFramework.Core.Models
 {
+    /// <summary>
+    /// A class to store the details of a single invalid field
+    /// </summary>
     public class ValidationResult
     {
         public FieldBase Field { get; private set; }

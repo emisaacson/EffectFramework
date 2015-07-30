@@ -164,12 +164,12 @@ namespace EffectFramework.Core.Models.Db
 
         public void Rollback()
         {
-            this.Database.GetDbTransaction().Rollback();
+            this.Database.RollbackTransaction();
         }
 
         public void Commit()
         {
-            this.Database.GetDbTransaction().Commit();
+            this.Database.CommitTransaction();
         }
     }
 }

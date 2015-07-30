@@ -367,6 +367,12 @@ namespace EffectFramework.Core.Forms
             }
         }
 
+        /// <summary>
+        /// Gets the name of the field bound to this member on the form
+        /// if it exists, otherwise null.
+        /// </summary>
+        /// <param name="Field">The field to search for</param>
+        /// <returns>The name of the bound field, or null</returns>
         public string GetFormFieldNameIfBound(FieldBase Field)
         {
             if (Field == null)

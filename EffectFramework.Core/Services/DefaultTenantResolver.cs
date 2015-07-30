@@ -4,7 +4,7 @@
     {
         public string GetTenantDatabase()
         {
-            return "HRMS";
+            return "EffectFramework";
         }
 
         public long GetTenantID()

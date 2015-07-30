@@ -2,11 +2,8 @@
 using System.Linq;
 using EffectFramework.Core.Models.Db;
 using Xunit;
-using Ninject;
 using EffectFramework.Core.Models.Entities;
-using Microsoft.Data.Entity;
 using EffectFramework.Core.Models.Fields;
-using Ninject.Parameters;
 using EffectFramework.Core.Models;
 using EffectFramework.Core.Forms;
 using EffectFramework.Core;

@@ -17,7 +17,7 @@ namespace EffectFramework.Core.Models
         /// <summary>
         /// Given the provided strategies, manipulate all entities to correct any violations
         /// of the current policy. If no strategies are provided, the policy's default
-        /// strategies are used. An exception is throws if the provided strategies are not
+        /// strategies are used. An exception is thrown if the provided strategies are not
         /// valid for the current policy.
         /// </summary>
         /// <param name="Item">The item.</param>

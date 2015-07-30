@@ -179,7 +179,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbField != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
@@ -313,7 +314,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbField != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
@@ -431,7 +433,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbEntity != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntity).ToArray();
@@ -526,7 +529,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbEntity != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntity).ToArray();
@@ -623,7 +627,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbItem != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Models.Db.Item>().Where(e => e.Entity == DbItem).ToArray();
@@ -694,7 +699,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
                 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbField != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
@@ -744,7 +750,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbField != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
@@ -850,7 +857,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbEntityPossibility != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntityPossibility).ToArray();
@@ -928,7 +936,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbEntity != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntity).ToArray();
@@ -1013,7 +1022,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbEntities != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Entity>().Where(e => DbEntities.Contains(e.Entity)).ToArray();
@@ -1066,7 +1076,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbItemRecord != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Models.Db.Item>().Where(e => e.Entity == DbItemRecord).ToArray();
@@ -1115,7 +1126,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && LookupTypes != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => LookupTypes.Contains(e.Entity)).ToArray();
@@ -1166,7 +1178,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbLookupType != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
@@ -1263,7 +1276,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbLookupType != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
@@ -1371,7 +1385,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbLookup != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Lookup>().Where(e => e.Entity == DbLookup).ToArray();
@@ -1435,7 +1450,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbLookup != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Lookup>().Where(e => e.Entity == DbLookup).ToArray();
@@ -1502,7 +1518,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbLookupType != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
@@ -1553,7 +1570,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbLookups != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<Lookup>().Where(e => DbLookups.Contains(e.Entity)).ToArray();
@@ -1607,7 +1625,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && Items != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<CompleteItem>().Where(e => Items.Contains(e.Entity)).ToArray();
@@ -1698,7 +1717,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && Audit != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<AuditLog>().Where(e => e.Entity == Audit).ToArray();
@@ -1776,7 +1796,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && Audit != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<AuditLog>().Where(e => e.Entity == Audit).ToArray();
@@ -1824,7 +1845,8 @@ namespace EffectFramework.Core.Services
                     db.Dispose();
                 }
 
-                // EITODO: No idea why this is necessary
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
                 if (db != null && DbFieldTypeMeta != null && ctx != null)
                 {
                     var Entries = db.ChangeTracker.Entries<FieldTypeMeta>().Where(e => e.Entity == DbFieldTypeMeta).ToArray();
