@@ -56,6 +56,7 @@ namespace EffectFramework.Core.Models
         /// The unique identifier.
         /// </value>
         public Guid Guid { get; protected set; }
+        public bool IsDeleted { get; protected set; }
         public bool Sparse { get; protected set; }
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="Item"/> is in sync with the data store.
@@ -338,6 +339,15 @@ namespace EffectFramework.Core.Models
                     db.Dispose();
                 }
             }
+        }
+
+        /// <summary>
+        /// Flags the item for deletion;
+        /// </summary>
+        public void Delete()
+        {
+            this.Dirty = true;
+            this.IsDeleted = true;
         }
 
         public ValidationSummary Validate()

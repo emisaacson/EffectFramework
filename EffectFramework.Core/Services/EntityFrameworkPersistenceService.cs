@@ -610,6 +610,7 @@ namespace EffectFramework.Core.Services
                 }
 
                 DbItem.Guid = Guid.NewGuid();
+                DbItem.IsDeleted = Item.IsDeleted;
 
                 db.SaveChanges();
 
