@@ -42,6 +42,8 @@ namespace EffectFramework.Core.Forms
         /// value on the form.
         /// </remarks>
         protected Dictionary<string, long> FormMembersNotToChange = new Dictionary<string, long>();
+
+        // EITODO: Determine if this is right. How to deal with strict type checking on the bind attribute
         protected Dictionary<Type, Item> BoundItems { get; set; }
 
 
@@ -53,6 +55,7 @@ namespace EffectFramework.Core.Forms
         private string FormIDMemberName = null;
         private string EffectiveDateMemberName = null;
         private string EndEffectiveDateMemberName = null;
+        private bool FormUseStrictTypeChecking = false;
 
 
         private enum Direction { Push, Pull };
@@ -170,6 +173,7 @@ namespace EffectFramework.Core.Forms
                 FormItemType = FormBinding.ItemType;
                 FormEntityType = FormBinding.EntityType;
                 FormIDMemberName = FormBinding.IDPropertyName;
+                FormUseStrictTypeChecking = FormBinding.UseStrictTypeChecking.HasValue ? FormBinding.UseStrictTypeChecking.Value : false;
             }
 
             if (EffectiveDateBinding != null)
@@ -537,10 +541,20 @@ namespace EffectFramework.Core.Forms
                     var MemberItemType = MemberBinding.ItemType ?? FormItemType;
                     var MemberEntityType = MemberBinding.EntityType ?? FormEntityType;
                     var MemberIDMemberName = MemberBinding.IDPropertyName ?? FormIDMemberName;
+                    bool MemberUseStrictTypeChecking = MemberBinding.UseStrictTypeChecking ?? FormUseStrictTypeChecking;
                     string MemberEffectiveDateFieldName = EffectiveDateMemberName;
                     string MemberEndEffectiveDateFieldName = EndEffectiveDateMemberName;
                     var MemberName = MemberBinding.FieldType ?? Member.Name;
-                    Item BoundItem = BoundItems[MemberItemType];
+
+                    IEnumerable<Item> BoundItemsToUse;
+                    if (MemberUseStrictTypeChecking)
+                    {
+                        BoundItemsToUse = new Item[] { BoundItems[MemberItemType] };
+                    }
+                    else
+                    {
+                        BoundItemsToUse = BoundItems.Where(i => MemberItemType.IsAssignableFrom(i.Value.GetType())).Select(i => i.Value);
+                    }
 
                     if (MemberItemType == null || MemberEntityType == null || MemberIDMemberName == null)
                     {
@@ -563,23 +577,22 @@ namespace EffectFramework.Core.Forms
                     DateTime EffectiveDate = Now;
                     DateTime? EndEffectiveDate = null;
 
-                    // If an effective date field name exists, we get its value from the form.
-                    if (MemberEffectiveDateFieldName != null)
-                    {
-                        EffectiveDate = (DateTime)this.GetType().GetProperty(MemberEffectiveDateFieldName).GetValue(this);
-                        if (EffectiveDate == default(DateTime))
+                    foreach (Item BoundItem in BoundItemsToUse) {
+                        // If an effective date field name exists, we get its value from the form.
+                        if (MemberEffectiveDateFieldName != null)
                         {
-                            EffectiveDate = BoundItem.EffectiveDate;
+                            EffectiveDate = (DateTime)this.GetType().GetProperty(MemberEffectiveDateFieldName).GetValue(this);
+                            if (EffectiveDate == default(DateTime))
+                            {
+                                EffectiveDate = BoundItem.EffectiveDate;
+                            }
                         }
-                    }
-                    if (MemberEndEffectiveDateFieldName != null)
-                    {
-                        EndEffectiveDate = (DateTime?)this.GetType().GetProperty(MemberEndEffectiveDateFieldName).GetValue(this);
-                    }
+                        if (MemberEndEffectiveDateFieldName != null)
+                        {
+                            EndEffectiveDate = (DateTime?)this.GetType().GetProperty(MemberEndEffectiveDateFieldName).GetValue(this);
+                        }
 
-                    // EITODO: won't this always be true?
-                    if (BoundItem.GetType() == MemberItemType)
-                    {
+
                         // Get the entity ID. If 0 is found, assume null.
                         long? EntityIDFromForm = (long?)this.GetType().GetProperty(MemberIDMemberName).GetValue(this);
                         if (EntityIDFromForm.HasValue && EntityIDFromForm.Value == default(long))
@@ -594,7 +607,7 @@ namespace EffectFramework.Core.Forms
                         {
                             // Get the entity from the cache, or the Item if not found. It has an ID
                             // so it should exist.
-                            if (EntityCache.Values.Any(e => e.EntityID.Value == EntityIDFromForm.Value))
+                            if (EntityCache.Values.Any(e => e.EntityID.HasValue && e.EntityID.Value == EntityIDFromForm.Value))
                             {
                                 Entity = EntityCache.Values.First(e => e.EntityID.Value == EntityIDFromForm.Value);
                             }
@@ -700,7 +713,8 @@ namespace EffectFramework.Core.Forms
                         else if (MemberName == "EndEffectiveDate") // Special case for this special field
                         {
 
-                            if (Direction == Direction.Push) {
+                            if (Direction == Direction.Push)
+                            {
                                 if (!FormMembersNotToChange.ContainsKey(MemberName))
                                 {
                                     Entity.EndEffectiveDate = EndEffectiveDate;
@@ -739,7 +753,8 @@ namespace EffectFramework.Core.Forms
                                 throw new InvalidOperationException("Binding is not configured properly.");
                             }
 
-                            if (Direction == Direction.Push) {
+                            if (Direction == Direction.Push)
+                            {
                                 // If the field is not found on this dictionary, it is
                                 // safe to set it from the value on the form.
                                 if (!FormMembersNotToChange.ContainsKey(MemberName))

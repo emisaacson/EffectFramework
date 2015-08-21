@@ -14,14 +14,16 @@ namespace EffectFramework.Core.Forms
         public Type EntityType { get; protected set; }
         public string FieldType { get; protected set; }
         public string IDPropertyName { get; protected set; }
+        public bool? UseStrictTypeChecking { get; protected set; }
 
 
-        public BindAttribute(Type ItemType, Type EntityType, string FieldType, string IDPropertyName = null)
+        public BindAttribute(Type ItemType, Type EntityType, string FieldType, string IDPropertyName = null, bool? UseStrictTypeChecking = null)
         {
             this.ItemType = ItemType;
             this.EntityType = EntityType;
             this.FieldType = FieldType;
             this.IDPropertyName = IDPropertyName;
+            this.UseStrictTypeChecking = UseStrictTypeChecking;
         }
 
         public BindAttribute(Type ItemType, Type EntityType, string IDPropertyName = null)
