@@ -13,16 +13,16 @@ namespace EffectFramework.Core.Models.Entities
     public abstract class EntityBase : ICacheable
     {
         [NonSerialized]
-        protected Logger _Log;
+        protected static Dictionary<string, Logger> _Logs = new Dictionary<string, Logger>();
         protected Logger Log
         {
             get
             {
-                if (_Log == null)
+                if (!_Logs.ContainsKey(GetType().Name))
                 {
-                    _Log = new Logger(GetType().Name);
+                    _Logs[GetType().Name] = new Logger(GetType().Name);
                 }
-                return _Log;
+                return _Logs[GetType().Name];
             }
         }
 

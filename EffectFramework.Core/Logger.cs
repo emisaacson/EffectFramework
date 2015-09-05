@@ -10,12 +10,20 @@ namespace EffectFramework.Core
     public class Logger
     {
         private ILoggingProvider _Log;
+        public static bool EnableLogging { get; set; } = false;
 
         public Logger(string ClassName)
         {
-            using (IKernel Kernel = new StandardKernel(new Configure()))
+            if (!EnableLogging)
             {
-                _Log = Kernel.Get<ILoggingProvider>(new ConstructorArgument("ClassName", ClassName));
+                _Log = new NullLoggingProvider();
+            }
+            else
+            {
+                using (IKernel Kernel = new StandardKernel(new Configure()))
+                {
+                    _Log = Kernel.Get<ILoggingProvider>(new ConstructorArgument("ClassName", ClassName));
+                }
             }
         }
 
