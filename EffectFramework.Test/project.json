@@ -8,9 +8,9 @@
 
     "dependencies": {
         "EffectFramework.Core": "1.0.0-*",
-        "xunit.runner.dnx": "2.1.0-beta5-build156",
-        "xunit": "2.1.0-rc1-build3112",
-        "Microsoft.Framework.Configuration.Json": "1.0.0-beta7-*"
+        "xunit.runner.dnx": "2.1.0-beta6-build171",
+        "xunit": "2.1.0-rc2-build3169",
+        "Microsoft.Framework.Configuration.Json": "1.0.0-beta8-*"
     },
     "commands": {
         "test": "xunit.runner.dnx"
