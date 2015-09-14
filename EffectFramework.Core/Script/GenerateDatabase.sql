@@ -268,6 +268,7 @@ CREATE TABLE [dbo].[Lookups](
 	[IsDeleted] [bit] NOT NULL,
 	[Guid] [uniqueidentifier] NOT NULL,
 	[TenantID] [bigint] NOT NULL,
+	[ParentID] [bigint] NULL,
  CONSTRAINT [PK_Lookups] PRIMARY KEY CLUSTERED 
 (
 	[LookupID] ASC
@@ -291,6 +292,7 @@ CREATE TABLE [dbo].[LookupTypes](
 	[Guid] [uniqueidentifier] NOT NULL,
 	[TenantID] [bigint] NOT NULL,
 	[IsReadOnly] [bit] NOT NULL CONSTRAINT [DF_LookupTypes_IsReadOnly]  DEFAULT ((0)),
+	[IsHierarchical] [bit] NOT NULL DEFAULT ((0)),
  CONSTRAINT [PK_LookupTypes] PRIMARY KEY CLUSTERED 
 (
 	[LookupTypeID] ASC
@@ -583,6 +585,9 @@ ALTER TABLE [dbo].[Lookups] CHECK CONSTRAINT [FK_Lookups_LookupTypes]
 GO
 ALTER TABLE [dbo].[Lookups]  WITH CHECK ADD  CONSTRAINT [FK_Lookups_Tenants] FOREIGN KEY([TenantID])
 REFERENCES [dbo].[Tenants] ([TenantID])
+GO
+ALTER TABLE [dbo].[Lookups]  WITH CHECK ADD  CONSTRAINT [FK_Lookups_Lookups] FOREIGN KEY([ParentID])
+REFERENCES [dbo].[Lookups] ([LookupID])
 GO
 ALTER TABLE [dbo].[Lookups] CHECK CONSTRAINT [FK_Lookups_Tenants]
 GO

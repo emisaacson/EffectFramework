@@ -10,5 +10,6 @@ namespace EffectFramework.Core.Models.Db
         public Guid Guid { get; set; }
         public long TenantID { get; set; }
         public bool IsReadOnly { get; set; } = false;
+        public bool IsHierarchical { get; set; } = false;
     }
 }
