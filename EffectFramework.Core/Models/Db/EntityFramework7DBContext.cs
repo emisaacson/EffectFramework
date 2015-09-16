@@ -95,6 +95,10 @@ namespace EffectFramework.Core.Models.Db
                 l.Property(e => e.LookupID).UseSqlServerIdentityColumn();
 
                 l.Reference<Field>().InverseReference(e => e.Lookup).ForeignKey<Field>(e => e.ValueLookup);
+                l.Reference<LookupType>().InverseCollection(e => e.Lookups).ForeignKey(e => e.LookupTypeID);
+                l.Reference<Lookup>().InverseReference(e => e.Parent).ForeignKey<Lookup>(e => e.ParentID);
+
+                //lt.Reference<Lookup>().InverseReference(e => e.LookupType).ForeignKey<Lookup>(e => e.LookupTypeID);
             });
 
             builder.Entity<LookupType>(lt =>
@@ -104,7 +108,7 @@ namespace EffectFramework.Core.Models.Db
                 lt.Key(e => e.LookupTypeID);
 
                 lt.Property(l => l.LookupTypeID).UseSqlServerIdentityColumn();
-
+                
             });
 
             builder.Entity<Entity>(e =>

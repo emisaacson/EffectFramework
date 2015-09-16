@@ -201,6 +201,12 @@ namespace EffectFramework.Core.Services
         void RecordAudit(EntityBase Entity, long? ItemID, string Comment, Models.Db.IDbContext ctx = null);
 
         /// <summary>
+        /// Returns a parent Lookup by its ID
+        /// </summary>
+        /// <param name="ParentID">The Parent ID which must be retrieved</param>
+        LookupEntry GetParentLookup(long? ParentID);
+
+        /// <summary>
         /// Retreives an instance of the database context.
         /// </summary>
         /// <returns>An new database context.</returns>

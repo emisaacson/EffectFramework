@@ -79,6 +79,8 @@ namespace EffectFramework.Core.Models.Fields
 
         public bool FlagForDeletion { get; private set; } = false;
         public LookupCollection LookupCollection { get; private set; }
+        public long? ParentID { get; private set; }
+        public LookupEntry Parent { get; private set; }
 
         public LookupEntry(LookupCollection LookupCollection)
         {
@@ -92,7 +94,7 @@ namespace EffectFramework.Core.Models.Fields
             this.LookupCollection = LookupCollection;
         }
 
-        public LookupEntry(long ID, string Value, long TenantID, Guid Guid, LookupCollection LookupCollection)
+        public LookupEntry(long ID, string Value, long TenantID, Guid Guid, LookupCollection LookupCollection, long? ParentID = null, bool IsHierarchical = false)
         {
             long _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
@@ -100,6 +102,12 @@ namespace EffectFramework.Core.Models.Fields
             {
                 Log.Fatal("Tenant ID does not match. Lookup Tenant ID: {0}, Global Tenant ID: {1}", TenantID, _TenantID);
                 throw new Exceptions.FatalException("Data error.");
+            }
+
+            if (ParentID.HasValue && IsHierarchical)
+            {
+                this.ParentID = ParentID;
+                this.Parent = PersistenceService.GetParentLookup(ParentID);
             }
             this.ID = ID;
             this.Value = Value;
