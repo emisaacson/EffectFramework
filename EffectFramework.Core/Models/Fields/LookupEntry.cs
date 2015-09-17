@@ -80,7 +80,18 @@ namespace EffectFramework.Core.Models.Fields
         public bool FlagForDeletion { get; private set; } = false;
         public LookupCollection LookupCollection { get; private set; }
         public long? ParentID { get; private set; }
-        public LookupEntry Parent { get; private set; }
+        public LookupEntry _Parent;
+        public LookupEntry Parent
+        {
+            get
+            {
+                if (_Parent == null && ParentID > 0)
+                {
+                    _Parent = PersistenceService.GetParentLookup(ParentID);
+                }
+                return _Parent;
+            }
+        }
 
         public LookupEntry(LookupCollection LookupCollection)
         {
@@ -104,11 +115,7 @@ namespace EffectFramework.Core.Models.Fields
                 throw new Exceptions.FatalException("Data error.");
             }
 
-            if (ParentID.HasValue && IsHierarchical)
-            {
-                this.ParentID = ParentID;
-                this.Parent = PersistenceService.GetParentLookup(ParentID);
-            }
+            this.ParentID = ParentID;
             this.ID = ID;
             this.Value = Value;
             this.TenantID = TenantID;
