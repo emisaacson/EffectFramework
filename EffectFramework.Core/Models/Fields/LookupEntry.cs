@@ -2,6 +2,7 @@
 using EffectFramework.Core.Services;
 using EffectFramework.Core.Exceptions;
 using System;
+using System.Linq;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -80,14 +81,16 @@ namespace EffectFramework.Core.Models.Fields
         public bool FlagForDeletion { get; private set; } = false;
         public LookupCollection LookupCollection { get; private set; }
         public long? ParentID { get; private set; }
-        public LookupEntry _Parent;
+
+        [NonSerialized]
+        private LookupEntry _Parent;
         public LookupEntry Parent
         {
             get
             {
                 if (_Parent == null && ParentID > 0)
                 {
-                    _Parent = PersistenceService.GetParentLookup(ParentID);
+                    _Parent = LookupCollection.Choices.FirstOrDefault(e => e.ID == ParentID);
                 }
                 return _Parent;
             }

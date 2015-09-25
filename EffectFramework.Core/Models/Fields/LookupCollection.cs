@@ -275,7 +275,7 @@ namespace EffectFramework.Core.Models.Fields
 
         private void RefreshChoices(IDbContext ctx = null)
         {
-            if (_Choices == null || _Choices.Count == 0)
+            if (_Choices == null)
             {
                 if (this.LookupTypeID.HasValue)
                 {

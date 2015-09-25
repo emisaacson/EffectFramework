@@ -1,4 +1,31 @@
-﻿/****** Object:  StoredProcedure [dbo].[usp_DeleteEntireDatabase]    Script Date: 6/29/2015 1:28:44 AM ******/
+﻿/****** DROP DB PROCEDURE *************
+drop table __EFMigrationsHistory
+drop table AspNetRoleClaims
+drop table AspNetUserClaims
+drop table AspNetUserLogins
+drop table AspNetUserRoles
+drop table AspNetRoles
+drop table AspNetUsers
+
+drop view CompleteItems
+drop view CurrentItems
+drop procedure usp_DeleteEntireDatabase
+
+drop table AuditLog
+drop table Fields
+drop table Entities
+drop table Items
+drop table Lookups
+drop table FieldTypeMeta
+drop table FieldTypes
+drop table LookupTypes
+drop table DataTypes
+drop table EntityTypes
+drop table ItemTypes
+drop table Tenants
+****************************************/
+
+/****** Object:  StoredProcedure [dbo].[usp_DeleteEntireDatabase]    Script Date: 6/29/2015 1:28:44 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -13,10 +40,12 @@ BEGIN
 
 	BEGIN TRANSACTION deleteDatabase;
 
+	DELETE FROM AuditLog;
 	DELETE FROM Fields;
 	DELETE FROM Entities;
 	DELETE FROM Items;
 
+	DBCC CHECKIDENT ('dbo.AuditLog',RESEED,0);
 	DBCC CHECKIDENT ('dbo.Fields',RESEED, 0);
 	DBCC CHECKIDENT ('dbo.Entities',RESEED, 0);
 	DBCC CHECKIDENT ('dbo.Items',RESEED, 0);

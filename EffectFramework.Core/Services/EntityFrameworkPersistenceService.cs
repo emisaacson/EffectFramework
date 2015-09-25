@@ -14,25 +14,6 @@ namespace EffectFramework.Core.Services
     public class EntityFrameworkPersistenceService : IPersistenceService
     {
         private Logger Log = new Logger(nameof(EntityFrameworkPersistenceService));
-        private List<LookupType> _HierarchicalTypes;
-        private List<LookupType> HierarchicalTypes
-        {
-            get
-            {
-                if (_HierarchicalTypes == null)
-                {
-                    EntityFramework7DBContext db = new EntityFramework7DBContext(ConnectionString);
-
-                    _HierarchicalTypes = db.LookupTypes.Where(lt => lt.IsHierarchical).ToList();
-                }
-                return _HierarchicalTypes;
-            }
-        }
-
-        public bool IsHierarchicalType(long TypeID)
-        {
-            return TypeID > 0 ?  HierarchicalTypes.Select(lt => lt.LookupTypeID).Contains(TypeID) : false;
-        }
 
         private string ConnectionString;
         public EntityFrameworkPersistenceService(string ConnectionString)
@@ -1280,6 +1261,7 @@ namespace EffectFramework.Core.Services
 
                 DbLookupType.Guid = Guid.NewGuid();
                 DbLookupType.Name = LookupCollection.Name;
+                DbLookupType.IsHierarchical = LookupCollection.IsHierarchical;
 
                 db.SaveChanges();
 
@@ -1458,6 +1440,15 @@ namespace EffectFramework.Core.Services
                     throw new Exceptions.FatalException("Data error.");
                 }
 
+                // Check if there are undeleted children
+                if (LookupEntry.LookupCollection != null && LookupEntry.LookupCollection.IsHierarchical)
+                {
+                    if (LookupEntry.LookupCollection.Choices.Any(e => e.ParentID == LookupEntry.ID))
+                    {
+                        throw new InvalidOperationException("Cannot delete a lookup entry in a heirarchical collection with undeleted children.");
+                    }
+                }
+
 
                 DbLookup.Guid = Guid.NewGuid();
                 DbLookup.Value = LookupEntry.Value;
@@ -1582,7 +1573,7 @@ namespace EffectFramework.Core.Services
                             DbLookup.TenantID, TenantID);
                         throw new Exceptions.FatalException("Data error.");
                     }
-                    Output.Add(new LookupEntry(DbLookup.LookupID, DbLookup.Value, DbLookup.TenantID, DbLookup.Guid, LookupCollection, DbLookup.ParentID, IsHierarchicalType(DbLookup.LookupTypeID)));
+                    Output.Add(new LookupEntry(DbLookup.LookupID, DbLookup.Value, DbLookup.TenantID, DbLookup.Guid, LookupCollection, DbLookup.ParentID, LookupCollection.IsHierarchical));
                 }
 
                 return Output;
@@ -1880,23 +1871,6 @@ namespace EffectFramework.Core.Services
                     }
                 }
             }
-        }
-
-        public LookupEntry GetParentLookup(long? ParentID)
-        {
-            if (!ParentID.HasValue || ParentID < 1)
-            {
-                Log.Fatal("ParentID is not valid, ParentID: {0}", ParentID);
-                throw new Exceptions.FatalException("Data error.");
-            }
-            EntityFramework7DBContext db = GetDbContext() as EntityFramework7DBContext;
-            var parent = db.Lookups.FirstOrDefault(l => l.LookupID == ParentID);
-            if (parent == null)
-            {
-                Log.Fatal("Parent was not found, ParentID: {0}", ParentID);
-                throw new Exceptions.FatalException("Data error.");
-            }
-            return new LookupEntry(parent.LookupID, parent.Value, parent.TenantID, parent.Guid, null, parent.ParentID, IsHierarchicalType(parent.LookupTypeID));
         }
     }
 }
