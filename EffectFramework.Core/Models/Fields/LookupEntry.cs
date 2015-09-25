@@ -2,6 +2,7 @@
 using EffectFramework.Core.Services;
 using EffectFramework.Core.Exceptions;
 using System;
+using System.Linq;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -79,6 +80,21 @@ namespace EffectFramework.Core.Models.Fields
 
         public bool FlagForDeletion { get; private set; } = false;
         public LookupCollection LookupCollection { get; private set; }
+        public long? ParentID { get; private set; }
+
+        [NonSerialized]
+        private LookupEntry _Parent;
+        public LookupEntry Parent
+        {
+            get
+            {
+                if (_Parent == null && ParentID > 0)
+                {
+                    _Parent = LookupCollection.Choices.FirstOrDefault(e => e.ID == ParentID);
+                }
+                return _Parent;
+            }
+        }
 
         public LookupEntry(LookupCollection LookupCollection)
         {
@@ -92,7 +108,7 @@ namespace EffectFramework.Core.Models.Fields
             this.LookupCollection = LookupCollection;
         }
 
-        public LookupEntry(long ID, string Value, long TenantID, Guid Guid, LookupCollection LookupCollection)
+        public LookupEntry(long ID, string Value, long TenantID, Guid Guid, LookupCollection LookupCollection, long? ParentID = null, bool IsHierarchical = false)
         {
             long _TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
 
@@ -101,6 +117,8 @@ namespace EffectFramework.Core.Models.Fields
                 Log.Fatal("Tenant ID does not match. Lookup Tenant ID: {0}, Global Tenant ID: {1}", TenantID, _TenantID);
                 throw new Exceptions.FatalException("Data error.");
             }
+
+            this.ParentID = ParentID;
             this.ID = ID;
             this.Value = Value;
             this.TenantID = TenantID;

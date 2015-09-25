@@ -10,5 +10,9 @@ namespace EffectFramework.Core.Models.Db
         public bool IsDeleted { get; set; }
         public Guid Guid { get; set; }
         public long TenantID { get; set; }
+        public long? ParentID { get; set; }
+
+        public Lookup Parent { get; set; }
+        public LookupType LookupType { get; set; }
     }
 }

@@ -48,6 +48,7 @@ namespace EffectFramework.Core.Models.Fields
         public string OriginalName { get; private set; }
         public long? LookupTypeID { get; private set; }
         public bool IsReadOnly { get; private set; }
+        public bool IsHierarchical { get; private set; }
 
         public bool FlagForDeletion { get; private set; } = false;
 
@@ -117,6 +118,7 @@ namespace EffectFramework.Core.Models.Fields
             this.Guid = DbLookupType.Guid;
             this.Dirty = false;
             this.IsReadOnly = DbLookupType.IsReadOnly;
+            this.IsHierarchical = DbLookupType.IsHierarchical;
             RefreshChoices();
 
             RefreshOriginalValues();
@@ -145,6 +147,7 @@ namespace EffectFramework.Core.Models.Fields
             this.Guid = LookupFromDatabase.Guid;
             this.Dirty = false;
             this.IsReadOnly = LookupFromDatabase.IsReadOnly;
+            this.IsHierarchical = LookupFromDatabase.IsHierarchical;
             RefreshChoices(ctx);
 
             RefreshOriginalValues();
