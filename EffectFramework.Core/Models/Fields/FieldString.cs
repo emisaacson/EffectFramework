@@ -1,5 +1,6 @@
 ﻿using System;
 using EffectFramework.Core.Models.Entities;
+using System.Collections.Generic;
 
 namespace EffectFramework.Core.Models.Fields
 {
@@ -69,6 +70,17 @@ namespace EffectFramework.Core.Models.Fields
                 }
                 _Meta = (FieldTypeMetaText)value;
             }
+        }
+
+        protected override ValidationSummary ValidationHook()
+        {
+            var Errors = new List<ValidationResult>();
+
+            if (Meta.HasRegex && !string.IsNullOrWhiteSpace(this.Value) && !Meta.TextRegex.IsMatch(this.Value))
+            {
+                Errors.Add(new ValidationResult(this, string.Format(Strings.Field_Does_Not_Validate, this.Entity.Type.Name, this.Name)));
+            }
+            return new ValidationSummary(Errors);
         }
 
         public object DereferencedValue

@@ -15,5 +15,11 @@ namespace EffectFramework.Core.Models
             this.Field = Field;
             this.Message = Message;
         }
+
+        public ValidationResult(string Message)
+        {
+            this.Message = Message;
+            this.Field = null;
+        }
     }
 }

@@ -474,12 +474,14 @@ namespace EffectFramework.Core.Models.Fields
                 Errors.Add(new ValidationResult(this, string.Format(Strings.Range_Is_Required, this.Entity.Type.Name, this.Name, this.Meta.RangeMin, this.Meta.RangeMax)));
             }
 
-            if (Meta.HasRegex && Type.DataType == DataType.Text && !string.IsNullOrWhiteSpace(((FieldString)this).Value) && !Meta.TextRegex.IsMatch(((FieldString)this).Value))
-            {
-                Errors.Add(new ValidationResult(this, string.Format(Strings.Field_Does_Not_Validate, this.Entity.Type.Name, this.Name)));
-            }
+            Errors.AddRange(ValidationHook().Errors);
 
             return new ValidationSummary(Errors);
+        }
+
+        protected virtual ValidationSummary ValidationHook()
+        {
+            return new ValidationSummary(new ValidationResult[0]);
         }
 
         private bool TestDateRange()

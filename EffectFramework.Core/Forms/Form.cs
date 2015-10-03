@@ -381,7 +381,7 @@ namespace EffectFramework.Core.Forms
         {
             if (Field == null)
             {
-                throw new ArgumentNullException(nameof(Field));
+                return null;
             }
 
             var AllFields = GetBoundFields();
