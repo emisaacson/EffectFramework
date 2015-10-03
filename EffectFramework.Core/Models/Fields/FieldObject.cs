@@ -65,6 +65,16 @@ namespace EffectFramework.Core.Models.Fields
             }
         }
 
+        protected override ValidationSummary ValidationHook()
+        {
+            List<ValidationResult> Errors = new List<ValidationResult>();
+            if (_Value is IValidatable)
+            {
+                Errors.AddRange(((IValidatable)_Value).Validate().Errors);
+            }
+            return new ValidationSummary(Errors);
+        }
+
         private byte[] Serialize(T Obj)
         {
             BinaryFormatter Formatter = new BinaryFormatter();
