@@ -21,7 +21,8 @@ namespace EffectFramework.Test
         {
             Ef = new EffectFrameworkTestsContext();
 
-            var configuration = new ConfigurationBuilder(Ef.BasePath)
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Ef.BasePath)
                 .AddJsonFile("config.json");
             Ef.Configuration = configuration.Build();
 

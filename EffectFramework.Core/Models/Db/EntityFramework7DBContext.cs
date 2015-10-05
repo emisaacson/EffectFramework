@@ -52,14 +52,14 @@ namespace EffectFramework.Core.Models.Db
             {
                 e.ToTable("CompleteItems");
 
-                e.Key(i => new { i.ItemID, i.EntityID, i.FieldID });
+                e.HasKey(i => new { i.ItemID, i.EntityID, i.FieldID });
             });
 
             builder.Entity<FieldTypeMeta>(e =>
             {
                 e.ToTable("FieldTypeMeta");
 
-                e.Key(i => i.FieldTypeMetaID);
+                e.HasKey(i => i.FieldTypeMetaID);
 
                 e.Property(i => i.FieldTypeID).UseSqlServerIdentityColumn();
             });
@@ -68,7 +68,7 @@ namespace EffectFramework.Core.Models.Db
             {
                 e.ToTable("AuditLog");
 
-                e.Key(i => i.AuditLogID);
+                e.HasKey(i => i.AuditLogID);
 
                 e.Property(i => i.AuditLogID).UseSqlServerIdentityColumn();
             });
@@ -77,12 +77,12 @@ namespace EffectFramework.Core.Models.Db
             {
                 e.ToTable("Items");
 
-                e.Key(i => i.ItemID);
+                e.HasKey(i => i.ItemID);
 
                 e.Property(i => i.ItemID).UseSqlServerIdentityColumn();
 
-                e.Collection(i => i.Entities)
-                    .InverseReference(en => en.Item)
+                e.HasMany(i => i.Entities)
+                    .WithOne(en => en.Item)
                     .ForeignKey(en => en.ItemID);
             });
 
@@ -90,22 +90,20 @@ namespace EffectFramework.Core.Models.Db
             {
                 l.ToTable("Lookups");
 
-                l.Key(e => e.LookupID);
+                l.HasKey(e => e.LookupID);
 
                 l.Property(e => e.LookupID).UseSqlServerIdentityColumn();
 
-                l.Reference<Field>().InverseReference(e => e.Lookup).ForeignKey<Field>(e => e.ValueLookup);
-                l.Reference<LookupType>().InverseCollection(e => e.Lookups).ForeignKey(e => e.LookupTypeID);
-                l.Reference<Lookup>().InverseReference(e => e.Parent).ForeignKey<Lookup>(e => e.ParentID);
-
-                //lt.Reference<Lookup>().InverseReference(e => e.LookupType).ForeignKey<Lookup>(e => e.LookupTypeID);
+                l.HasOne<Field>().WithOne(e => e.Lookup).ForeignKey<Field>(e => e.ValueLookup);
+                l.HasOne<LookupType>().WithMany(e => e.Lookups).ForeignKey(e => e.LookupTypeID);
+                l.HasOne<Lookup>().WithOne(e => e.Parent).ForeignKey<Lookup>(e => e.ParentID);
             });
 
             builder.Entity<LookupType>(lt =>
             {
                 lt.ToTable("LookupTypes");
 
-                lt.Key(e => e.LookupTypeID);
+                lt.HasKey(e => e.LookupTypeID);
 
                 lt.Property(l => l.LookupTypeID).UseSqlServerIdentityColumn();
                 
@@ -115,12 +113,12 @@ namespace EffectFramework.Core.Models.Db
             {
                 e.ToTable("Entities");
 
-                e.Key(en => en.EntityID);
+                e.HasKey(en => en.EntityID);
 
                 e.Property(en => en.EntityID).UseSqlServerIdentityColumn();
 
-                e.Collection(en => en.EntityFields)
-                    .InverseReference(ef => ef.Entity)
+                e.HasMany(en => en.EntityFields)
+                    .WithOne(ef => ef.Entity)
                     .ForeignKey(ef => ef.EntityID);
             });
 
@@ -128,7 +126,7 @@ namespace EffectFramework.Core.Models.Db
             {
                 e.ToTable("Fields");
 
-                e.Key(ef => ef.FieldID);
+                e.HasKey(ef => ef.FieldID);
 
                 e.Property(ef => ef.FieldID).UseSqlServerIdentityColumn();
             });
@@ -137,7 +135,7 @@ namespace EffectFramework.Core.Models.Db
             {
                 e.ToTable("ItemTypes");
 
-                e.Key(it => it.ItemTypeID);
+                e.HasKey(it => it.ItemTypeID);
 
                 e.Property(it => it.ItemTypeID).UseSqlServerIdentityColumn();
             });
@@ -146,7 +144,7 @@ namespace EffectFramework.Core.Models.Db
             {
                 e.ToTable("EntityTypes");
 
-                e.Key(et => et.EntityTypeID);
+                e.HasKey(et => et.EntityTypeID);
 
                 e.Property(et => et.EntityTypeID).UseSqlServerIdentityColumn();
             });
@@ -155,7 +153,7 @@ namespace EffectFramework.Core.Models.Db
             {
                 e.ToTable("FieldTypes");
 
-                e.Key(ft => ft.FieldTypeID);
+                e.HasKey(ft => ft.FieldTypeID);
 
                 e.Property(ft => ft.FieldTypeID).UseSqlServerIdentityColumn();
             });

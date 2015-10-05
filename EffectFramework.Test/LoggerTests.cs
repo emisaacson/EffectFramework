@@ -28,7 +28,8 @@ namespace EffectFramework.Test
         public LoggerTests()
         {
             Configure.RegisterLoggingProvider<MemoryLoggingProvider>();
-            var configuration = new ConfigurationBuilder(BasePath)
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(BasePath)
                 .AddJsonFile("config.json")
                 .Build();
 
