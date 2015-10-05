@@ -278,8 +278,6 @@ namespace EffectFramework.Core.Forms
                 throw new ArgumentOutOfRangeException("The specified field does not exist.");
             }
             var MemberBinding = Member.GetCustomAttribute<BindAttribute>();
-            var MemberLevelEffectiveDateAttribute = Member.GetCustomAttribute<EffectiveDateAttribute>();
-            var MemberLevelEndEffectiveDateAttribute = Member.GetCustomAttribute<EndEffectiveDateAttribute>();
 
             if (MemberBinding != null)
             {
@@ -450,6 +448,15 @@ namespace EffectFramework.Core.Forms
                 if (MemberLevelEndEffectiveDateAttribute != null && MemberLevelEndEffectiveDateAttribute.FieldName != null)
                 {
                     MemberEndEffectiveDateFieldName = MemberLevelEndEffectiveDateAttribute.FieldName;
+                }
+
+                if (_MemberName == MemberEffectiveDateFieldName)
+                {
+                    _MemberName = "EffectiveDate";
+                }
+                if (_MemberName == MemberEndEffectiveDateFieldName)
+                {
+                    _MemberName = "EndEffectiveDate";
                 }
 
                 MemberInfo EntityMemberInfo = MemberEntityType.GetProperty(_MemberName);
@@ -680,7 +687,7 @@ namespace EffectFramework.Core.Forms
 
                         // Now we have enough information to actually push or pull the values.
 
-                        if (MemberName == "EffectiveDate") // Special case for this special field
+                        if (MemberName == EffectiveDateMemberName) // Special case for this special field
                         {
 
                             if (Direction == Direction.Push)
@@ -710,7 +717,7 @@ namespace EffectFramework.Core.Forms
                                 SetValueOn(Member, Entity.EffectiveDate);
                             }
                         }
-                        else if (MemberName == "EndEffectiveDate") // Special case for this special field
+                        else if (MemberName == MemberEndEffectiveDateFieldName) // Special case for this special field
                         {
 
                             if (Direction == Direction.Push)
