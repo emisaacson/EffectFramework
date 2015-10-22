@@ -1441,13 +1441,13 @@ namespace EffectFramework.Core.Services
                 }
 
                 // Check if there are undeleted children
-                if (LookupEntry.LookupCollection != null && LookupEntry.LookupCollection.IsHierarchical)
-                {
-                    if (LookupEntry.LookupCollection.Choices.Any(e => e.ParentID == LookupEntry.ID))
-                    {
-                        throw new InvalidOperationException("Cannot delete a lookup entry in a heirarchical collection with undeleted children.");
-                    }
-                }
+                //if (LookupEntry.LookupCollection != null && LookupEntry.LookupCollection.IsHierarchical)
+                //{
+                //    if (LookupEntry.LookupCollection.Choices.Any(e => e.ParentID == LookupEntry.ID))
+                //    {
+                //        throw new InvalidOperationException("Cannot delete a lookup entry in a heirarchical collection with undeleted children.");
+                //    }
+                //}
 
 
                 DbLookup.Guid = Guid.NewGuid();

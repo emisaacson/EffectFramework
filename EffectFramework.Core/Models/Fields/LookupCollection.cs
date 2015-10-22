@@ -48,7 +48,7 @@ namespace EffectFramework.Core.Models.Fields
         public string OriginalName { get; private set; }
         public long? LookupTypeID { get; private set; }
         public bool IsReadOnly { get; private set; }
-        public bool IsHierarchical { get; private set; }
+        public bool IsHierarchical { get; set; }
 
         public bool FlagForDeletion { get; private set; } = false;
 
@@ -122,6 +122,11 @@ namespace EffectFramework.Core.Models.Fields
             RefreshChoices();
 
             RefreshOriginalValues();
+        }
+
+        public void SetDirty()
+        {
+            this.Dirty = true;
         }
 
         private void LoadById(long LookupCollectionID, IDbContext ctx = null)
@@ -246,7 +251,7 @@ namespace EffectFramework.Core.Models.Fields
             return true;
         }
 
-        public void AddLookupEntry(string Value)
+        public void AddLookupEntry(string Value, long? DomID = null, long? ParentID = null)
         {
             if (string.IsNullOrWhiteSpace(Value))
             {
@@ -256,6 +261,8 @@ namespace EffectFramework.Core.Models.Fields
 
             LookupEntry LookupEntry = new LookupEntry(this);
             LookupEntry.Value = Value;
+            LookupEntry.ParentID = ParentID;
+            LookupEntry.DomID = DomID;
 
             this._Choices.Add(LookupEntry);
         }
