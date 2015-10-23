@@ -180,5 +180,10 @@ namespace EffectFramework.Core.Models.Fields
 
             return true;
         }
+
+        public void SetDirty()
+        {
+            this.Dirty = true;
+        }
     }
 }
