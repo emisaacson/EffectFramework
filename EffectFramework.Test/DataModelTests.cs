@@ -7,7 +7,7 @@ using EffectFramework.Core.Models.Fields;
 using EffectFramework.Core.Models;
 using EffectFramework.Core.Forms;
 using EffectFramework.Core;
-using Microsoft.Framework.Configuration;
+using Microsoft.Extensions.Configuration;
 using EffectFramework.Core.Exceptions;
 using EffectFramework.Core.Models.Annotations;
 using System.Collections.Generic;

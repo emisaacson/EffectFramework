@@ -1,5 +1,5 @@
 ﻿using EffectFramework.Core.Models.Db;
-using Microsoft.Framework.Configuration;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,7 +26,7 @@ namespace EffectFramework.Test
         public List<Entity> TempEntity = new List<Entity>();
         public List<Field> TempField = new List<Field>();
 
-        public IConfiguration Configuration { get; set; }
+        public IConfigurationRoot Configuration { get; set; }
 
         public void PrepareEF7Database()
         {

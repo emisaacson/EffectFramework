@@ -1,5 +1,5 @@
 ﻿using EffectFramework.Core;
-using Microsoft.Framework.Configuration;
+using Microsoft.Extensions.Configuration;
 using Ninject;
 using System;
 using System.Collections.Generic;

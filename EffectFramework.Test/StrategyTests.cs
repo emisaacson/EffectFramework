@@ -1,8 +1,8 @@
 ﻿using EffectFramework.Core;
-using Microsoft.Framework.Configuration;
 using Ninject;
 using System;
 using Xunit;
+using Microsoft.Extensions.Configuration;
 
 namespace EffectFramework.Test
 {

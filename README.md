@@ -1,6 +1,6 @@
 EffectFramework v0.0.1
 ====================
-EffectFramework is a very simple data framework for storing records to a database using a flexible EAV schema.
+EffectFramework is a simple data framework for storing records to a database using a flexible EAV schema.
 It's primarily a tool for an open-schema application but it maintains some important relational features. It's
 other main feature is effective dating fields are first class citizens in this model so it's particularly useful
 for applications that require a flexible field structure as well as being able to easily reconstruct a record
@@ -22,9 +22,9 @@ Features
 * Lookups and references maintain referential integrity via foreign keys (in the included EF7 persistence
   service implementation)
 * Full test suite
+* Audit log of all field updates
+* Hooks for validation
 * (TODO) Hooks for field level access permissions
-* (TODO) Audit log of all field updates
-* (TODO) Hooks for validation
 * (TODO) API for accessing items, entities and fields only defined in the database
 
 Not Features
@@ -39,8 +39,8 @@ Misc. ToDos
 
 Why?
 ----
-This framework is used in HRFI and I thought it might be nice to extract this framework instead
-of mixing it up with the application code.
+This framework is used in a project I'm working on and I thought it might be nice to extract this framework
+instead of mixing it up with the application code.
 
 Glossary
 --------

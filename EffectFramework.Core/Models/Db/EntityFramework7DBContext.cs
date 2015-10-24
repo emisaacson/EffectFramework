@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
 
 namespace EffectFramework.Core.Models.Db
 {
@@ -46,7 +47,7 @@ namespace EffectFramework.Core.Models.Db
         {
             base.OnModelCreating(builder);
 
-            builder.UseSqlServerIdentityColumns();
+            builder.ForSqlServerUseIdentityColumns();
 
             builder.Entity<CompleteItem>(e =>
             {
@@ -83,7 +84,7 @@ namespace EffectFramework.Core.Models.Db
 
                 e.HasMany(i => i.Entities)
                     .WithOne(en => en.Item)
-                    .ForeignKey(en => en.ItemID);
+                    .HasForeignKey(en => en.ItemID);
             });
 
             builder.Entity<Lookup>(l =>
@@ -94,9 +95,9 @@ namespace EffectFramework.Core.Models.Db
 
                 l.Property(e => e.LookupID).UseSqlServerIdentityColumn();
 
-                l.HasOne<Field>().WithOne(e => e.Lookup).ForeignKey<Field>(e => e.ValueLookup);
-                l.HasOne<LookupType>().WithMany(e => e.Lookups).ForeignKey(e => e.LookupTypeID);
-                l.HasOne<Lookup>().WithOne(e => e.Parent).ForeignKey<Lookup>(e => e.ParentID);
+                l.HasOne<Field>().WithOne(e => e.Lookup).HasForeignKey<Field>(e => e.ValueLookup);
+                l.HasOne<LookupType>().WithMany(e => e.Lookups).HasForeignKey(e => e.LookupTypeID);
+                l.HasOne<Lookup>().WithOne(e => e.Parent).HasForeignKey<Lookup>(e => e.ParentID);
             });
 
             builder.Entity<LookupType>(lt =>
@@ -119,7 +120,7 @@ namespace EffectFramework.Core.Models.Db
 
                 e.HasMany(en => en.EntityFields)
                     .WithOne(ef => ef.Entity)
-                    .ForeignKey(ef => ef.EntityID);
+                    .HasForeignKey(ef => ef.EntityID);
             });
 
             builder.Entity<Field>(e =>
