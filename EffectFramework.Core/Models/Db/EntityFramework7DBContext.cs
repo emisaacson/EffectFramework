@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
+using System.Collections.Generic;
 
 namespace EffectFramework.Core.Models.Db
 {
@@ -96,7 +97,7 @@ namespace EffectFramework.Core.Models.Db
                 l.Property(e => e.LookupID).UseSqlServerIdentityColumn();
 
                 l.HasOne<Field>().WithOne(e => e.Lookup).HasForeignKey<Field>(e => e.ValueLookup);
-                l.HasOne<LookupType>().WithMany(e => e.Lookups).HasForeignKey(e => e.LookupTypeID);
+                l.HasOne(i => i.LookupType).WithMany(e => e.Lookups).HasForeignKey(e => e.LookupTypeID);
                 l.HasOne<Lookup>().WithOne(e => e.Parent).HasForeignKey<Lookup>(e => e.ParentID);
             });
 
