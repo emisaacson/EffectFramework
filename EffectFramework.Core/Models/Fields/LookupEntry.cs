@@ -76,11 +76,12 @@ namespace EffectFramework.Core.Models.Fields
         }
         public long TenantID { get; private set; }
         public Guid Guid { get; private set; }
+        public long? DomID { get; set; }
         public bool Dirty { get; private set; }
 
         public bool FlagForDeletion { get; private set; } = false;
         public LookupCollection LookupCollection { get; private set; }
-        public long? ParentID { get; private set; }
+        public long? ParentID { get; set; }
 
         [NonSerialized]
         private LookupEntry _Parent;
@@ -178,6 +179,11 @@ namespace EffectFramework.Core.Models.Fields
             }
 
             return true;
+        }
+
+        public void SetDirty()
+        {
+            this.Dirty = true;
         }
     }
 }
