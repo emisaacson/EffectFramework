@@ -7,8 +7,8 @@
     "licenseUrl": "",
 
     "dependencies": {
-        "EntityFramework.Core": "7.0.0-rc1-*",
-        "EntityFramework.MicrosoftSqlServer": "7.0.0-rc1-*",
+        "EntityFramework.Core": "7.0.0-rc2-*",
+        "EntityFramework.MicrosoftSqlServer": "7.0.0-rc2-*",
         "Ninject": "3.2.3-unstable-*"
     },
 

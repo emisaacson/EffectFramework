@@ -10,8 +10,8 @@
     "EffectFramework.Core": "1.0.0-*",
     "xunit.runner.dnx": "2.1.0-rc1-*",
     "xunit": "2.2.0-beta1-*",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-*",
-    "Microsoft.Extensions.Configuration.FileExtensions": "1.0.0-rc1-*"
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-*",
+    "Microsoft.Extensions.Configuration.FileExtensions": "1.0.0-rc2-*"
   },
     "commands": {
         "test": "xunit.runner.dnx"

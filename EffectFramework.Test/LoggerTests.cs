@@ -78,7 +78,7 @@ namespace EffectFramework.Test
                 { LogLevels.Fatal, new List<string>() },
             };
 
-            public void Debug(string Template, Exception e)
+            public void Debug(Exception e, string Template, params object[] objs)
             {
                 Logs[LogLevels.Debug].Add(Template);
             }
@@ -88,7 +88,7 @@ namespace EffectFramework.Test
                 Logs[LogLevels.Debug].Add(Template);
             }
 
-            public void Error(string Template, Exception e)
+            public void Error(Exception e, string Template, params object[] objs)
             {
                 Logs[LogLevels.Error].Add(Template);
             }
@@ -98,7 +98,7 @@ namespace EffectFramework.Test
                 Logs[LogLevels.Error].Add(Template);
             }
 
-            public void Fatal(string Template, Exception e)
+            public void Fatal(Exception e, string Template, params object[] objs)
             {
                 Logs[LogLevels.Fatal].Add(Template);
             }
@@ -108,7 +108,7 @@ namespace EffectFramework.Test
                 Logs[LogLevels.Fatal].Add(Template);
             }
 
-            public void Info(string Template, Exception e)
+            public void Info(Exception e, string Template, params object[] objs)
             {
                 Logs[LogLevels.Info].Add(Template);
             }
@@ -118,7 +118,7 @@ namespace EffectFramework.Test
                 Logs[LogLevels.Info].Add(Template);
             }
 
-            public void Trace(string Template, Exception e)
+            public void Trace(Exception e, string Template, params object[] objs)
             {
                 Logs[LogLevels.Trace].Add(Template);
             }
@@ -128,7 +128,7 @@ namespace EffectFramework.Test
                 Logs[LogLevels.Trace].Add(Template);
             }
 
-            public void Warn(string Template, Exception e)
+            public void Warn(Exception e, string Template, params object[] objs)
             {
                 Logs[LogLevels.Warn].Add(Template);
             }
