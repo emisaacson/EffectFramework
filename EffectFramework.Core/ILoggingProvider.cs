@@ -13,11 +13,11 @@ namespace EffectFramework.Core
         void Warn(string Template, params object[] objs);
         void Error(string Template, params object[] objs);
         void Fatal(string Template, params object[] objs);
-        void Trace(string Template, Exception e);
-        void Debug(string Template, Exception e);
-        void Info(string Template,  Exception e);
-        void Warn(string Template,  Exception e);
-        void Error(string Template, Exception e);
-        void Fatal(string Template, Exception e);
+        void Trace(Exception e, string Template, params object[] objs);
+        void Debug(Exception e, string Template, params object[] objs);
+        void Info(Exception e, string Template, params object[] objs);
+        void Warn(Exception e, string Template, params object[] objs);
+        void Error(Exception e, string Template, params object[] objs);
+        void Fatal(Exception e, string Template, params object[] objs);
     }
 }

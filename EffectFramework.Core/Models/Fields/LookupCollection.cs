@@ -48,7 +48,23 @@ namespace EffectFramework.Core.Models.Fields
         public string OriginalName { get; private set; }
         public long? LookupTypeID { get; private set; }
         public bool IsReadOnly { get; private set; }
-        public bool IsHierarchical { get; set; }
+
+        private bool _IsHierarchical = false;
+        public bool IsHierarchical
+        {
+            get
+            {
+                return _IsHierarchical;
+            }
+            set
+            {
+                if (value != _IsHierarchical)
+                {
+                    this.Dirty = true;
+                }
+                _IsHierarchical = value;
+            }
+        }
 
         public bool FlagForDeletion { get; private set; } = false;
 
@@ -116,17 +132,12 @@ namespace EffectFramework.Core.Models.Fields
             this.Name = DbLookupType.Name;
             this.LookupTypeID = DbLookupType.LookupTypeID;
             this.Guid = DbLookupType.Guid;
-            this.Dirty = false;
             this.IsReadOnly = DbLookupType.IsReadOnly;
-            this.IsHierarchical = DbLookupType.IsHierarchical;
+            this._IsHierarchical = DbLookupType.IsHierarchical;
+            this.Dirty = false;
             RefreshChoices();
 
             RefreshOriginalValues();
-        }
-
-        public void SetDirty()
-        {
-            this.Dirty = true;
         }
 
         private void LoadById(long LookupCollectionID, IDbContext ctx = null)
@@ -150,9 +161,9 @@ namespace EffectFramework.Core.Models.Fields
             this.Name = LookupFromDatabase.Name;
             this.LookupTypeID = LookupFromDatabase.LookupTypeID;
             this.Guid = LookupFromDatabase.Guid;
-            this.Dirty = false;
             this.IsReadOnly = LookupFromDatabase.IsReadOnly;
-            this.IsHierarchical = LookupFromDatabase.IsHierarchical;
+            this._IsHierarchical = LookupFromDatabase.IsHierarchical;
+            this.Dirty = false;
             RefreshChoices(ctx);
 
             RefreshOriginalValues();
@@ -251,7 +262,11 @@ namespace EffectFramework.Core.Models.Fields
             return true;
         }
 
-        public void AddLookupEntry(string Value, long? DomID = null, long? ParentID = null)
+        public void AddLookupEntry(string Value, LookupEntry Parent)
+        {
+            AddLookupEntry(Value, Parent?.ID);
+        }
+        public void AddLookupEntry(string Value, long? ParentID = null)
         {
             if (string.IsNullOrWhiteSpace(Value))
             {
@@ -259,10 +274,8 @@ namespace EffectFramework.Core.Models.Fields
                 throw new ValidationFailedException("Lookup value cannot be empty.");
             }
 
-            LookupEntry LookupEntry = new LookupEntry(this);
+            LookupEntry LookupEntry = new LookupEntry(this, ParentID);
             LookupEntry.Value = Value;
-            LookupEntry.ParentID = ParentID;
-            LookupEntry.DomID = DomID;
 
             this._Choices.Add(LookupEntry);
         }

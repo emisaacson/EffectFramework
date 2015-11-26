@@ -76,12 +76,33 @@ namespace EffectFramework.Core.Models.Fields
         }
         public long TenantID { get; private set; }
         public Guid Guid { get; private set; }
-        public long? DomID { get; set; }
         public bool Dirty { get; private set; }
 
         public bool FlagForDeletion { get; private set; } = false;
         public LookupCollection LookupCollection { get; private set; }
-        public long? ParentID { get; set; }
+
+        private long? _ParentID;
+        public long? ParentID {
+            get {
+                return _ParentID;
+            }
+            set {
+                if (_ParentID != value)
+                {
+                    if (value.HasValue)
+                    {
+                        var PossibleParent = LookupCollection.Choices.FirstOrDefault(e => e.ID == value.Value);
+                        if (PossibleParent == null)
+                        {
+                            throw new ValidationFailedException("Parent is not a member of this Lookup Collection.");
+                        }
+                        _Parent = PossibleParent;
+                    }
+                    this.Dirty = true;
+                    _ParentID = value;
+                }
+            }
+        }
 
         [NonSerialized]
         private LookupEntry _Parent;
@@ -89,15 +110,18 @@ namespace EffectFramework.Core.Models.Fields
         {
             get
             {
-                if (_Parent == null && ParentID > 0)
+                if (_Parent == null && ParentID.HasValue && ParentID.Value > 0)
                 {
-                    _Parent = LookupCollection.Choices.FirstOrDefault(e => e.ID == ParentID);
+                    _Parent = LookupCollection.Choices.FirstOrDefault(e => e.ID.HasValue && e.ID.Value == ParentID.Value);
                 }
                 return _Parent;
             }
         }
 
-        public LookupEntry(LookupCollection LookupCollection)
+        public LookupEntry(LookupCollection LookupCollection, LookupEntry Parent = null)
+        : this(LookupCollection, Parent?.ID) { }
+
+        public LookupEntry(LookupCollection LookupCollection, long? ParentID = null)
         {
             if (LookupCollection == null)
             {
@@ -107,6 +131,7 @@ namespace EffectFramework.Core.Models.Fields
             this.Dirty = true;
             this.TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
             this.LookupCollection = LookupCollection;
+            this._ParentID = ParentID;
         }
 
         public LookupEntry(long ID, string Value, long TenantID, Guid Guid, LookupCollection LookupCollection, long? ParentID = null, bool IsHierarchical = false)
@@ -119,7 +144,7 @@ namespace EffectFramework.Core.Models.Fields
                 throw new Exceptions.FatalException("Data error.");
             }
 
-            this.ParentID = ParentID;
+            this._ParentID = ParentID;
             this.ID = ID;
             this.Value = Value;
             this.TenantID = TenantID;
@@ -179,11 +204,6 @@ namespace EffectFramework.Core.Models.Fields
             }
 
             return true;
-        }
-
-        public void SetDirty()
-        {
-            this.Dirty = true;
         }
     }
 }

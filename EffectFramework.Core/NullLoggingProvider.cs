@@ -7,7 +7,7 @@ namespace EffectFramework.Core
     /// </summary>
     public class NullLoggingProvider : ILoggingProvider
     {
-        public void Debug(string Template, Exception e)
+        public void Debug(Exception e, string Template, params object[] objs)
         {
 
         }
@@ -17,7 +17,7 @@ namespace EffectFramework.Core
             
         }
 
-        public void Error(string Template, Exception e)
+        public void Error(Exception e, string Template, params object[] objs)
         {
 
         }
@@ -27,7 +27,7 @@ namespace EffectFramework.Core
             
         }
 
-        public void Fatal(string Template, Exception e)
+        public void Fatal(Exception e, string Template, params object[] objs)
         {
 
         }
@@ -37,7 +37,7 @@ namespace EffectFramework.Core
             
         }
 
-        public void Info(string Template, Exception e)
+        public void Info(Exception e, string Template, params object[] objs)
         {
 
         }
@@ -47,7 +47,7 @@ namespace EffectFramework.Core
             
         }
 
-        public void Trace(string Template, Exception e)
+        public void Trace(Exception e, string Template, params object[] objs)
         {
 
         }
@@ -57,7 +57,7 @@ namespace EffectFramework.Core
             
         }
 
-        public void Warn(string Template, Exception e)
+        public void Warn(Exception e, string Template, params object[] objs)
         {
 
         }
