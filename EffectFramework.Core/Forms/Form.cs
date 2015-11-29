@@ -165,10 +165,10 @@ namespace EffectFramework.Core.Forms
 
             foreach (var Property in AllProperties)
             {
-                var AllAttributes = Property.CustomAttributes;
+                var AllAttributes = Property.GetCustomAttributes();
                 foreach (var Attribute in AllAttributes)
                 {
-                    if (Attribute is IValidatableAttribute)
+                    if (Attribute.GetType().GetInterfaces().Contains(typeof(IValidatableAttribute)))
                     {
                         object Value = Property.GetValue(this);
                         FieldBase FormField = (FieldBase)GetBoundField(Property.Name);
@@ -179,10 +179,10 @@ namespace EffectFramework.Core.Forms
 
             foreach (var Field in AllFields)
             {
-                var AllAttributes = Field.CustomAttributes;
+                var AllAttributes = Field.GetCustomAttributes();
                 foreach (var Attribute in AllAttributes)
                 {
-                    if (Attribute is IValidatableAttribute)
+                    if (Attribute.GetType().GetInterfaces().Contains(typeof(IValidatableAttribute)))
                     {
                         object Value = Field.GetValue(this);
                         FieldBase FormField = (FieldBase)GetBoundField(Field.Name);
