@@ -16,7 +16,7 @@ namespace EffectFramework.Core.Forms
     /// and properties are used to configure the bindings. Forms can be used to
     /// push or pull data from the Item models.
     /// </remarks>
-    public abstract class Form
+    public abstract class Form : IValidatable
     {
         protected Logger _Log;
         protected Logger Log
@@ -148,6 +148,50 @@ namespace EffectFramework.Core.Forms
         public void PushValuesToModel()
         {
             TransferValues(Direction.Push);
+        }
+
+        /// <summary>
+        /// Validate the form against any IValidatableAttributes on any bound members.
+        /// </summary>
+        /// <returns>ValidationSummary of the results</returns>
+        public ValidationSummary Validate()
+        {
+            var FormType = this.GetType();
+            // Get Property and field bindings
+            var AllProperties = FormType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var AllFields = FormType.GetFields(BindingFlags.Public | BindingFlags.Instance);
+
+            List<ValidationResult> Errors = new List<ValidationResult>();
+
+            foreach (var Property in AllProperties)
+            {
+                var AllAttributes = Property.CustomAttributes;
+                foreach (var Attribute in AllAttributes)
+                {
+                    if (Attribute is IValidatableAttribute)
+                    {
+                        object Value = Property.GetValue(this);
+                        FieldBase FormField = (FieldBase)GetBoundField(Property.Name);
+                        Errors.AddRange(((IValidatableAttribute)Attribute).Validate(Value, FormField).Errors);
+                    }
+                }
+            }
+
+            foreach (var Field in AllFields)
+            {
+                var AllAttributes = Field.CustomAttributes;
+                foreach (var Attribute in AllAttributes)
+                {
+                    if (Attribute is IValidatableAttribute)
+                    {
+                        object Value = Field.GetValue(this);
+                        FieldBase FormField = (FieldBase)GetBoundField(Field.Name);
+                        Errors.AddRange(((IValidatableAttribute)Attribute).Validate(Value, FormField).Errors);
+                    }
+                }
+            }
+
+            return new ValidationSummary(Errors);
         }
 
 
