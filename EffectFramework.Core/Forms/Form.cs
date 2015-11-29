@@ -403,7 +403,22 @@ namespace EffectFramework.Core.Forms
                     throw new InvalidOperationException("Binding is not configured properly.");
                 }
 
+                string MemberEffectiveDateFieldName = EffectiveDateMemberName;
+                string MemberEndEffectiveDateFieldName = EndEffectiveDateMemberName;
                 EntityBase Entity = EntityBase.GetEntityBySystemType(MemberEntityType, BoundItem);
+
+                if (MemberEffectiveDateFieldName != null)
+                {
+                    Entity.EffectiveDate = (DateTime)this.GetType().GetProperty(MemberEffectiveDateFieldName).GetValue(this);
+                    if (Entity.EffectiveDate == default(DateTime))
+                    {
+                        Entity.EffectiveDate = BoundItem.EffectiveDate;
+                    }
+                }
+                if (MemberEndEffectiveDateFieldName != null)
+                {
+                    Entity.EndEffectiveDate = (DateTime?)this.GetType().GetProperty(MemberEndEffectiveDateFieldName).GetValue(this);
+                }
 
                 return Entity;
             }
