@@ -66,8 +66,20 @@ namespace EffectFramework.Core.Models.Entities
                         ((object)this._EffectiveDate ?? (object)"null").ToString(),
                         ((object)value ?? "null").ToString());
 
+                    // Do this to keep the interval tree in sync.
+                    if (this.Item != null)
+                    {
+                        this.Item.RemoveEntity(this);
+                    }
+
                     this.Dirty = true;
                     this._EffectiveDate = value;
+
+                    // Do this to keep the interval tree in sync.
+                    if (this.Item != null)
+                    {
+                        this.Item.AddEntity(this);
+                    }
                 }
             }
         }
@@ -86,8 +98,20 @@ namespace EffectFramework.Core.Models.Entities
                         ((object)this._EndEffectiveDate ?? (object)"null").ToString(),
                         ((object)value ?? "null").ToString());
 
+                    // Do this to keep the interval tree in sync
+                    if (this.Item != null)
+                    {
+                        this.Item.RemoveEntity(this);
+                    }
+
                     this.Dirty = true;
                     this._EndEffectiveDate = value;
+
+                    // Do this to keep the interval tree in sync
+                    if (this.Item != null)
+                    {
+                        this.Item.AddEntity(this);
+                    }
                 }
             }
         }

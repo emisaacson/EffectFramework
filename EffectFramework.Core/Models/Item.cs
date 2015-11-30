@@ -33,15 +33,16 @@ namespace EffectFramework.Core.Models
         /// <value>
         /// All non-deleted entities for this Item.
         /// </value>
-        // EITODO: evaluate returning a read-only collection
         public IEnumerable<EntityBase> AllEntities
         {
             get
             {
-                return _AllEntities.Where(e => !e.FlagForRemoval && !e.IsDeleted); //.ToList().AsReadOnly();
+                return _AllEntities.Where(e => !e.FlagForRemoval && !e.IsDeleted).ToList().AsReadOnly();
+                return _AllEntitiesAsTree.Values.Where(e => !e.FlagForRemoval && !e.IsDeleted).ToList().AsReadOnly();
             }
         }
         private List<EntityBase> _AllEntities = new List<EntityBase>();
+        private IntervalTree<DateTime, EntityBase> _AllEntitiesAsTree = new IntervalTree<DateTime, EntityBase>();
         /// <summary>
         /// Gets or sets the item identifier.
         /// </summary>
@@ -217,6 +218,7 @@ namespace EffectFramework.Core.Models
             this.ItemID = ItemID;
 
             _AllEntities.Clear();
+            _AllEntitiesAsTree.Clear();
 
             Db.CompleteItem[] Rows = View.Where(v => v.ItemID == ItemID).ToArray();
 
@@ -292,6 +294,7 @@ namespace EffectFramework.Core.Models
                 this.Guid = Identity.ObjectGuid;
 
                 var __AllEntities = _AllEntities.ToArray();
+                var __AllEntitiesTree = _AllEntitiesAsTree.Values.ToArray();
                 for (int i = 0; i < __AllEntities.Count(); i++)
                 {
                     if (__AllEntities[i].Dirty)
@@ -393,6 +396,10 @@ namespace EffectFramework.Core.Models
             DateTime? DateToSend = EffectiveDate;
 
             _AllEntities = PersistenceService.RetreiveAllEntities(this, Sparse ? DateToSend : null, ctx);
+            foreach (var e in _AllEntities)
+            {
+                _AllEntitiesAsTree.Add(e.EffectiveDate, e.EndEffectiveDate.HasValue ? e.EndEffectiveDate.Value : DateTime.MaxValue, e);
+            }
 
             this.Dirty = false;
         }
@@ -561,6 +568,7 @@ namespace EffectFramework.Core.Models
             }
 
             _AllEntities.Add(Entity);
+            _AllEntitiesAsTree.Add(Entity.EffectiveDate, Entity.EndEffectiveDate.HasValue ? Entity.EndEffectiveDate.Value : DateTime.MaxValue, Entity);
             Entity.Item = this;
         }
 
@@ -577,11 +585,17 @@ namespace EffectFramework.Core.Models
             }
 
             _AllEntities.Remove(Entity);
+            _AllEntitiesAsTree.Delete(new Interval<DateTime> { Start = Entity.EffectiveDate, End = Entity.EndEffectiveDate.HasValue ? Entity.EndEffectiveDate.Value : DateTime.MaxValue }, Entity);
         }
 
         internal void RemoveDeadEntities()
         {
             _AllEntities.RemoveAll(x => x.FlagForRemoval);
+            var Values = _AllEntitiesAsTree.Values.Where(x => x.FlagForRemoval).ToArray();
+            foreach (var Value in Values)
+            {
+                _AllEntitiesAsTree.Delete(new Interval<DateTime> { Start = Value.EffectiveDate, End = Value.EndEffectiveDate.HasValue ? Value.EndEffectiveDate.Value : DateTime.MaxValue }, Value);
+            }
         }
 
         internal static void ReseedCache(long ItemID)
