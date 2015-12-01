@@ -24,15 +24,13 @@ namespace EffectFramework.Core.Models
         /// <value>
         /// All entities intersecting with the object's EffectiveDate.
         /// </value>
-        public IEnumerable<EntityBase> AllEntities
+        public IEnumerable<EntityBase> AllEntities()
         {
-            get
-            {
-                return Item.AllEntities
-                    .Where(e =>
-                        e.EffectiveDate <= this.EffectiveDate &&
-                        (!e.EndEffectiveDate.HasValue || e.EndEffectiveDate > this.EffectiveDate)).AsEnumerable();
-            }
+            return Item
+                .AllEntitiesTree
+                .GetIntervalsOverlappingWith(new Interval<DateTime>(this.EffectiveDate, DateTime.MaxValue))
+                .Select(i => i.Value)
+                .Where(i => !i.IsDeleted && !i.FlagForRemoval);
         }
 
         [NonSerialized]
@@ -118,7 +116,7 @@ namespace EffectFramework.Core.Models
         /// <returns>The Entity if found, or default (null) otherwise.</returns>
         public EntityBase GetFirstEntityOrDefault(EntityType EntityType)
         {
-            return AllEntities.Where(e => e.Type == EntityType).OrderBy(e => e.EffectiveDate).FirstOrDefault();
+            return AllEntities().Where(e => e.Type == EntityType).OrderBy(e => e.EffectiveDate).FirstOrDefault();
         }
 
         /// <summary>
@@ -129,7 +127,7 @@ namespace EffectFramework.Core.Models
         /// <returns>An IEnumerable of all Entities found.</returns>
         public IEnumerable<EntityBase> GetAllEntitiesOfType(EntityType EntityType)
         {
-            return AllEntities.Where(e => e.Type == EntityType).OrderBy(e => e.EffectiveDate).AsEnumerable();
+            return AllEntities().Where(e => e.Type == EntityType).OrderBy(e => e.EffectiveDate).AsEnumerable();
         }
 
         /// <summary>

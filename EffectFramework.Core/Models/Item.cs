@@ -37,11 +37,18 @@ namespace EffectFramework.Core.Models
         {
             get
             {
-                return _AllEntities.Where(e => !e.FlagForRemoval && !e.IsDeleted).ToList().AsReadOnly();
                 return _AllEntitiesAsTree.Values.Where(e => !e.FlagForRemoval && !e.IsDeleted).ToList().AsReadOnly();
             }
         }
-        private List<EntityBase> _AllEntities = new List<EntityBase>();
+
+        public IntervalTree<DateTime, EntityBase> AllEntitiesTree
+        {
+            get
+            {
+                return _AllEntitiesAsTree;
+            }
+        }
+
         private IntervalTree<DateTime, EntityBase> _AllEntitiesAsTree = new IntervalTree<DateTime, EntityBase>();
         /// <summary>
         /// Gets or sets the item identifier.
@@ -217,7 +224,6 @@ namespace EffectFramework.Core.Models
 
             this.ItemID = ItemID;
 
-            _AllEntities.Clear();
             _AllEntitiesAsTree.Clear();
 
             Db.CompleteItem[] Rows = View.Where(v => v.ItemID == ItemID).ToArray();
@@ -293,8 +299,7 @@ namespace EffectFramework.Core.Models
                 this.ItemID = Identity.ObjectID;
                 this.Guid = Identity.ObjectGuid;
 
-                var __AllEntities = _AllEntities.ToArray();
-                var __AllEntitiesTree = _AllEntitiesAsTree.Values.ToArray();
+                var __AllEntities = _AllEntitiesAsTree.Values.ToArray();
                 for (int i = 0; i < __AllEntities.Count(); i++)
                 {
                     if (__AllEntities[i].Dirty)
@@ -304,7 +309,7 @@ namespace EffectFramework.Core.Models
                 }
 
                 List<bool> Results = new List<bool>();
-                foreach (var Entity in _AllEntities)
+                foreach (var Entity in _AllEntitiesAsTree.Values)
                 {
                     Results.Add(Entity.PersistToDatabase(db));
                 }
@@ -395,10 +400,12 @@ namespace EffectFramework.Core.Models
 
             DateTime? DateToSend = EffectiveDate;
 
-            _AllEntities = PersistenceService.RetreiveAllEntities(this, Sparse ? DateToSend : null, ctx);
-            foreach (var e in _AllEntities)
+            _AllEntitiesAsTree.Clear();
+
+            var __AllEntities = PersistenceService.RetreiveAllEntities(this, Sparse ? DateToSend : null, ctx);
+            foreach (var Entity in __AllEntities)
             {
-                _AllEntitiesAsTree.Add(e.EffectiveDate, e.EndEffectiveDate.HasValue ? e.EndEffectiveDate.Value : DateTime.MaxValue, e);
+                _AllEntitiesAsTree.Add(Entity.EffectiveDate, Entity.EndEffectiveDate.HasValue ? Entity.EndEffectiveDate.Value : DateTime.MaxValue, Entity);
             }
 
             this.Dirty = false;
@@ -567,7 +574,6 @@ namespace EffectFramework.Core.Models
                 throw new ArgumentNullException(nameof(Entity));
             }
 
-            _AllEntities.Add(Entity);
             _AllEntitiesAsTree.Add(Entity.EffectiveDate, Entity.EndEffectiveDate.HasValue ? Entity.EndEffectiveDate.Value : DateTime.MaxValue, Entity);
             Entity.Item = this;
         }
@@ -584,14 +590,12 @@ namespace EffectFramework.Core.Models
                 throw new ArgumentNullException(nameof(Entity));
             }
 
-            _AllEntities.Remove(Entity);
             _AllEntitiesAsTree.Delete(new Interval<DateTime> { Start = Entity.EffectiveDate, End = Entity.EndEffectiveDate.HasValue ? Entity.EndEffectiveDate.Value : DateTime.MaxValue }, Entity);
         }
 
         internal void RemoveDeadEntities()
         {
-            _AllEntities.RemoveAll(x => x.FlagForRemoval);
-            var Values = _AllEntitiesAsTree.Values.Where(x => x.FlagForRemoval).ToArray();
+            var Values = _AllEntitiesAsTree.Values.Where(x => x.FlagForRemoval);
             foreach (var Value in Values)
             {
                 _AllEntitiesAsTree.Delete(new Interval<DateTime> { Start = Value.EffectiveDate, End = Value.EndEffectiveDate.HasValue ? Value.EndEffectiveDate.Value : DateTime.MaxValue }, Value);

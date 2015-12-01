@@ -709,7 +709,7 @@ namespace EffectFramework.Core.Models
                 }
                 else if (cmp == 0)
                 {
-                    if (arg.End.CompareTo(node.Interval.End) == 0 && node.Range == null)
+                    if (arg.End.CompareTo(node.Interval.End) == 0 && node.Range == null && (val == null || node.Value == val))
                     {
                         if (node.Left != null && node.Right != null)
                         {
@@ -755,7 +755,7 @@ namespace EffectFramework.Core.Models
                     }
                     else
                     {
-                        wasSuccessful = node.DeleteIntervalFromNodeWithRange(arg);
+                        wasSuccessful = node.DeleteIntervalFromNodeWithRange(arg, val);
                     }
                 }
                 else
@@ -1124,9 +1124,11 @@ namespace EffectFramework.Core.Models
             /// In this case, it is easy enough to either specify the (interval, value) pair to be deleted or enforce uniqueness by changing the Add procedure.
             /// </summary>
             /// <param name="interval">The interval to be deleted.</param>
+            /// <param name="val">optional value to delete, or null</param>
             /// <returns></returns>
-            private bool DeleteIntervalFromNodeWithRange(Interval<T> interval)
+            private bool DeleteIntervalFromNodeWithRange(Interval<T> interval, TypeValue val)
             {
+                bool Found = false;
                 if (this.Range != null && this.Range.Count > 0)
                 {
                     int rangeCount = this.Range.Count;
@@ -1162,15 +1164,62 @@ namespace EffectFramework.Core.Models
                     {
                         return false;
                     }
-                    else if (intervalPosition == 0)
+
+                    if (val == null)
                     {
-                        this.Interval = new Interval<T>(this.Interval.Start, this.Range[0].Key);
-                        this.Value = this.Range[0].Value;
-                        this.Range.RemoveAt(0);
+                        if (intervalPosition == 0)
+                        {
+                            this.Interval = new Interval<T>(this.Interval.Start, this.Range[0].Key);
+                            this.Value = this.Range[0].Value;
+                            this.Range.RemoveAt(0);
+                        }
+                        else if (intervalPosition > 0)
+                        {
+                            this.Range.RemoveAt(intervalPosition - 1);
+                        }
+                        Found = true;
                     }
-                    else if (intervalPosition > 0)
+                    else
                     {
-                        this.Range.RemoveAt(intervalPosition - 1);
+                        if (intervalPosition == 0)
+                        {
+                            if (this.Value == val)
+                            {
+                                this.Interval = new Interval<T>(this.Interval.Start, this.Range[0].Key);
+                                this.Value = this.Range[0].Value;
+                                this.Range.RemoveAt(0);
+                                Found = true;
+                            }
+                            else
+                            {
+                                if (this.Range[0].Key.CompareTo(interval.End) == 0)
+                                {
+                                    intervalPosition = 1;
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+
+                        if (!Found)
+                        {
+                            // rewind and check for particular val
+                            while (intervalPosition > 1 && this.Range[intervalPosition].Key.CompareTo(interval.End) == 0)
+                            {
+                                intervalPosition--;
+                            }
+                            for (int i = intervalPosition; i < this.Range.Count && this.Range[i].Key.CompareTo(interval.End) == 0; i++)
+                            {
+                                if (this.Range[i].Value == val)
+                                {
+                                    this.Range.RemoveAt(i);
+                                    Found = true;
+                                    break;
+                                }
+                            }
+                        }
                     }
 
                     if (this.Range.Count == 0)
@@ -1178,7 +1227,7 @@ namespace EffectFramework.Core.Models
                         this.Range = null;
                     }
 
-                    return true;
+                    return Found;
                 }
                 else
                 {

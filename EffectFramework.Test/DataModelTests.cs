@@ -53,16 +53,16 @@ namespace EffectFramework.Test
             Assert.Equal(Item.ItemID, NewUser.ItemID);
             Assert.Equal(Item.ItemTypeID, NewUser.Type.Value);
             Assert.Equal(3, NewUser.AllEntities.Count());
-            Assert.Equal(2, NewUser.EffectiveRecord.AllEntities.Count());
-            Assert.False(NewUser.EffectiveRecord.AllEntities.First().Dirty);
-            Assert.False(NewUser.EffectiveRecord.AllEntities.Last().Dirty);
+            Assert.Equal(2, NewUser.EffectiveRecord.AllEntities().Count());
+            Assert.False(NewUser.EffectiveRecord.AllEntities().First().Dirty);
+            Assert.False(NewUser.EffectiveRecord.AllEntities().Last().Dirty);
             Assert.False(NewUser.Dirty);
 
             var Record = NewUser.GetEntityCollectionForDate(new DateTime(2015, 2, 1));
 
-            Assert.Equal(2, Record.AllEntities.Count());
-            Assert.False(Record.AllEntities.First().Dirty);
-            Assert.False(Record.AllEntities.Last().Dirty);
+            Assert.Equal(2, Record.AllEntities().Count());
+            Assert.False(Record.AllEntities().First().Dirty);
+            Assert.False(Record.AllEntities().Last().Dirty);
 
         }
 

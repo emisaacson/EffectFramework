@@ -686,7 +686,7 @@ namespace EffectFramework.Core.Forms
                                 }
                                 else
                                 {
-                                    Entity = EffectiveRecord.AllEntities.FirstOrDefault(e => e.EntityID == EntityIDFromForm);
+                                    Entity = EffectiveRecord.AllEntities().FirstOrDefault(e => e.EntityID == EntityIDFromForm);
                                 }
                                 if (Entity == null)
                                 {
