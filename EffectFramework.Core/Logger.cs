@@ -57,34 +57,34 @@ namespace EffectFramework.Core
             _Log.Fatal(Template, objs);
         }
 
-        public void Trace(string Template, Exception e)
+        public void Trace(Exception e, string Template, params object[] objs)
         {
-            _Log.Trace(Template, e);
+            _Log.Trace(e, Template, objs);
         }
 
-        public void Debug(string Template, Exception e)
+        public void Debug(Exception e, string Template, params object[] objs)
         {
-            _Log.Debug(Template, e);
+            _Log.Debug(e, Template, objs);
         }
 
-        public void Info(string Template, Exception e)
+        public void Info(Exception e, string Template, params object[] objs)
         {
-            _Log.Info(Template, e);
+            _Log.Info(e, Template, objs);
         }
 
-        public void Warn(string Template, Exception e)
+        public void Warn(Exception e, string Template, params object[] objs)
         {
-            _Log.Warn(Template, e);
+            _Log.Warn(e, Template, objs);
         }
 
-        public void Error(string Template, Exception e)
+        public void Error(Exception e, string Template, params object[] objs)
         {
-            _Log.Error(Template, e);
+            _Log.Error(e, Template, objs);
         }
 
-        public void Fatal(string Template, Exception e)
+        public void Fatal(Exception e, string Template, params object[] objs)
         {
-            _Log.Fatal(Template, e);
+            _Log.Fatal(e, Template, objs);
         }
     }
 }
