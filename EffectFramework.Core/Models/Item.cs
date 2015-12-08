@@ -363,6 +363,12 @@ namespace EffectFramework.Core.Models
             List<ValidationResult> Errors = new List<ValidationResult>();
             foreach (var Entity in AllEntities)
             {
+                var EntityResult = Entity.Validate();
+                if (!EntityResult.IsValid)
+                {
+                    Errors.AddRange(EntityResult.Errors);
+                }
+
                 var Fields = Entity.GetAllEntityFields();
                 // Test any field that is on an entity with updated fields
                 if (Fields.Any(f => f.Dirty))
@@ -583,14 +589,14 @@ namespace EffectFramework.Core.Models
             Entity.GetUpdatePolicy().PerformUpdate(this, Entity, PreferredUpdateStrategy, PreferredUpdateStrategyForDuplicateDates);
         }
 
-        internal void RemoveEntity(EntityBase Entity)
+        internal bool RemoveEntity(EntityBase Entity)
         {
             if (Entity == null)
             {
                 throw new ArgumentNullException(nameof(Entity));
             }
 
-            _AllEntitiesAsTree.Delete(new Interval<DateTime> { Start = Entity.EffectiveDate, End = Entity.EndEffectiveDate.HasValue ? Entity.EndEffectiveDate.Value : DateTime.MaxValue }, Entity);
+            return _AllEntitiesAsTree.Delete(new Interval<DateTime> { Start = Entity.EffectiveDate, End = Entity.EndEffectiveDate.HasValue ? Entity.EndEffectiveDate.Value : DateTime.MaxValue }, Entity);
         }
 
         internal void RemoveDeadEntities()

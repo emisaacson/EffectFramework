@@ -10,6 +10,7 @@ namespace EffectFramework.Core.Models
     /// Interval structure
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [Serializable]
     public struct Interval<T> where T : IComparable<T>
     {
 
@@ -51,6 +52,7 @@ namespace EffectFramework.Core.Models
     /// Interval Tree class
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [Serializable]
     public class IntervalTree<T, TypeValue> where T : IComparable<T> where TypeValue : class
     {        
 
@@ -389,6 +391,7 @@ namespace EffectFramework.Core.Models
         /// IntervalNode class. 
         /// </summary>
         /// <typeparam name="TElem">The type of the elem.</typeparam>
+        [Serializable]
         private class IntervalNode
         {
 
@@ -402,7 +405,6 @@ namespace EffectFramework.Core.Models
             public TypeValue Value { get; private set; }
             public List<KeyValuePair<T, TypeValue>> Range { get; private set; }
             public T Max { get;  private set; }
-
 
 
             public IntervalNode(Interval<T> interval, TypeValue value)
@@ -1286,6 +1288,7 @@ namespace EffectFramework.Core.Models
 
         }
 
+        [Serializable]
         private class KeyValueComparer<TKey, TValue> : IComparer<KeyValuePair<TKey, TValue>>
         {
             private IComparer<TKey> keyComparer;

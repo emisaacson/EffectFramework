@@ -10,7 +10,7 @@ using EffectFramework.Core.Exceptions;
 namespace EffectFramework.Core.Models.Entities
 {
     [Serializable]
-    public abstract class EntityBase : ICacheable
+    public abstract class EntityBase : ICacheable, IValidatable
     {
         [NonSerialized]
         protected static Dictionary<string, Logger> _Logs = new Dictionary<string, Logger>();
@@ -62,6 +62,8 @@ namespace EffectFramework.Core.Models.Entities
             {
                 if (this._EffectiveDate != value)
                 {
+                    bool DidRemoveEntity = false;
+
                     Log.Debug("Changing effective date: Old Value: {0}, New Value {1}",
                         ((object)this._EffectiveDate ?? (object)"null").ToString(),
                         ((object)value ?? "null").ToString());
@@ -69,14 +71,14 @@ namespace EffectFramework.Core.Models.Entities
                     // Do this to keep the interval tree in sync.
                     if (this.Item != null)
                     {
-                        this.Item.RemoveEntity(this);
+                        DidRemoveEntity = this.Item.RemoveEntity(this);
                     }
 
                     this.Dirty = true;
                     this._EffectiveDate = value;
 
                     // Do this to keep the interval tree in sync.
-                    if (this.Item != null)
+                    if (this.Item != null && DidRemoveEntity)
                     {
                         this.Item.AddEntity(this);
                     }
@@ -94,6 +96,8 @@ namespace EffectFramework.Core.Models.Entities
             {
                 if (this._EndEffectiveDate != value)
                 {
+                    bool DidRemoveEntity = false;
+
                     Log.Debug("Changing end effective date: Old Value: {0}, New Value {1}",
                         ((object)this._EndEffectiveDate ?? (object)"null").ToString(),
                         ((object)value ?? "null").ToString());
@@ -101,14 +105,14 @@ namespace EffectFramework.Core.Models.Entities
                     // Do this to keep the interval tree in sync
                     if (this.Item != null)
                     {
-                        this.Item.RemoveEntity(this);
+                        DidRemoveEntity = this.Item.RemoveEntity(this);
                     }
 
                     this.Dirty = true;
                     this._EndEffectiveDate = value;
 
                     // Do this to keep the interval tree in sync
-                    if (this.Item != null)
+                    if (this.Item != null && DidRemoveEntity)
                     {
                         this.Item.AddEntity(this);
                     }
@@ -619,6 +623,11 @@ namespace EffectFramework.Core.Models.Entities
         public string GetCacheKey()
         {
             return string.Format(CacheKeyFormatString, EntityID);
+        }
+
+        public virtual ValidationSummary Validate()
+        {
+            return new ValidationSummary(new ValidationResult[0]);
         }
 
         public const string CacheKeyFormatString = "Entity:{0}";
