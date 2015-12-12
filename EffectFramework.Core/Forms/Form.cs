@@ -191,7 +191,14 @@ namespace EffectFramework.Core.Forms
                 }
             }
 
+            Errors.AddRange(CustomValidation().Errors);
+
             return new ValidationSummary(Errors);
+        }
+
+        public virtual ValidationSummary CustomValidation()
+        {
+            return new ValidationSummary(new ValidationResult[0]);
         }
 
 

@@ -1,18 +1,36 @@
 ﻿using EffectFramework.Core.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EffectFramework.Core.Exceptions
 {
     public class ValidationFailedException : Exception
     {
-        public ValidationSummary ValidationSummary { get; private set; }
+        private ValidationSummary _ValidationSummary;
+        public ValidationSummary ValidationSummary {
+            get {
+                if (_ValidationSummary == null && _ValidationMessage != null)
+                {
+                    List<ValidationResult> Errors = new List<ValidationResult>()
+                    {
+                        new ValidationResult(_ValidationMessage)
+                    };
+                    return new ValidationSummary(Errors);
+                }
+                return _ValidationSummary;
+            }
+            private set
+            {
+                _ValidationSummary = value;
+            }
+        }
 
         public string _ValidationMessage;
         public string ValidationMessage {
             get
             {
-                if (ValidationSummary != null)
+                if (_ValidationSummary != null)
                 {
                     var Errors = ValidationSummary.Errors.Select(e => e.Message);
 
@@ -22,7 +40,7 @@ namespace EffectFramework.Core.Exceptions
             }
             private set
             {
-                this._ValidationMessage = value;
+                _ValidationMessage = value;
             }
         }
 

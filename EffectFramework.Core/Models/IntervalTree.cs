@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EffectFramework.Core.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace EffectFramework.Core.Models
         {
             if (start.CompareTo(end) >= 0)
             {
-                throw new ArgumentException("the start value of the interval must be smaller than the end value. null interval are not allowed");
+                throw new ValidationFailedException("the start value of the interval must be smaller than the end value. null interval are not allowed");
             }
 
             this.Start = start;
