@@ -8,6 +8,9 @@ namespace EffectFramework.Core.Models
     /// </summary>
     public class ValidationResult
     {
+
+        // TODO: Make this cleaner
+
         private FieldBase _Field = null;
         private Form _Form = null;
         public string Field { get; private set; }

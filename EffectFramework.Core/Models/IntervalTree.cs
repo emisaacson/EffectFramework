@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EffectFramework.Core.Models
 {
@@ -23,7 +21,7 @@ namespace EffectFramework.Core.Models
         {
             if (start.CompareTo(end) >= 0)
             {
-                throw new ValidationFailedException("the start value of the interval must be smaller than the end value. null interval are not allowed");
+                throw new ValidationFailedException(Strings.Start_Must_Be_Less_Than_End);
             }
 
             this.Start = start;
