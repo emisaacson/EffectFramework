@@ -276,7 +276,7 @@ namespace EffectFramework.Core.Models.Entities
                 var Fields = GetAllEntityFields();
                 foreach (var Row in View)
                 {
-                    var Field = Fields.FirstOrDefault(f => f.Type.Value == Row.FieldTypeID);
+                    var Field = Fields.FirstOrDefault(f => Row.FieldTypeID.HasValue && f.Type.Value == Row.FieldTypeID.Value);
                     if (Field != null)
                     {
                         Field.FillFromView(Row);

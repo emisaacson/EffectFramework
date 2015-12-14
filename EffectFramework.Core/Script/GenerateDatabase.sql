@@ -355,6 +355,7 @@ GO
 
 CREATE VIEW [dbo].[CompleteItems] AS
 SELECT
+ROW_NUMBER() over (ORDER BY i.ItemID, en.EntityID, f.FieldID) as CompleteItemID, --- TODO This is a hack for entity framework 7 pre-release
 i.ItemID,
 i.[Guid] as ItemGuid,
 i.TenantID as ItemTenantID,
@@ -390,9 +391,9 @@ FROM Items i
 JOIN ItemTypes it on it.ItemTypeID = i.ItemTypeID
 JOIN Entities en on en.ItemID = i.ItemID and en.IsDeleted = 0
 JOIN EntityTypes et on et.EntityTypeID = en.EntityTypeID
-JOIN Fields f on f.EntityID = en.EntityID and f.IsDeleted = 0
-JOIN FieldTypes ft on ft.FieldTypeID = f.FieldTypeID
-JOIN DataTypes dt on dt.DataTypeID = ft.DataTypeID
+LEFT JOIN Fields f on f.EntityID = en.EntityID and f.IsDeleted = 0
+LEFT JOIN FieldTypes ft on ft.FieldTypeID = f.FieldTypeID
+LEFT JOIN DataTypes dt on dt.DataTypeID = ft.DataTypeID
 LEFT JOIN Lookups l on f.ValueLookup = l.LookupId and l.IsDeleted = 0
 WHERE i.IsDeleted = 0
 

@@ -54,7 +54,7 @@ namespace EffectFramework.Core.Models.Db
             {
                 e.ToTable("CompleteItems");
 
-                e.HasKey(i => new { i.ItemID, i.EntityID, i.FieldID });
+                e.HasKey(i => i.CompleteItemID);
             });
 
             builder.Entity<FieldTypeMeta>(e =>
@@ -63,7 +63,7 @@ namespace EffectFramework.Core.Models.Db
 
                 e.HasKey(i => i.FieldTypeMetaID);
 
-                e.Property(i => i.FieldTypeID).UseSqlServerIdentityColumn();
+                e.Property(i => i.FieldTypeMetaID).UseSqlServerIdentityColumn();
             });
 
             builder.Entity<AuditLog>(e =>

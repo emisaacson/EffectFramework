@@ -276,7 +276,7 @@ namespace EffectFramework.Core.Models
             }
 
             Db.IDbContext db = null;
-            bool ThisDidChange = false;
+            bool ThisDidChange = false, ChildrenDidChange;
             try {
                 if (ctx == null)
                 {
@@ -295,10 +295,6 @@ namespace EffectFramework.Core.Models
                     throw new FatalException("Data error.");
                 }
 
-                var Identity = PersistenceService.SaveSingleItem(this, db);
-                this.ItemID = Identity.ObjectID;
-                this.Guid = Identity.ObjectGuid;
-
                 var __AllEntities = _AllEntitiesAsTree.Values.ToArray();
                 for (int i = 0; i < __AllEntities.Count(); i++)
                 {
@@ -313,20 +309,31 @@ namespace EffectFramework.Core.Models
                 {
                     Results.Add(Entity.PersistToDatabase(db));
                 }
-                ThisDidChange = Identity.DidUpdate || Results.Any(r => r == true);
+                ChildrenDidChange = Results.Any(r => r == true);
+
+                if (ChildrenDidChange)
+                {
+                    this.Dirty = true;
+                }
+
+                var Identity = PersistenceService.SaveSingleItem(this, db);
+                this.ItemID = Identity.ObjectID;
+                this.Guid = Identity.ObjectGuid;
+
+                ThisDidChange = ChildrenDidChange || Identity.DidUpdate;
 
                 RemoveDeadEntities();
 
                 this.Dirty = false;
 
-                if (ctx == null)
-                {
-                    db.Commit();
-                }
-
                 if (ThisDidChange)
                 {
                     CacheService.DeleteObject(GetCacheKey());
+                }
+
+                if (ctx == null)
+                {
+                    db.Commit();
                 }
 
                 return ThisDidChange;

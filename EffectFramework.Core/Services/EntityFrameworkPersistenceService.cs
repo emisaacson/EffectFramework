@@ -1622,8 +1622,8 @@ namespace EffectFramework.Core.Services
                         Item.ItemTypeTenantID != TenantID ||
                         Item.EntityTenantID != TenantID ||
                         Item.EntityTypeTenantID != TenantID ||
-                        Item.FieldTypeTenantID != TenantID ||
-                        Item.FieldTenantID != TenantID)
+                        (Item.FieldTypeTenantID.HasValue && Item.FieldTypeTenantID.Value != TenantID) ||
+                        (Item.FieldTenantID.HasValue && Item.FieldTenantID.Value != TenantID))
                     {
                         Log.Fatal("Tenant ID Does not match. Global Tenant ID: {0}, ItemTenantID: {1}, ItemTypeTenantID: {2}, EntityTenantID: {3}, EntityTypeTenantID: {4}, FieldTypeTenantID: {5}, FieltTenantID: {6}",
                             TenantID, Item.ItemTenantID, Item.ItemTypeTenantID, Item.EntityTenantID, Item.EntityTypeTenantID, Item.FieldTypeTenantID, Item.FieldTypeTenantID, Item.FieldTenantID);

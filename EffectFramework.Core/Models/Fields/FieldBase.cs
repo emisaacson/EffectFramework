@@ -315,6 +315,11 @@ namespace EffectFramework.Core.Models.Fields
                 throw new FatalException("Data error.");
             }
 
+            if (!View.EntityFieldGuid.HasValue)
+            {
+                throw new InvalidOperationException("Can't load field from an unpersisted instance.");
+            }
+
             this.FieldID      = View.FieldID;
             this.ValueString  = View.ValueText;
             this.ValueDate    = View.ValueDate;
@@ -325,7 +330,7 @@ namespace EffectFramework.Core.Models.Fields
             this.ValueEntityReference = View.ValueEntityReference;
             this.ValueItemReference = View.ValueItemReference;
 
-            this.Guid         = View.EntityFieldGuid;
+            this.Guid         = View.EntityFieldGuid.Value;
             this.Dirty        = false;
 
             if (this is ISerializableField)
