@@ -295,6 +295,10 @@ namespace EffectFramework.Core.Models
                     throw new FatalException("Data error.");
                 }
 
+                var InitialIdentity = PersistenceService.SaveSingleItem(this, db);
+                this.ItemID = InitialIdentity.ObjectID;
+                this.Guid = InitialIdentity.ObjectGuid;
+
                 var __AllEntities = _AllEntitiesAsTree.Values.ToArray();
                 for (int i = 0; i < __AllEntities.Count(); i++)
                 {
@@ -320,7 +324,7 @@ namespace EffectFramework.Core.Models
                 this.ItemID = Identity.ObjectID;
                 this.Guid = Identity.ObjectGuid;
 
-                ThisDidChange = ChildrenDidChange || Identity.DidUpdate;
+                ThisDidChange = ChildrenDidChange || InitialIdentity.DidUpdate || Identity.DidUpdate;
 
                 RemoveDeadEntities();
 
