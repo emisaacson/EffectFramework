@@ -192,7 +192,7 @@ namespace EffectFramework.Core.Models
         /// <returns></returns>
         public IEnumerable<KeyValuePair<Interval<T>, TypeValue>> GetIntervalsOverlappingWith(Interval<T> toFind)
         {
-            return (this.Root != null) ? this.Root.GetIntervalsOverlappingWith(toFind) : null;
+            return (this.Root != null) ? this.Root.GetIntervalsOverlappingWith(toFind) : new KeyValuePair<Interval<T>, TypeValue>[0];
         }
 
         /// <summary>
