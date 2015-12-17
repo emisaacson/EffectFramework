@@ -1095,6 +1095,58 @@ namespace EffectFramework.Core.Services
             return new EntityFramework7DBContext(ConnectionString);
         }
 
+        public long? GetLookupCollectionIdByName(string LookupName, IDbContext ctx = null)
+        {
+            EntityFramework7DBContext db = null;
+            LookupType DbLookupType = null;
+            try
+            {
+                if (ctx == null)
+                {
+                    db = new EntityFramework7DBContext(ConnectionString);
+                }
+                else
+                {
+                    db = (EntityFramework7DBContext)ctx;
+                }
+
+                long TenantID = Configure.GetTenantResolutionProvider().GetTenantID();
+                DbLookupType = db.LookupTypes.FirstOrDefault(l => l.Name == LookupName);
+
+                if (DbLookupType == null)
+                {
+                    return null;
+                }
+
+                if (DbLookupType.TenantID != TenantID)
+                {
+                    Log.Fatal("Tenant ID Does not match. Lookup Type Tenant ID: {0}, Global Tenant ID: {1}",
+                        DbLookupType.TenantID, TenantID);
+                    throw new Exceptions.FatalException("Data error.");
+                }
+
+                return DbLookupType.LookupTypeID;
+            }
+            finally
+            {
+                if (db != null && ctx == null)
+                {
+                    db.Dispose();
+                }
+
+                // EITODO: No idea why this is necessary;
+                // probable bug in entity framework 7 beta
+                if (db != null && DbLookupType != null && ctx != null)
+                {
+                    var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
+                    for (var i = Entries.Length - 1; i >= 0; i--)
+                    {
+                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                    }
+                }
+            }
+        }
+
         public IEnumerable<LookupCollection> GetAllLookupCollections(IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
@@ -1165,7 +1217,7 @@ namespace EffectFramework.Core.Services
 
                 if (DbLookupType.TenantID != TenantID)
                 {
-                    Log.Fatal("Tenant ID Does not match. Field Type Tenant ID: {0}, Global Tenant ID: {1}",
+                    Log.Fatal("Tenant ID Does not match. Lookup Type Tenant ID: {0}, Global Tenant ID: {1}",
                         DbLookupType.TenantID, TenantID);
                     throw new Exceptions.FatalException("Data error.");
                 }

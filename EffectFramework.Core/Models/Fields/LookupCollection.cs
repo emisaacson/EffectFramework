@@ -313,6 +313,11 @@ namespace EffectFramework.Core.Models.Fields
             return Configure.GetPersistenceService().GetAllLookupCollections(ctx);
         }
 
+        public static long? GetLookupCollectionIdByName(string LookupName, IDbContext ctx = null)
+        {
+            return Configure.GetPersistenceService().GetLookupCollectionIdByName(LookupName);
+        }
+
         public string GetCacheKey()
         {
             if (!this.LookupTypeID.HasValue)
