@@ -437,7 +437,15 @@ namespace EffectFramework.Core.Models
 
             if (MaybeCompleteItem != null)
             {
-                return MaybeCompleteItem;
+                Guid ItemGuid = PersistenceService.RetreiveGuidForItem(MaybeCompleteItem, ctx);
+                if (ItemGuid == MaybeCompleteItem.Guid)
+                {
+                    return MaybeCompleteItem;
+                }
+                else
+                {
+                    CacheService.DeleteObject(CacheUtility.GetCacheString<Item>(ItemID));
+                }
             }
             var ViewResult = PersistenceService.RetreiveCompleteItems(new long [] { ItemID }, ctx);
             var Items = GetItemsFromView(ViewResult);
@@ -456,8 +464,14 @@ namespace EffectFramework.Core.Models
             foreach (var ItemID in ItemIDs)
             {
                 var MaybeCompleteItem = (Item)CacheService.GetObject(CacheUtility.GetCacheString<Item>(ItemID));
+                Guid ItemGuid = default(Guid);
 
                 if (MaybeCompleteItem != null)
+                {
+                    ItemGuid = PersistenceService.RetreiveGuidForItem(MaybeCompleteItem, ctx);
+                }
+
+                if (MaybeCompleteItem != null && ItemGuid == MaybeCompleteItem.Guid)
                 {
                     CachedItems.Add(MaybeCompleteItem);
                 }
@@ -481,7 +495,7 @@ namespace EffectFramework.Core.Models
             return CachedItems;
         }
 
-        public static List<Item> GetItemsFromView(IEnumerable<Db.CompleteItem> ViewResult)
+        public static List<Item> GetItemsFromView(IEnumerable<Db.CompleteItem> ViewResult, Db.IDbContext ctx = null)
         {
 
             ICacheService CacheService = Configure.GetCacheService();
@@ -496,8 +510,14 @@ namespace EffectFramework.Core.Models
             {
 
                 var MaybeCompleteItem = (Item)CacheService.GetObject(CacheUtility.GetCacheString<Item>(ItemID));
+                Guid ItemGuid = default(Guid);
 
                 if (MaybeCompleteItem != null)
+                {
+                    ItemGuid = PersistenceService.RetreiveGuidForItem(MaybeCompleteItem, ctx);
+                }
+
+                if (MaybeCompleteItem != null && ItemGuid == MaybeCompleteItem.Guid)
                 {
                     CachedItems.Add(MaybeCompleteItem);
                 }

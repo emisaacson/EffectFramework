@@ -28,7 +28,8 @@ namespace EffectFramework.Core.Models
         {
             return Item
                 .AllEntitiesTree
-                .GetIntervalsOverlappingWith(new Interval<DateTime>(this.EffectiveDate, DateTime.MaxValue))
+                .GetIntervalsOverlappingWith(new Interval<DateTime>(this.EffectiveDate,
+                    this.EffectiveDate + (new TimeSpan(0, 0, 1)) /* One second later */))
                 .Select(i => i.Value)
                 .Where(i => !i.IsDeleted && !i.FlagForRemoval);
         }
