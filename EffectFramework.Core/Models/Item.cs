@@ -193,6 +193,23 @@ namespace EffectFramework.Core.Models
             return new EntityCollection(this, EffectiveDate);
         }
 
+        public IEnumerable<EntityBase> GetAllEntitiesBetween(DateTime Start, DateTime End)
+        {
+            return this.AllEntitiesTree
+                .GetIntervalsOverlappingWith(new Interval<DateTime>(Start, End)).Select(e => e.Value);
+        }
+
+        public IEnumerable<EntityBase> GetAllEntitiesOfTypeBetween(EntityType EntityType, DateTime Start, DateTime End)
+        {
+            return GetAllEntitiesBetween(Start, End).Where(e => e.Type == EntityType).OrderBy(e => e.EffectiveDate);
+        }
+
+        public IEnumerable<EntityT> GetAllEntitiesOfTypeBetween<EntityT>(DateTime Start, DateTime End) where EntityT : EntityBase
+        {
+            EntityT Instance = (EntityT)EntityBase.GetEntityBySystemType(typeof(EntityT));
+            return GetAllEntitiesOfTypeBetween(Instance.Type, Start, End).Cast<EntityT>();
+        }
+
         /// <summary>
         /// Reload all data from the database, getting a fresh copy. This method will fail if the Item
         /// has not yet been persisted to the data store.

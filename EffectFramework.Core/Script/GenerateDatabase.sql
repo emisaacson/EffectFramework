@@ -1,12 +1,4 @@
 ﻿/****** DROP DB PROCEDURE *************
-drop table __EFMigrationsHistory
-drop table AspNetRoleClaims
-drop table AspNetUserClaims
-drop table AspNetUserLogins
-drop table AspNetUserRoles
-drop table AspNetRoles
-drop table AspNetUsers
-
 drop view CompleteItems
 drop view CurrentItems
 drop procedure usp_DeleteEntireDatabase
