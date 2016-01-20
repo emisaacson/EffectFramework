@@ -871,7 +871,7 @@ namespace EffectFramework.Core.Services
             }
         }
 
-        public void SaveAndDeleteSingleEntity(EntityBase Entity, IDbContext ctx = null)
+        public ObjectIdentity SaveAndDeleteSingleEntity(EntityBase Entity, IDbContext ctx = null)
         {
             EntityFramework7DBContext db = null;
             Entity DbEntity = null;
@@ -929,6 +929,13 @@ namespace EffectFramework.Core.Services
                 DbEntity.DeleteDate = DateTime.Now;
 
                 db.SaveChanges();
+
+                return new ObjectIdentity()
+                {
+                    ObjectID = DbEntity.EntityID,
+                    ObjectGuid = DbEntity.Guid,
+                    DidUpdate = true,
+                };
             }
             finally
             {

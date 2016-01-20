@@ -337,7 +337,9 @@ namespace EffectFramework.Core.Models.Entities
         {
             if (this.EntityID.HasValue && !this.FlagForRemoval)
             {
-                PersistenceService.SaveAndDeleteSingleEntity(this, ctx);
+                var ObjectID = PersistenceService.SaveAndDeleteSingleEntity(this, ctx);
+                this.EntityID = ObjectID.ObjectID;
+                this.Guid = ObjectID.ObjectGuid;
             }
             this.FlagForRemoval = true;
         }

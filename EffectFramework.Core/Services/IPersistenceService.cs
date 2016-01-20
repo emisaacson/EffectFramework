@@ -150,7 +150,7 @@ namespace EffectFramework.Core.Services
         /// <param name="Entity">The entity.</param>
         /// <param name="ctx">An optional context (if a transaction has been initiated already, for instance.) If not provided,
         /// a new one will be created.</param>
-        void SaveAndDeleteSingleEntity(EntityBase Entity, Models.Db.IDbContext ctx = null);
+        Models.Db.ObjectIdentity SaveAndDeleteSingleEntity(EntityBase Entity, Models.Db.IDbContext ctx = null);
 
         /// <summary>
         /// Retreives the GUID for the item.
