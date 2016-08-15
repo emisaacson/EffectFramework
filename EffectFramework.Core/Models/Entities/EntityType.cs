@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EffectFramework.Core.Models.Entities
 {
@@ -37,6 +38,16 @@ namespace EffectFramework.Core.Models.Entities
                 return TypeRegistry[i];
             }
             throw new InvalidCastException(string.Format("Cannot convert the long value {0} to an EntityType instance.", i));
+        }
+
+        public static explicit operator EntityType(string s)
+        {
+            var Exists = TypeRegistry.Any(t => t.Value.Name == s);
+            if (Exists)
+            {
+                return TypeRegistry.First(t => t.Value.Name == s).Value;
+            }
+            throw new InvalidCastException(string.Format("Cannot convert the string value {0} to an EntityType instance.", s);
         }
 
         private static void RegisterType(EntityType Type)

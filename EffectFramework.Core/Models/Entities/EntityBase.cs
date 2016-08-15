@@ -632,6 +632,27 @@ namespace EffectFramework.Core.Models.Entities
             return new ValidationSummary(new ValidationResult[0]);
         }
 
+        public Dictionary<string, object> AsDicationary()
+        {
+            var Output = this.GetAllEntityFields().ToDictionary(
+                i => i.Name,
+                i => {
+                    var Value = ((IField)i).DereferencedValue;
+                    var ValueType = Value.GetType();
+
+                    if (ValueType == typeof(FieldEntityReference))
+                    {
+                        return ((FieldEntityReference)Value).
+                    }
+                }
+            );
+
+            Output.Add("EntityID", EntityID);
+            Output.Add("EntityType", this.Type.Name);
+
+            return Output;
+        }
+
         public const string CacheKeyFormatString = "Entity:{0}";
     }
 }
