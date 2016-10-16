@@ -9,18 +9,6 @@ namespace EffectFramework.Test
 {
     public class EffectFrameworkTestsContext
     {
-        public string _BasePath = null;
-        public string BasePath
-        {
-            get
-            {
-                if (_BasePath == null)
-                {
-                    _BasePath = Directory.GetCurrentDirectory();
-                }
-                return _BasePath;
-            }
-        }
 
         public List<Item> TempItems = new List<Item>();
         public List<Entity> TempEntity = new List<Entity>();

@@ -29,8 +29,7 @@ namespace EffectFramework.Test
         {
             Configure.RegisterLoggingProvider<MemoryLoggingProvider>();
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(BasePath)
-                .AddJsonFile("config.json")
+                .AddJsonFile("appsettings.json")
                 .Build();
 
             Configure.PersistenceConnectionString = configuration["Data:DefaultConnection:ConnectionString"];

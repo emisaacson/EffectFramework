@@ -353,38 +353,32 @@ namespace EffectFramework.Core
 
         public static IPersistenceService GetPersistenceService()
         {
-            if (_PersistenceService == null)
+            lock (PersistenceLock)
             {
-                lock (PersistenceLock)
+                if (_PersistenceService == null)
                 {
-                    if (_PersistenceService == null)
+                    using (IKernel Kernel = new StandardKernel(new Configure()))
                     {
-                        using (IKernel Kernel = new StandardKernel(new Configure()))
-                        {
-                            _PersistenceService = Kernel.Get<IPersistenceService>();
-                        }
+                        _PersistenceService = Kernel.Get<IPersistenceService>();
                     }
                 }
+                return _PersistenceService;
             }
-            return _PersistenceService;
         }
 
         public static ICacheService GetCacheService()
         {
-            if (_CacheService == null)
+            lock (CacheLock)
             {
-                lock (CacheLock)
+                if (_CacheService == null)
                 {
-                    if (_CacheService == null)
+                    using (IKernel Kernel = new StandardKernel(new Configure()))
                     {
-                        using (IKernel Kernel = new StandardKernel(new Configure()))
-                        {
-                            _CacheService = Kernel.Get<ICacheService>();
-                        }
+                        _CacheService = Kernel.Get<ICacheService>();
                     }
                 }
+                return _CacheService;
             }
-            return _CacheService;
         }
 
         public static IObjectQueryProvider GetObjectQueryProvider()
@@ -397,20 +391,17 @@ namespace EffectFramework.Core
 
         public static ITenantResolutionProvider GetTenantResolutionProvider()
         {
-            if (_TenantResolutionProvider == null)
+            lock (TenantLock)
             {
-                lock (TenantLock)
+                if (_TenantResolutionProvider == null)
                 {
-                    if (_TenantResolutionProvider == null)
+                    using (IKernel Kernel = new StandardKernel(new Configure()))
                     {
-                        using (IKernel Kernel = new StandardKernel(new Configure()))
-                        {
-                            _TenantResolutionProvider = Kernel.Get<ITenantResolutionProvider>();
-                        }
+                        _TenantResolutionProvider = Kernel.Get<ITenantResolutionProvider>();
                     }
                 }
+                return _TenantResolutionProvider;
             }
-            return _TenantResolutionProvider;
         }
     }
 }

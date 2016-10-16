@@ -642,8 +642,13 @@ namespace EffectFramework.Core.Models.Entities
 
                     if (ValueType == typeof(FieldEntityReference))
                     {
-                        return ((FieldEntityReference)Value).
+                        return ((EntityBase)((FieldEntityReference)Value).DereferencedValue).AsDicationary();
                     }
+                    else if (ValueType == typeof(FieldItemReference))
+                    {
+                        return new Dictionary<string, object>() { { "ItemReference", ((FieldItemReference)Value).Value } }; // todo?
+                    }
+                    return Value;
                 }
             );
 

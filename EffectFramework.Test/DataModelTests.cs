@@ -22,8 +22,7 @@ namespace EffectFramework.Test
             Ef = new EffectFrameworkTestsContext();
 
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(Ef.BasePath)
-                .AddJsonFile("config.json");
+                .AddJsonFile("appsettings.json");
             Ef.Configuration = configuration.Build();
 
             Configure.PersistenceConnectionString = Ef.Configuration["Data:DefaultConnection:ConnectionString"];

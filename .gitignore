@@ -6,6 +6,5 @@
 *.lock.json
 .vs
 artifacts
-EffectFramework.Core/bin
-EffectFramework.Tests/bin
-EffectFramework.Console/bin
+bin
+obj

@@ -17,16 +17,14 @@ namespace EffectFramework.Core.Models.Fields
         {
             get
             {
-                if (_Log == null) {
-                    lock (LogLock)
+                lock (LogLock)
+                {
+                    if (_Log == null)
                     {
-                        if (_Log == null)
-                        {
-                            _Log = new Logger(nameof(FieldType));
-                        }
+                        _Log = new Logger(nameof(FieldType));
                     }
+                    return _Log;
                 }
-                return _Log;
             }
         }
         /// <summary>

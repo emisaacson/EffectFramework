@@ -186,7 +186,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -321,7 +321,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -440,7 +440,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntity).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -536,7 +536,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntity).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -635,7 +635,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Models.Db.Item>().Where(e => e.Entity == DbItem).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -707,7 +707,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -758,7 +758,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Field>().Where(e => e.Entity == DbField).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -865,7 +865,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntityPossibility).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -951,7 +951,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Entity>().Where(e => e.Entity == DbEntity).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1037,7 +1037,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Entity>().Where(e => DbEntities.Contains(e.Entity)).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1091,7 +1091,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Models.Db.Item>().Where(e => e.Entity == DbItemRecord).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1148,7 +1148,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1193,7 +1193,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => LookupTypes.Contains(e.Entity)).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1245,7 +1245,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1345,7 +1345,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1456,7 +1456,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Lookup>().Where(e => e.Entity == DbLookup).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1531,7 +1531,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Lookup>().Where(e => e.Entity == DbLookup).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1600,7 +1600,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<LookupType>().Where(e => e.Entity == DbLookupType).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1651,7 +1651,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<Lookup>().Where(e => DbLookups.Contains(e.Entity)).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1706,7 +1706,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<CompleteItem>().Where(e => Items.Contains(e.Entity)).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1798,7 +1798,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<AuditLog>().Where(e => e.Entity == Audit).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1877,7 +1877,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<AuditLog>().Where(e => e.Entity == Audit).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }
@@ -1926,7 +1926,7 @@ namespace EffectFramework.Core.Services
                     var Entries = db.ChangeTracker.Entries<FieldTypeMeta>().Where(e => e.Entity == DbFieldTypeMeta).ToArray();
                     for (var i = Entries.Length - 1; i >= 0; i--)
                     {
-                        Entries[i].State = Microsoft.Data.Entity.EntityState.Detached;
+                        Entries[i].State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
                 }
             }

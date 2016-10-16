@@ -17,16 +17,14 @@ namespace EffectFramework.Core.Models
         {
             get
             {
-                if (_Log == null) {
-                    lock (LogLock)
+                lock (LogLock)
+                {
+                    if (_Log == null)
                     {
-                        if (_Log == null)
-                        {
-                            _Log = new Logger(nameof(ItemType));
-                        }
+                        _Log = new Logger(nameof(ItemType));
                     }
+                    return _Log;
                 }
-                return _Log;
             }
         }
         /// <summary>

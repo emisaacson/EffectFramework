@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0-*",
+    "version": "1.0.0",
     "description": "",
     "authors": [ "" ],
     "tags": [ "" ],
@@ -7,15 +7,12 @@
     "licenseUrl": "",
 
     "dependencies": {
-        "EntityFramework.Core": "7.0.0-rc2-*",
-        "EntityFramework.MicrosoftSqlServer": "7.0.0-rc2-*",
-        "Ninject": "3.2.3-unstable-*"
+      "Microsoft.EntityFrameworkCore.SqlServer":  "1.1.0-*",
+      "Ninject": "3.2.3-unstable-012"
     },
 
     "frameworks": {
-        "dnx451": {
-            "frameworkAssemblies": {
-            }
+        "net452": {
         }
     }
 }

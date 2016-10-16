@@ -47,7 +47,7 @@ namespace EffectFramework.Core.Models.Entities
             {
                 return TypeRegistry.First(t => t.Value.Name == s).Value;
             }
-            throw new InvalidCastException(string.Format("Cannot convert the string value {0} to an EntityType instance.", s);
+            throw new InvalidCastException(string.Format("Cannot convert the string value {0} to an EntityType instance.", s));
         }
 
         private static void RegisterType(EntityType Type)
