@@ -4,6 +4,7 @@
 
 *.user
 *.lock.json
+appsettings.json
 .vs
 artifacts
 bin
